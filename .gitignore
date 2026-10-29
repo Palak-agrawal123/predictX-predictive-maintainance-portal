@@ -40,13 +40,15 @@ venv/
 ENV/
 .pytest_cache/
 
-# Dataset (do not upload dataset)
+# Dataset (do not upload raw NASA C-MAPSS dataset)
 CMaps/
 **/CMaps/
 *.txt
 !requirements.txt
+!validation_data/**
+!kfold_data/**
 
-# Trained Model Weight Binaries (large binary weights)
+# Large Trained Model Weight Binaries
 *.joblib
 *.pt
 Updated_Models/*.joblib
