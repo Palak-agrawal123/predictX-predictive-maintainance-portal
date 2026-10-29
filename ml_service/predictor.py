@@ -58,6 +58,34 @@ class MLPredictor:
             else:
                 raise FileNotFoundError(f"Model file not found at {xgb_path}")
 
+            # 2. Multi-regime Attention-CNN-BiLSTM and RegimeNormalizer models (FD002 and FD004)
+            self.multiregime_models = {}
+            for sub in ["FD002", "FD004"]:
+                bilstm_path = self.models_dir / f"best_attention_cnn_bilstm_{sub}.pt"
+                norm_path = self.models_dir / f"regime_normalizer_{sub}.joblib"
+                xgb_reg_path = self.models_dir / f"xgb_regime_{sub}.joblib"
+
+                entry = {}
+                if norm_path.exists():
+                    entry["normalizer"] = joblib.load(norm_path)
+                if xgb_reg_path.exists():
+                    entry["xgb_regime"] = joblib.load(xgb_reg_path)
+                if bilstm_path.exists():
+                    try:
+                        import torch
+                        from model_architectures import AttentionCNNBiLSTM
+                        bilstm_net = AttentionCNNBiLSTM(input_dim=17)
+                        bilstm_net.load_state_dict(torch.load(bilstm_path, map_location="cpu"))
+                        bilstm_net.eval()
+                        entry["bilstm"] = bilstm_net
+                    except Exception as ex:
+                        print(f"[MLPredictor] Attention-CNN-BiLSTM init note for {sub}: {ex}")
+
+                if entry:
+                    self.multiregime_models[sub] = entry
+            if self.multiregime_models:
+                print(f"[MLPredictor] Loaded Attention-CNN-BiLSTM and RegimeNormalizer models for: {list(self.multiregime_models.keys())}")
+
             # Precomputed fleet predictions if available
             self.fleet_predictions = {}
             fleet_path = self.models_dir / "fleet_predictions.json"
@@ -72,7 +100,10 @@ class MLPredictor:
                 "total_subsets": 4,
                 "subsets_evaluated": ["FD001", "FD002", "FD003", "FD004"],
                 "active_model": "XGBoost Regressor (FD001 Single Regime)",
-                "fd001_metrics": self.metrics
+                "multiregime_model": "Attention-CNN-BiLSTM (FD002 and FD004 Multi-Regime)",
+                "fd001_metrics": self.metrics,
+                "fd002_metrics": self.all_subsets_summary.get("FD002", {}).get("models", {}).get("Attention_CNN_BiLSTM", {}),
+                "fd004_metrics": self.all_subsets_summary.get("FD004", {}).get("models", {}).get("Attention_CNN_BiLSTM", {})
             }
 
             self.is_loaded = True

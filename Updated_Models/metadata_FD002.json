@@ -1,45 +1,45 @@
 {
   "subset": "FD002",
   "type": "Six Operating Conditions (Multi-Regime)",
-  "sequence_length": 20,
-  "feature_cols": [
-    "setting_1",
-    "setting_2",
-    "setting_3",
+  "sequence_length": 30,
+  "normalizer": "RegimeNormalizer (KMeans k=6 cluster standardizer)",
+  "flat_sensors_dropped": [
     "s_1",
-    "s_2",
-    "s_3",
-    "s_4",
     "s_5",
-    "s_6",
-    "s_7",
-    "s_8",
-    "s_9",
-    "s_10",
-    "s_11",
-    "s_12",
-    "s_13",
-    "s_14",
-    "s_15",
-    "s_16",
-    "s_17",
     "s_18",
-    "s_19",
-    "s_20",
-    "s_21"
+    "s_19"
+  ],
+  "feature_cols": [
+    "s_2_norm",
+    "s_3_norm",
+    "s_4_norm",
+    "s_6_norm",
+    "s_7_norm",
+    "s_8_norm",
+    "s_9_norm",
+    "s_10_norm",
+    "s_11_norm",
+    "s_12_norm",
+    "s_13_norm",
+    "s_14_norm",
+    "s_15_norm",
+    "s_16_norm",
+    "s_17_norm",
+    "s_20_norm",
+    "s_21_norm"
   ],
   "models": {
-    "Vanilla_LSTM": {
-      "RMSE": 31.519312191347467,
-      "MAE": 22.656307220458984,
-      "R2": 0.6564963459968567,
-      "NASA_Score": 20217.12997429406
+    "Attention_CNN_BiLSTM": {
+      "RMSE": 27.083468799741336,
+      "MAE": 18.02067756652832,
+      "R2": 0.7463782429695129,
+      "NASA_Score": 8537.366435401449
     },
-    "1D_CNN_LSTM_Hybrid": {
-      "RMSE": 30.779537745841086,
-      "MAE": 21.324975967407227,
-      "R2": 0.6724315285682678,
-      "NASA_Score": 19629.51740903614
+    "XGBoost_RegimeNorm": {
+      "RMSE": 27.34310936749536,
+      "MAE": 19.01406478881836,
+      "R2": 0.7414921522140503,
+      "NASA_Score": 9390.806996350915
     }
   }
 }
