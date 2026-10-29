@@ -1,4 +1,4 @@
-﻿# Logs
+# Logs
 logs
 *.log
 npm-debug.log*
@@ -27,3 +27,29 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.pytest_cache/
+
+# Dataset (do not upload dataset)
+CMaps/
+**/CMaps/
+*.txt
+!requirements.txt
+
+# Trained Model Weight Binaries (large binary weights)
+*.joblib
+*.pt
+Updated_Models/*.joblib
+Updated_Models/*.pt
+ml_service/models/*.joblib
+ml_service/models/*.pt

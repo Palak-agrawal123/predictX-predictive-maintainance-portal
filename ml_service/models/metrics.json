@@ -1,0 +1,29 @@
+{
+  "model_name": "XGBoost Regressor (FD001 Updated)",
+  "model_version": "meridian-updated-xgb-v2.0",
+  "features_count": 78,
+  "r2": 0.9093,
+  "rmse": 12.51,
+  "mae": 9.29,
+  "medae": 5.89,
+  "nasa_score": 198.12,
+  "roc_auc_30d": 0.9973,
+  "accuracy_30d": 0.97,
+  "precision_30d": 1.0,
+  "recall_30d": 0.88,
+  "f1_score_30d": 0.9362,
+  "models": {
+    "XGBoost": {
+      "R2": 0.9093,
+      "RMSE": 12.51,
+      "MAE": 9.29,
+      "NASA_Score": 198.12
+    },
+    "RandomForest": {
+      "R2": 0.8952,
+      "RMSE": 13.45,
+      "MAE": 10.0,
+      "NASA_Score": 250.13
+    }
+  }
+}
