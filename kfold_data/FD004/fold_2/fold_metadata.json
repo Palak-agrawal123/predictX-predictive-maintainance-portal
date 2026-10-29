@@ -1,0 +1,413 @@
+{
+  "subset": "FD004",
+  "fold_index": 2,
+  "train_units_count": 199,
+  "val_units_count": 50,
+  "val_unit_ids": [
+    1,
+    3,
+    5,
+    12,
+    27,
+    28,
+    33,
+    37,
+    42,
+    47,
+    52,
+    62,
+    63,
+    65,
+    71,
+    77,
+    78,
+    79,
+    86,
+    91,
+    96,
+    99,
+    101,
+    114,
+    123,
+    128,
+    129,
+    136,
+    137,
+    139,
+    142,
+    143,
+    144,
+    147,
+    153,
+    165,
+    166,
+    177,
+    178,
+    179,
+    199,
+    222,
+    226,
+    229,
+    231,
+    239,
+    241,
+    243,
+    244,
+    248
+  ],
+  "train_rows": 48671,
+  "val_full_rows": 12578,
+  "val_censored_rows": 7351,
+  "val_units_detail": [
+    {
+      "unit_id": 1,
+      "total_lifespan": 321,
+      "cutoff_cycle": 117,
+      "true_remaining_cycles": 204,
+      "censor_pct": 0.364
+    },
+    {
+      "unit_id": 3,
+      "total_lifespan": 307,
+      "cutoff_cycle": 205,
+      "true_remaining_cycles": 102,
+      "censor_pct": 0.668
+    },
+    {
+      "unit_id": 5,
+      "total_lifespan": 193,
+      "cutoff_cycle": 98,
+      "true_remaining_cycles": 95,
+      "censor_pct": 0.508
+    },
+    {
+      "unit_id": 12,
+      "total_lifespan": 272,
+      "cutoff_cycle": 164,
+      "true_remaining_cycles": 108,
+      "censor_pct": 0.603
+    },
+    {
+      "unit_id": 27,
+      "total_lifespan": 163,
+      "cutoff_cycle": 131,
+      "true_remaining_cycles": 32,
+      "censor_pct": 0.804
+    },
+    {
+      "unit_id": 28,
+      "total_lifespan": 202,
+      "cutoff_cycle": 96,
+      "true_remaining_cycles": 106,
+      "censor_pct": 0.475
+    },
+    {
+      "unit_id": 33,
+      "total_lifespan": 201,
+      "cutoff_cycle": 112,
+      "true_remaining_cycles": 89,
+      "censor_pct": 0.557
+    },
+    {
+      "unit_id": 37,
+      "total_lifespan": 388,
+      "cutoff_cycle": 282,
+      "true_remaining_cycles": 106,
+      "censor_pct": 0.727
+    },
+    {
+      "unit_id": 42,
+      "total_lifespan": 280,
+      "cutoff_cycle": 130,
+      "true_remaining_cycles": 150,
+      "censor_pct": 0.464
+    },
+    {
+      "unit_id": 47,
+      "total_lifespan": 375,
+      "cutoff_cycle": 146,
+      "true_remaining_cycles": 229,
+      "censor_pct": 0.389
+    },
+    {
+      "unit_id": 52,
+      "total_lifespan": 357,
+      "cutoff_cycle": 177,
+      "true_remaining_cycles": 180,
+      "censor_pct": 0.496
+    },
+    {
+      "unit_id": 62,
+      "total_lifespan": 297,
+      "cutoff_cycle": 128,
+      "true_remaining_cycles": 169,
+      "censor_pct": 0.431
+    },
+    {
+      "unit_id": 63,
+      "total_lifespan": 170,
+      "cutoff_cycle": 139,
+      "true_remaining_cycles": 31,
+      "censor_pct": 0.818
+    },
+    {
+      "unit_id": 65,
+      "total_lifespan": 351,
+      "cutoff_cycle": 265,
+      "true_remaining_cycles": 86,
+      "censor_pct": 0.755
+    },
+    {
+      "unit_id": 71,
+      "total_lifespan": 312,
+      "cutoff_cycle": 208,
+      "true_remaining_cycles": 104,
+      "censor_pct": 0.667
+    },
+    {
+      "unit_id": 77,
+      "total_lifespan": 148,
+      "cutoff_cycle": 116,
+      "true_remaining_cycles": 32,
+      "censor_pct": 0.784
+    },
+    {
+      "unit_id": 78,
+      "total_lifespan": 250,
+      "cutoff_cycle": 188,
+      "true_remaining_cycles": 62,
+      "censor_pct": 0.752
+    },
+    {
+      "unit_id": 79,
+      "total_lifespan": 218,
+      "cutoff_cycle": 97,
+      "true_remaining_cycles": 121,
+      "censor_pct": 0.445
+    },
+    {
+      "unit_id": 86,
+      "total_lifespan": 232,
+      "cutoff_cycle": 185,
+      "true_remaining_cycles": 47,
+      "censor_pct": 0.797
+    },
+    {
+      "unit_id": 91,
+      "total_lifespan": 354,
+      "cutoff_cycle": 219,
+      "true_remaining_cycles": 135,
+      "censor_pct": 0.619
+    },
+    {
+      "unit_id": 96,
+      "total_lifespan": 270,
+      "cutoff_cycle": 204,
+      "true_remaining_cycles": 66,
+      "censor_pct": 0.756
+    },
+    {
+      "unit_id": 99,
+      "total_lifespan": 167,
+      "cutoff_cycle": 133,
+      "true_remaining_cycles": 34,
+      "censor_pct": 0.796
+    },
+    {
+      "unit_id": 101,
+      "total_lifespan": 260,
+      "cutoff_cycle": 132,
+      "true_remaining_cycles": 128,
+      "censor_pct": 0.508
+    },
+    {
+      "unit_id": 114,
+      "total_lifespan": 161,
+      "cutoff_cycle": 65,
+      "true_remaining_cycles": 96,
+      "censor_pct": 0.404
+    },
+    {
+      "unit_id": 123,
+      "total_lifespan": 226,
+      "cutoff_cycle": 105,
+      "true_remaining_cycles": 121,
+      "censor_pct": 0.465
+    },
+    {
+      "unit_id": 128,
+      "total_lifespan": 248,
+      "cutoff_cycle": 140,
+      "true_remaining_cycles": 108,
+      "censor_pct": 0.565
+    },
+    {
+      "unit_id": 129,
+      "total_lifespan": 190,
+      "cutoff_cycle": 144,
+      "true_remaining_cycles": 46,
+      "censor_pct": 0.758
+    },
+    {
+      "unit_id": 136,
+      "total_lifespan": 205,
+      "cutoff_cycle": 160,
+      "true_remaining_cycles": 45,
+      "censor_pct": 0.78
+    },
+    {
+      "unit_id": 137,
+      "total_lifespan": 225,
+      "cutoff_cycle": 80,
+      "true_remaining_cycles": 145,
+      "censor_pct": 0.356
+    },
+    {
+      "unit_id": 139,
+      "total_lifespan": 251,
+      "cutoff_cycle": 152,
+      "true_remaining_cycles": 99,
+      "censor_pct": 0.606
+    },
+    {
+      "unit_id": 142,
+      "total_lifespan": 209,
+      "cutoff_cycle": 117,
+      "true_remaining_cycles": 92,
+      "censor_pct": 0.56
+    },
+    {
+      "unit_id": 143,
+      "total_lifespan": 184,
+      "cutoff_cycle": 85,
+      "true_remaining_cycles": 99,
+      "censor_pct": 0.462
+    },
+    {
+      "unit_id": 144,
+      "total_lifespan": 297,
+      "cutoff_cycle": 122,
+      "true_remaining_cycles": 175,
+      "censor_pct": 0.411
+    },
+    {
+      "unit_id": 147,
+      "total_lifespan": 234,
+      "cutoff_cycle": 121,
+      "true_remaining_cycles": 113,
+      "censor_pct": 0.517
+    },
+    {
+      "unit_id": 153,
+      "total_lifespan": 168,
+      "cutoff_cycle": 138,
+      "true_remaining_cycles": 30,
+      "censor_pct": 0.821
+    },
+    {
+      "unit_id": 165,
+      "total_lifespan": 255,
+      "cutoff_cycle": 130,
+      "true_remaining_cycles": 125,
+      "censor_pct": 0.51
+    },
+    {
+      "unit_id": 166,
+      "total_lifespan": 269,
+      "cutoff_cycle": 164,
+      "true_remaining_cycles": 105,
+      "censor_pct": 0.61
+    },
+    {
+      "unit_id": 177,
+      "total_lifespan": 242,
+      "cutoff_cycle": 170,
+      "true_remaining_cycles": 72,
+      "censor_pct": 0.702
+    },
+    {
+      "unit_id": 178,
+      "total_lifespan": 170,
+      "cutoff_cycle": 90,
+      "true_remaining_cycles": 80,
+      "censor_pct": 0.529
+    },
+    {
+      "unit_id": 179,
+      "total_lifespan": 435,
+      "cutoff_cycle": 364,
+      "true_remaining_cycles": 71,
+      "censor_pct": 0.837
+    },
+    {
+      "unit_id": 199,
+      "total_lifespan": 176,
+      "cutoff_cycle": 146,
+      "true_remaining_cycles": 30,
+      "censor_pct": 0.83
+    },
+    {
+      "unit_id": 222,
+      "total_lifespan": 202,
+      "cutoff_cycle": 96,
+      "true_remaining_cycles": 106,
+      "censor_pct": 0.475
+    },
+    {
+      "unit_id": 226,
+      "total_lifespan": 194,
+      "cutoff_cycle": 116,
+      "true_remaining_cycles": 78,
+      "censor_pct": 0.598
+    },
+    {
+      "unit_id": 229,
+      "total_lifespan": 280,
+      "cutoff_cycle": 140,
+      "true_remaining_cycles": 140,
+      "censor_pct": 0.5
+    },
+    {
+      "unit_id": 231,
+      "total_lifespan": 194,
+      "cutoff_cycle": 96,
+      "true_remaining_cycles": 98,
+      "censor_pct": 0.495
+    },
+    {
+      "unit_id": 239,
+      "total_lifespan": 365,
+      "cutoff_cycle": 134,
+      "true_remaining_cycles": 231,
+      "censor_pct": 0.367
+    },
+    {
+      "unit_id": 241,
+      "total_lifespan": 332,
+      "cutoff_cycle": 217,
+      "true_remaining_cycles": 115,
+      "censor_pct": 0.654
+    },
+    {
+      "unit_id": 243,
+      "total_lifespan": 327,
+      "cutoff_cycle": 197,
+      "true_remaining_cycles": 130,
+      "censor_pct": 0.602
+    },
+    {
+      "unit_id": 244,
+      "total_lifespan": 267,
+      "cutoff_cycle": 100,
+      "true_remaining_cycles": 167,
+      "censor_pct": 0.375
+    },
+    {
+      "unit_id": 248,
+      "total_lifespan": 184,
+      "cutoff_cycle": 90,
+      "true_remaining_cycles": 94,
+      "censor_pct": 0.489
+    }
+  ]
+}
