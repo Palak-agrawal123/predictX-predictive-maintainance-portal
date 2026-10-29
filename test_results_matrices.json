@@ -1,0 +1,77 @@
+{
+    "model_source": "Updated_Models/xgb_regressor_FD001.joblib",
+    "binary_confusion_matrix": {
+        "true_negative": 75,
+        "false_positive": 0,
+        "false_negative": 3,
+        "true_positive": 22,
+        "accuracy": 0.97,
+        "precision": 1.0,
+        "recall": 0.88,
+        "specificity": 1.0,
+        "f1_score": 0.9362,
+        "roc_auc": 0.9973,
+        "mcc": 0.9199
+    },
+    "multiclass_tier_confusion_matrix": {
+        "labels": [
+            "CRITICAL",
+            "HIGH",
+            "MEDIUM",
+            "LOW"
+        ],
+        "matrix": [
+            [
+                16,
+                3,
+                0,
+                0
+            ],
+            [
+                1,
+                11,
+                2,
+                0
+            ],
+            [
+                0,
+                2,
+                13,
+                6
+            ],
+            [
+                0,
+                0,
+                7,
+                39
+            ]
+        ],
+        "tier_accuracy": 79.0
+    },
+    "regression_error_matrix": {
+        "xgboost": {
+            "r2_score": 0.9093,
+            "rmse": 12.51,
+            "mae": 9.29,
+            "medae": 5.89,
+            "max_error": 36.72,
+            "explained_variance": 0.9101,
+            "nasa_phm_score": 198.1
+        },
+        "random_forest": {
+            "r2_score": 0.8952,
+            "rmse": 13.45,
+            "mae": 10.0,
+            "medae": 7.6,
+            "nasa_phm_score": 250.1
+        }
+    },
+    "tolerance_distribution": {
+        "within_5_cycles_pct": 44.0,
+        "within_10_cycles_pct": 63.0,
+        "within_15_cycles_pct": 77.0,
+        "within_20_cycles_pct": 88.0,
+        "early_conservative_count": 48,
+        "late_overestimate_count": 52
+    }
+}
