@@ -1,6 +1,6 @@
 """
 FastAPI Microservice for Predictive Maintenance ML Models
-Serves the newly trained multi-dataset models (XGBoost Regressor, Random Forest, PyTorch checkpoints)
+Serves the newly trained multi-dataset models (XGBoost Regressor, Random Forest, Attention-CNN-BiLSTM)
 from Updated_Models/ with multi-subset benchmark metrics and fleet diagnostics.
 """
 import sys
@@ -17,8 +17,8 @@ from predictor import predictor
 
 app = FastAPI(
     title="Predictive Maintenance ML Microservice",
-    description="FastAPI microservice serving newly trained XGBoost & Random Forest RUL models (ml_service/models)",
-    version="2.0.0"
+    description="FastAPI microservice serving trained XGBoost, Random Forest & Attention-CNN-BiLSTM models",
+    version="2.1.0"
 )
 
 app.add_middleware(
@@ -41,9 +41,10 @@ def get_service_info():
     return {
         "status": "online",
         "service": "predictive-maintenance-ml-microservice",
-        "version": "2.0.0",
+        "version": "2.1.0",
         "activeModel": "XGBoost Regressor (models/xgb_regressor_FD001.joblib)",
         "alternativeModel": "Random Forest Regressor (models/rf_regressor_FD001.joblib)",
+        "multiRegimeModel": "Attention-CNN-BiLSTM with RegimeNormalizer (FD002 and FD004)",
         "dataset": "NASA Turbofan C-MAPSS (FD001-FD004) & Industrial Telemetry",
         "featuresCount": len(predictor.feature_names),
         "benchmarkMetrics": predictor.metrics,
@@ -58,8 +59,14 @@ def healthcheck():
         "modelVersion": predictor.model_version,
         "featuresCount": len(predictor.feature_names),
         "models": {
-            "xgb_regressor": "models/xgb_regressor_FD001.joblib",
-            "rf_regressor": "models/rf_regressor_FD001.joblib"
+            "xgb_regressor_FD001": "models/xgb_regressor_FD001.joblib",
+            "rf_regressor_FD001": "models/rf_regressor_FD001.joblib",
+            "attention_cnn_bilstm_FD002": "models/best_attention_cnn_bilstm_FD002.pt",
+            "regime_normalizer_FD002": "models/regime_normalizer_FD002.joblib",
+            "xgb_regime_FD002": "models/xgb_regime_FD002.joblib",
+            "attention_cnn_bilstm_FD004": "models/best_attention_cnn_bilstm_FD004.pt",
+            "regime_normalizer_FD004": "models/regime_normalizer_FD004.joblib",
+            "xgb_regime_FD004": "models/xgb_regime_FD004.joblib"
         }
     }
 

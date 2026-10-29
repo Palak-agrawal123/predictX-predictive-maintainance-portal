@@ -1,0 +1,17 @@
+Subset,Model,Split,Samples,R² Score,RMSE (cycles),MAE (cycles),Acc (±10 cycles),Acc (±20 cycles),NASA PHM Score,Alert Accuracy,Alert Precision,Alert Recall,Alert F1-Score
+FD002,Attention-CNN-BiLSTM,Training Split (Sampled),2000,0.883,14.32,10.08,65.3%,84.8%,9065.1,96.9%,87.6%,96.8%,92.0%
+FD002,Attention-CNN-BiLSTM,K-Fold Val (Continuous Full Life),8787,0.8732,14.82,10.6,62.3%,84.8%,45277.3,96.3%,85.7%,95.9%,90.5%
+FD002,Attention-CNN-BiLSTM,K-Fold Val (Censored Snapshot),52,0.5101,21.5,18.01,26.9%,59.6%,693.2,94.2%,0.0%,0.0%,0.0%
+FD002,Attention-CNN-BiLSTM,Official NASA Test Set,259,0.7464,27.08,18.02,49.4%,68.0%,8537.4,96.5%,87.1%,100.0%,93.1%
+FD002,XGBoost (Regime-Norm),Training Split (Sampled),2000,0.8679,15.04,10.0,65.8%,82.5%,9634.9,97.5%,96.8%,85.5%,90.8%
+FD002,XGBoost (Regime-Norm),K-Fold Val (Continuous Full Life),10295,0.8564,15.83,10.83,61.8%,81.1%,65094.2,96.1%,94.6%,79.7%,86.5%
+FD002,XGBoost (Regime-Norm),K-Fold Val (Censored Snapshot),52,0.3665,24.45,20.26,28.8%,46.2%,938.7,98.1%,0.0%,0.0%,0.0%
+FD002,XGBoost (Regime-Norm),Official NASA Test Set,259,0.7415,27.34,19.01,43.2%,63.7%,9390.8,96.5%,94.8%,90.2%,92.4%
+FD004,Attention-CNN-BiLSTM,Training Split (Sampled),2000,0.8765,14.54,8.69,72.7%,85.5%,23889.5,96.8%,84.6%,94.0%,89.0%
+FD004,Attention-CNN-BiLSTM,K-Fold Val (Continuous Full Life),10505,0.8126,18.03,11.32,65.0%,80.6%,203200.9,96.3%,83.4%,93.5%,88.2%
+FD004,Attention-CNN-BiLSTM,K-Fold Val (Censored Snapshot),50,0.3686,41.87,30.76,22.0%,46.0%,168493.1,100.0%,100.0%,100.0%,100.0%
+FD004,Attention-CNN-BiLSTM,Official NASA Test Set,248,0.7775,25.72,18.83,41.1%,62.5%,4170.8,93.5%,80.3%,92.5%,86.0%
+FD004,XGBoost (Regime-Norm),Training Split (Sampled),2000,0.8975,13.15,8.31,72.0%,88.2%,9021.6,96.5%,91.1%,81.4%,85.9%
+FD004,XGBoost (Regime-Norm),K-Fold Val (Continuous Full Life),11955,0.7868,18.88,12.45,59.9%,76.8%,109345.0,96.0%,86.7%,81.8%,84.2%
+FD004,XGBoost (Regime-Norm),K-Fold Val (Censored Snapshot),50,0.2332,46.14,33.41,22.0%,42.0%,276362.6,98.0%,0.0%,0.0%,0.0%
+FD004,XGBoost (Regime-Norm),Official NASA Test Set,248,0.7236,28.67,21.2,39.1%,60.9%,5950.5,94.8%,91.7%,83.0%,87.1%
