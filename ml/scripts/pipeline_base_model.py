@@ -35,7 +35,14 @@ sns.set_theme(style="whitegrid")
 plt.rcParams["figure.figsize"] = (10, 5)
 
 # Paths
-BASE_DIR = Path(__file__).resolve().parent if "__file__" in locals() else Path.cwd()
+def _find_repo_root():
+    curr = Path(__file__).resolve().parent if "__file__" in locals() else Path.cwd()
+    for p in [curr, curr.parent, curr.parent.parent]:
+        if (p / "CMaps").exists() or (p / ".git").exists() or (p / "ml_service").exists():
+            return p
+    return curr
+
+BASE_DIR = _find_repo_root()
 DATA_DIR = BASE_DIR / "CMaps"
 
 # C-MAPSS Standard 26-column Schema

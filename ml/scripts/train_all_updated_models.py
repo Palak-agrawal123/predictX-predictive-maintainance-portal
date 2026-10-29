@@ -34,7 +34,14 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 
 # Ensure FD0024 and current directory are on sys.path
-BASE_DIR = Path(__file__).resolve().parent
+def _find_repo_root():
+    curr = Path(__file__).resolve().parent
+    for p in [curr, curr.parent, curr.parent.parent]:
+        if (p / "Updated_Models").exists() or (p / ".git").exists() or (p / "ml_service").exists():
+            return p
+    return curr
+
+BASE_DIR = _find_repo_root()
 sys.path.insert(0, str(BASE_DIR))
 sys.path.insert(0, str(BASE_DIR / "FD0024"))
 

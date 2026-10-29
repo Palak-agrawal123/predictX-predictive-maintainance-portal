@@ -36,7 +36,16 @@ if hasattr(sys.stdout, 'reconfigure'):
         pass
 
 # Add directories to path
-BASE_DIR = Path(__file__).resolve().parent
+def _find_repo_root():
+    curr = Path(__file__).resolve().parent
+    for p in [curr, curr.parent, curr.parent.parent]:
+        if (p / "Updated_Models").exists() or (p / ".git").exists() or (p / "ml_service").exists():
+            return p
+    return curr
+
+BASE_DIR = _find_repo_root()
+REPORTS_DIR = BASE_DIR / "ml" / "reports"
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 ML_DIR = BASE_DIR / "ml_service"
 UPDATED_MODELS_DIR = ML_DIR / "models"
 if not (UPDATED_MODELS_DIR / "xgb_regressor_FD001.joblib").exists():
@@ -356,7 +365,7 @@ ax4.set_title(f"4. Residual Error Distribution\n(MAE = {mae_xgb:.2f} cycles, {wi
 ax4.legend(loc="upper right", fontsize=10)
 
 plt.tight_layout()
-plot_path = BASE_DIR / "evaluation_matrices.png"
+plot_path = REPORTS_DIR / "evaluation_matrices.png"
 plt.savefig(plot_path, dpi=200, bbox_inches="tight")
 plt.close()
 print(f"      • Plot saved successfully to: {plot_path}\n")
@@ -379,7 +388,7 @@ results_df = pd.DataFrame({
     "predicted_fail_soon": preds_binary,
     "actual_fail_soon": y_true_binary
 })
-csv_path = BASE_DIR / "test_predictions_matrix.csv"
+csv_path = REPORTS_DIR / "test_predictions_matrix.csv"
 results_df.to_csv(csv_path, index=False)
 
 json_export = {
@@ -429,7 +438,7 @@ json_export = {
         "late_overestimate_count": int(late_preds)
     }
 }
-json_path = BASE_DIR / "test_results_matrices.json"
+json_path = REPORTS_DIR / "test_results_matrices.json"
 with open(json_path, "w") as f:
     json.dump(json_export, f, indent=4)
 

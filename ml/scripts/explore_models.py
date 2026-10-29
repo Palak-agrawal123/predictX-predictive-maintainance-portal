@@ -42,7 +42,14 @@ if hasattr(sys.stdout, 'reconfigure'):
         pass
 
 # Locate models directory
-BASE_DIR = Path(__file__).resolve().parent
+def _find_repo_root():
+    curr = Path(__file__).resolve().parent
+    for p in [curr, curr.parent, curr.parent.parent]:
+        if (p / "Updated_Models").exists() or (p / ".git").exists() or (p / "ml_service").exists():
+            return p
+    return curr
+
+BASE_DIR = _find_repo_root()
 MODELS_DIR = BASE_DIR / "ml_service" / "models"
 if not MODELS_DIR.exists() or not (MODELS_DIR / "xgb_regressor_FD001.joblib").exists():
     MODELS_DIR = BASE_DIR / "Updated_Models"
