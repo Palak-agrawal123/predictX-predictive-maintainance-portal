@@ -15,7 +15,14 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import xgboost as xgb
 
-BASE_DIR = Path(__file__).resolve().parent
+def _find_repo_root():
+    curr = Path(__file__).resolve().parent
+    for p in [curr, curr.parent, curr.parent.parent]:
+        if (p / "validation_data").exists() or (p / ".git").exists() or (p / "ml_service").exists():
+            return p
+    return curr
+
+BASE_DIR = _find_repo_root()
 VAL_DIR = BASE_DIR / "validation_data"
 CMAPS_DIR = BASE_DIR / "CMaps"
 

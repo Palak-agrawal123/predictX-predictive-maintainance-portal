@@ -301,7 +301,7 @@ for p in models_list:
 
 nb["cells"] = cells
 
-out_path = Path("C_MAPSS_MultiSubdataset_Clean_and_Model.ipynb")
+out_path = Path(__file__).resolve().parent / "C_MAPSS_MultiSubdataset_Clean_and_Model.ipynb"
 with open(out_path, "w", encoding="utf-8") as f:
     nbf.write(nb, f)
 

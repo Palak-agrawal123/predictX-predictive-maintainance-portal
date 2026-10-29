@@ -25,7 +25,14 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold
 
-BASE_DIR = Path(__file__).resolve().parent
+def _find_repo_root():
+    curr = Path(__file__).resolve().parent
+    for p in [curr, curr.parent, curr.parent.parent]:
+        if (p / "kfold_data").exists() or (p / ".git").exists() or (p / "ml_service").exists():
+            return p
+    return curr
+
+BASE_DIR = _find_repo_root()
 DATA_DIR = BASE_DIR / "CMaps"
 OUTPUT_DIR = BASE_DIR / "kfold_data"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
