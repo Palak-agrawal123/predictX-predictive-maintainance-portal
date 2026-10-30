@@ -11,6 +11,7 @@ import {
   ChevronUp
 } from 'lucide-react';
 import { api } from '../../services/api';
+import { MarkdownMessage } from '../common/MarkdownMessage';
 
 export function AIAssistantModal({ isOpen, onClose, machineContext = null }) {
   const [messages, setMessages] = useState([]);
@@ -151,9 +152,7 @@ export function AIAssistantModal({ isOpen, onClose, machineContext = null }) {
                     : 'bg-white border border-[#E0E6E0] text-[#202A27] rounded-tl-none'
                 }`}
               >
-                <div className="whitespace-pre-wrap font-sans space-y-1.5 text-[11px]">
-                  {msg.text}
-                </div>
+                <MarkdownMessage content={msg.text} isUser={msg.role === 'user'} />
 
                 {msg.citations && msg.citations.length > 0 && (
                   <div className="mt-2.5 pt-2 border-t border-[#E8EEE8]">

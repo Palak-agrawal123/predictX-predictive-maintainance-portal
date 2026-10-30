@@ -19,6 +19,7 @@ import {
 import { Layout } from '../components/layout/Layout';
 import { useAppData } from '../context/AppDataContext';
 import { api } from '../services/api';
+import { MarkdownMessage } from '../components/common/MarkdownMessage';
 
 const EXAMPLE_QUESTIONS = [
   "Why is this machine showing high failure risk?",
@@ -231,9 +232,7 @@ export function AIAssistantPage() {
                       : 'bg-white border border-[#E0E6E0] text-[#202A27] rounded-tl-none'
                   }`}
                 >
-                  <div className="prose prose-xs max-w-none space-y-2 whitespace-pre-wrap font-sans">
-                    {msg.text}
-                  </div>
+                  <MarkdownMessage content={msg.text} isUser={msg.role === 'user'} />
 
                   {/* CITATIONS ACCORDION */}
                   {msg.citations && msg.citations.length > 0 && (
