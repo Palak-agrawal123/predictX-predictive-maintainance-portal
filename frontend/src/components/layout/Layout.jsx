@@ -191,7 +191,7 @@ export function Layout({ children, pageTitle = "Overview" }) {
       {/* MAIN VIEWPORT */}
       <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0 bg-[#F5F6F2]">
         {/* TOP HEADER */}
-        <header className="h-13 bg-white border-b border-[#DFE4DD] px-6 flex items-center justify-between sticky top-0 z-20">
+        <header className="h-16 bg-white border-b border-[#DFE4DD] px-6 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-2">
             <h1 className="text-sm font-semibold tracking-tight text-[#202925]">
               {pageTitle}
@@ -282,7 +282,7 @@ export function Layout({ children, pageTitle = "Overview" }) {
 
             {/* Operator Identifier */}
             <div className="flex items-center gap-1.5 pl-2 border-l border-[#DFE4DD]">
-              <div className="w-5 h-5 rounded bg-[#E8F0EA] border border-[#D1E1D5] flex items-center justify-center text-[10px] text-[#246B52] font-semibold">
+              <div className="w-7 h-7 rounded-md bg-[#E8F0EA] border border-[#D1E1D5] flex items-center justify-center text-[11px] text-[#246B52] font-semibold">
                 PX
               </div>
             </div>
