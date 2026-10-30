@@ -75,10 +75,10 @@ export function Layout({ children, pageTitle = "Overview" }) {
       {/* MOBILE TOPBAR */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-[#DFE4DD] px-4 flex items-center justify-between z-40">
         <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => navigate('/dashboard')}>
-          <div className="w-7 h-7 rounded-md bg-[#246B52] flex items-center justify-center text-white">
-            <Activity size={15} strokeWidth={2.2} />
+          <div className="w-7 h-7 rounded-lg bg-[#246B52] flex items-center justify-center text-white shadow-xs">
+            <Activity size={16} strokeWidth={2.4} />
           </div>
-          <span className="font-semibold tracking-tight text-sm text-[#202925]">
+          <span className="font-bold tracking-tight text-[16px] text-[#151D19]">
             Predict<span className="text-[#246B52]">X</span>
           </span>
         </div>
@@ -110,25 +110,25 @@ export function Layout({ children, pageTitle = "Overview" }) {
       `}>
         <div className="flex flex-col h-full">
           {/* Identity */}
-          <div className="px-5 py-4 border-b border-[#DFE4DD] flex items-center justify-between">
-            <NavLink to="/dashboard" className="flex items-center gap-2.5 group">
-              <div className="w-7 h-7 rounded-md bg-[#246B52] flex items-center justify-center text-white shadow-xs">
-                <Activity size={15} strokeWidth={2.2} />
+          <div className="h-[72px] min-h-[72px] px-5 border-b border-[#DFE4DD] flex items-center justify-between">
+            <NavLink to="/dashboard" className="flex items-center gap-3 group">
+              <div className="w-8 h-8 rounded-lg bg-[#246B52] flex items-center justify-center text-white shadow-xs">
+                <Activity size={17} strokeWidth={2.4} />
               </div>
               <div className="flex flex-col">
-                <span className="font-semibold text-sm tracking-tight text-[#202925]">
+                <span className="font-bold text-[17px] tracking-tight text-[#151D19] leading-tight">
                   Predict<span className="text-[#246B52]">X</span>
                 </span>
-                <span className="text-[10px] text-[#68736C] tracking-tight">Fleet Intelligence</span>
+                <span className="text-[11.5px] font-normal text-[#5C6A63] tracking-normal leading-tight">Fleet Intelligence</span>
               </div>
             </NavLink>
           </div>
 
           {/* Navigation Links */}
-          <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
+          <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
             {navigationSections.map((sec, idx) => (
               <div key={idx} className="space-y-1">
-                <div className="px-2.5 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#6B7972] select-none">
+                <div className="px-3 pt-2.5 pb-1.5 text-[13px] font-bold uppercase tracking-[0.65px] text-[#28362F] select-none">
                   {sec.title}
                 </div>
                 {sec.items.map(item => {
@@ -140,18 +140,18 @@ export function Layout({ children, pageTitle = "Overview" }) {
                       to={item.to}
                       onClick={() => setMobileMenuOpen(false)}
                       className={`
-                        flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors group
+                        flex items-center justify-between px-3 py-2 rounded-lg text-[14px] leading-snug transition-colors group select-none
                         ${isActive
-                          ? 'bg-[#E8F0EA] text-[#246B52] font-semibold'
-                          : 'text-[#68736C] hover:text-[#202925] hover:bg-[#E9ECE6]'}
+                          ? 'bg-[#E2EDE4] text-[#1D634B] font-semibold shadow-2xs'
+                          : 'text-[#47544E] font-medium hover:text-[#18231E] hover:bg-[#E5ECE3]'}
                       `}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <Icon size={15} strokeWidth={1.8} className={`flex-shrink-0 ${isActive ? 'text-[#246B52]' : 'text-[#68736C] group-hover:text-[#202925]'}`} />
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Icon size={17} strokeWidth={isActive ? 2.1 : 1.8} className={`flex-shrink-0 ${isActive ? 'text-[#1D634B]' : 'text-[#5A6760] group-hover:text-[#18231E]'}`} />
                         <span className="truncate">{item.label}</span>
                       </div>
                       {item.badge !== undefined && item.badge !== null && (
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-medium ${item.badgeColor || 'bg-[#E8F0EA] text-[#246B52]'}`}>
+                        <span className={`text-[11px] px-2 py-0.5 rounded-full font-mono font-medium ${item.badgeColor || 'bg-[#E2EDE4] text-[#1D634B]'}`}>
                           {item.badge}
                         </span>
                       )}
@@ -163,13 +163,13 @@ export function Layout({ children, pageTitle = "Overview" }) {
           </nav>
 
           {/* Quiet Footer */}
-          <div className="p-3 border-t border-[#DFE4DD] bg-[#ECEFE9]/60 text-xs">
+          <div className="p-3 border-t border-[#DFE4DD] bg-[#ECEFE9]/60">
             <button
               onClick={resetAllDemoData}
-              className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md bg-white hover:bg-[#F5F6F2] border border-[#DFE4DD] text-[#68736C] hover:text-[#202925] text-[11px] font-medium transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-white hover:bg-[#F5F6F2] border border-[#DFE4DD] text-[#55635C] hover:text-[#18231E] text-xs font-medium transition-colors shadow-2xs"
               title="Reset data to baseline"
             >
-              <RefreshCw size={11} strokeWidth={1.75} /> Reset Local Data
+              <RefreshCw size={13} strokeWidth={1.8} /> Reset Local Data
             </button>
           </div>
         </div>

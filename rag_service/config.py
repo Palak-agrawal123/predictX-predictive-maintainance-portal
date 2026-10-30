@@ -4,10 +4,15 @@ All settings can be overridden using environment variables or a .env file.
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
 RAG_DIR = Path(__file__).resolve().parent
 ROOT_DIR = RAG_DIR.parent
+
+# Load environment variables from rag_service/.env and root .env
+load_dotenv(RAG_DIR / ".env")
+load_dotenv(ROOT_DIR / ".env")
 
 class RAGSettings(BaseSettings):
     # Service Information
@@ -47,7 +52,7 @@ class RAGSettings(BaseSettings):
     
     # LLM Configuration
     LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "gemini")  # "gemini", "openai", "local", "fallback"
-    LLM_MODEL: str = os.getenv("LLM_MODEL", "gemini-2.5-flash")
+    LLM_MODEL: str = os.getenv("LLM_MODEL", "gemini-3.5-flash-lite")
     LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.2"))
     LLM_MAX_TOKENS: int = int(os.getenv("LLM_MAX_TOKENS", "1024"))
     
@@ -56,7 +61,7 @@ class RAGSettings(BaseSettings):
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
 
     class Config:
-        env_file = ".env"
+        env_file = str(RAG_DIR / ".env")
         extra = "allow"
 
 settings = RAGSettings()

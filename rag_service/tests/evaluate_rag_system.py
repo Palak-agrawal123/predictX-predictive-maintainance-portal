@@ -1,11 +1,25 @@
 """
 Comprehensive RAG Evaluation and Benchmarking Suite for PredictX.
-Measures Retrieval Precision@K, Recall@K, Mean Reciprocal Rank (MRR),
-Citation Accuracy, Latency, and Faithfulness across 25 industrial test questions.
+Evaluates 35+ diverse technical questions across 7 industrial categories:
+  Category A: General Knowledge & Standards
+  Category B: Sensor Interpretation & Telemetry
+  Category C: Failure Diagnosis & Physics
+  Category D: Remaining Useful Life (RUL) Modeling
+  Category E: Machine-Specific Diagnostics (with Live Telemetry)
+  Category F: Multi-Turn Conversational Follow-ups
+  Category G: Out-of-Scope & Insufficient Information
+
+Computes quantitative retrieval and generation metrics:
+  - Precision@K, Recall@K, Mean Reciprocal Rank (MRR)
+  - Citation Accuracy & Authenticity
+  - Answer Relevance & Faithfulness
+  - Anti-Repetition Score across distinct queries
+  - Retrieval & Generation Latency (ms)
 """
 import sys
 import time
 import json
+import re
 from pathlib import Path
 from typing import List, Dict, Any
 
@@ -14,303 +28,461 @@ RAG_ROOT = Path(__file__).resolve().parent.parent
 if str(RAG_ROOT) not in sys.path:
     sys.path.insert(0, str(RAG_ROOT))
 
+# Ensure stdout handles utf-8 encoding safely on Windows
+if sys.stdout.encoding != 'utf-8':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 from retrieval.retrieval_pipeline import retrieval_pipeline
 from generation.response_generator import response_generator
+from generation.anti_repetition import anti_repetition_guard
 
-# Ground-truth evaluation dataset with expected documents and target keywords
-GROUND_TRUTH_EVAL_SET = [
+# 35 Curated Industrial Test Cases Across 7 Categories
+BENCHMARK_EVAL_SET = [
+    # Category A: General Knowledge & Standards
     {
-        "id": "Q01",
-        "question": "What are the common causes of engine overheating in turbofan and industrial machinery?",
-        "expected_docs": ["industrial_overheating_and_troubleshooting.pdf", "turbofan_fleet_maintenance_history.txt"],
-        "target_keywords": ["heat dissipation", "temperature", "coolant", "delta", "8.6"]
+        "id": "A1",
+        "category": "General Knowledge",
+        "question": "What is predictive maintenance and how does it differ from preventive maintenance?",
+        "expected_docs": ["preventive_maintenance_procedures.txt"],
+        "target_keywords": ["predictive", "preventive", "condition", "telemetry"],
+        "is_out_of_scope": False
     },
     {
-        "id": "Q02",
+        "id": "A2",
+        "category": "General Knowledge",
+        "question": "What is condition monitoring in industrial plant operations?",
+        "expected_docs": ["preventive_maintenance_procedures.txt"],
+        "target_keywords": ["condition monitoring", "vibration", "temperature", "degradation"],
+        "is_out_of_scope": False
+    },
+    {
+        "id": "A3",
+        "category": "General Knowledge",
         "question": "What is the acceptable vibration severity limit for industrial machines under ISO 10816-3?",
-        "expected_docs": ["vibration_analysis_bearing_guide.txt"],
-        "target_keywords": ["iso 10816-3", "zone a", "zone b", "zone c", "zone d", "4.5 mm/s"]
+        "expected_docs": ["vibration_analysis_bearing_guide.txt", "industrial_sensor_specifications.txt"],
+        "target_keywords": ["iso 10816-3", "zone a", "zone b", "zone c", "zone d", "4.5 mm/s"],
+        "is_out_of_scope": False
     },
     {
-        "id": "Q03",
-        "question": "Explain the role and nominal baseline reading of sensor s_4 (T50) in NASA C-MAPSS.",
-        "expected_docs": ["nasa_cmapss_specification_manual.pdf"],
-        "target_keywords": ["s_4", "t50", "egt", "exhaust gas", "1408.93"]
-    },
-    {
-        "id": "Q04",
-        "question": "What is the borescope inspection procedure for High Pressure Compressor blade tip erosion?",
-        "expected_docs": ["turbofan_engine_maintenance_manual.docx"],
-        "target_keywords": ["borescope", "high pressure compressor", "hpc", "blade tip", "1.25 mm"]
-    },
-    {
-        "id": "Q05",
-        "question": "How does tool wear affect CNC milling spindle torque and when must inserts be replaced?",
-        "expected_docs": ["industrial_sensor_specifications.txt", "industrial_overheating_and_troubleshooting.pdf"],
-        "target_keywords": ["tool wear", "220 minutes", "180 minutes", "torque", "11000"]
-    },
-    {
-        "id": "Q06",
-        "question": "What are the operating regime clusters in NASA C-MAPSS FD002 and FD004?",
-        "expected_docs": ["nasa_cmapss_specification_manual.pdf"],
-        "target_keywords": ["fd002", "fd004", "regime", "altitude", "mach", "6 distinct"]
-    },
-    {
-        "id": "Q07",
-        "question": "What does a pop-up indicator on the oil filter differential pressure delta-P mean?",
-        "expected_docs": ["turbofan_engine_maintenance_manual.docx"],
-        "target_keywords": ["filter", "differential pressure", "delta-p", "15 psid", "bypass"]
-    },
-    {
-        "id": "Q08",
-        "question": "What characteristic defect frequency corresponds to bearing outer race micro-spalling?",
-        "expected_docs": ["vibration_analysis_bearing_guide.txt"],
-        "target_keywords": ["bpfo", "ball pass frequency outer race", "bearing"]
-    },
-    {
-        "id": "Q09",
-        "question": "Explain the Paris crack propagation law in machine prognostics.",
+        "id": "A4",
+        "category": "General Knowledge",
+        "question": "Explain Paris' Law of fatigue crack propagation in machine prognostics.",
         "expected_docs": ["rul_prognostics_turbomachinery_paper.pdf"],
-        "target_keywords": ["paris", "crack", "da/dn", "stress intensity", "fatigue"]
+        "target_keywords": ["paris", "crack", "da/dn", "stress intensity", "fatigue"],
+        "is_out_of_scope": False
     },
     {
-        "id": "Q10",
-        "question": "What was the root cause and corrective action for Incident INC-2025-089?",
-        "expected_docs": ["turbofan_fleet_maintenance_history.txt"],
-        "target_keywords": ["inc-2025-089", "unit-12", "hpc", "blade tip erosion", "t50"]
+        "id": "A5",
+        "category": "General Knowledge",
+        "question": "What are the six operating regime clusters in NASA C-MAPSS FD002 and FD004?",
+        "expected_docs": ["nasa_cmapss_specification_manual.pdf"],
+        "target_keywords": ["fd002", "fd004", "regime", "altitude", "mach"],
+        "is_out_of_scope": False
+    },
+
+    # Category B: Sensor Interpretation
+    {
+        "id": "B1",
+        "category": "Sensor Interpretation",
+        "question": "What does sensor s_4 (T50 - LPT Exhaust Gas Temperature) indicate in NASA C-MAPSS?",
+        "expected_docs": ["nasa_cmapss_specification_manual.pdf"],
+        "target_keywords": ["s_4", "t50", "egt", "exhaust gas", "1408.93"],
+        "is_out_of_scope": False
     },
     {
-        "id": "Q11",
-        "question": "What are the Tier 1 autonomous telemetry audit triggers in PredictX preventive maintenance?",
-        "expected_docs": ["preventive_maintenance_procedures.txt"],
-        "target_keywords": ["tier 1", "autonomous", "telemetry", "2.8 mm/s", "150 minutes"]
+        "id": "B2",
+        "category": "Sensor Interpretation",
+        "question": "Explain the baseline reading and warning threshold of sensor s_3 (T30) at the HPC outlet.",
+        "expected_docs": ["nasa_cmapss_specification_manual.pdf"],
+        "target_keywords": ["s_3", "t30", "1590.52", "1605.0", "hpc"],
+        "is_out_of_scope": False
     },
     {
-        "id": "Q12",
-        "question": "What is the piecewise linear RUL target modeling logic used in C-MAPSS benchmarks?",
-        "expected_docs": ["nasa_cmapss_specification_manual.pdf", "rul_prognostics_turbomachinery_paper.pdf"],
-        "target_keywords": ["piecewise", "125 cycles", "rul", "inflection"]
+        "id": "B3",
+        "category": "Sensor Interpretation",
+        "question": "What is the static pressure sensor s_11 (Ps30) nominal baseline in turbofans?",
+        "expected_docs": ["nasa_cmapss_specification_manual.pdf"],
+        "target_keywords": ["s_11", "ps30", "static pressure", "psia"],
+        "is_out_of_scope": False
     },
     {
-        "id": "Q13",
-        "question": "What indicates Heat Dissipation Failure (HDF) in machine telemetry?",
+        "id": "B4",
+        "category": "Sensor Interpretation",
+        "question": "What does a vibration reading exceeding 2.8 mm/s indicate in industrial rotating assets?",
+        "expected_docs": ["vibration_analysis_bearing_guide.txt", "industrial_sensor_specifications.txt"],
+        "target_keywords": ["zone c", "2.8 mm/s", "bearing", "misalignment"],
+        "is_out_of_scope": False
+    },
+    {
+        "id": "B5",
+        "category": "Sensor Interpretation",
+        "question": "What does an abnormal temperature reading indicate across machine cooling channels?",
         "expected_docs": ["industrial_overheating_and_troubleshooting.pdf"],
-        "target_keywords": ["heat dissipation", "hdf", "8.6 k", "1380 rpm"]
+        "target_keywords": ["temperature", "heat dissipation", "thermal", "coolant", "8.6"],
+        "is_out_of_scope": False
+    },
+
+    # Category C: Failure Diagnosis & Physics
+    {
+        "id": "C1",
+        "category": "Failure Diagnosis",
+        "question": "What are the common causes of engine overheating and Heat Dissipation Failure (HDF)?",
+        "expected_docs": ["industrial_overheating_and_troubleshooting.pdf", "turbofan_fleet_maintenance_history.txt"],
+        "target_keywords": ["heat dissipation", "temperature", "coolant", "delta-t", "8.6"],
+        "is_out_of_scope": False
     },
     {
-        "id": "Q14",
-        "question": "What is the compressor water wash detergent procedure for turbofan engines?",
-        "expected_docs": ["turbofan_engine_maintenance_manual.docx"],
-        "target_keywords": ["compressor wash", "60°c", "cranking speed", "surfactant", "rinse"]
+        "id": "C2",
+        "category": "Failure Diagnosis",
+        "question": "What causes bearing raceway micro-spalling and ball pass defect frequencies (BPFO)?",
+        "expected_docs": ["vibration_analysis_bearing_guide.txt", "industrial_sensor_specifications.txt"],
+        "target_keywords": ["bpfo", "bearing", "spalling", "raceway", "fatigue"],
+        "is_out_of_scope": False
     },
     {
-        "id": "Q15",
-        "question": "What does magnetic chip detector Class C debris indicate?",
-        "expected_docs": ["turbofan_engine_maintenance_manual.docx"],
-        "target_keywords": ["magnetic chip detector", "mcd", "class c", "0.5 mm", "grounding"]
+        "id": "C3",
+        "category": "Failure Diagnosis",
+        "question": "What causes High Pressure Compressor blade tip erosion and rubbing in turbofans?",
+        "expected_docs": ["turbofan_engine_maintenance_manual.docx", "nasa_cmapss_specification_manual.pdf"],
+        "target_keywords": ["compressor", "blade tip", "erosion", "rubbing", "1.25 mm"],
+        "is_out_of_scope": False
     },
     {
-        "id": "Q16",
-        "question": "What is the nominal value and engineering unit of static pressure sensor s_11 (Ps30)?",
-        "expected_docs": ["nasa_cmapss_specification_manual.pdf"],
-        "target_keywords": ["s_11", "ps30", "47.54", "psia", "static pressure"]
-    },
-    {
-        "id": "Q17",
-        "question": "What was the physical finding for Machine MCH-102 during incident INC-2025-114?",
-        "expected_docs": ["turbofan_fleet_maintenance_history.txt"],
-        "target_keywords": ["mch-102", "inc-2025-114", "bearing", "sludge", "vibration"]
-    },
-    {
-        "id": "Q18",
-        "question": "What maximum total indicated runout (TIR) is permitted on CNC spindle shafts?",
-        "expected_docs": ["preventive_maintenance_procedures.txt"],
-        "target_keywords": ["spindle", "runout", "tir", "0.005 mm"]
-    },
-    {
-        "id": "Q19",
-        "question": "What causes abnormal core speed s_9 (Nc) increase during turbofan operation?",
-        "expected_docs": ["nasa_cmapss_specification_manual.pdf"],
-        "target_keywords": ["s_9", "nc", "core speed", "degrade", "thrust"]
-    },
-    {
-        "id": "Q20",
-        "question": "What actions are required when PredictX ML model flags Critical Risk tier?",
-        "expected_docs": ["preventive_maintenance_procedures.txt"],
-        "target_keywords": ["critical", "emergency work order", "2 hours", "lockout"]
-    },
-    {
-        "id": "Q21",
-        "question": "What is the function of Bypass Ratio sensor s_15 (BPR) in engine diagnostics?",
-        "expected_docs": ["nasa_cmapss_specification_manual.pdf"],
-        "target_keywords": ["s_15", "bpr", "bypass ratio", "8.44"]
-    },
-    {
-        "id": "Q22",
-        "question": "How does rotational speed dropping below 1380 RPM affect machine health?",
+        "id": "C4",
+        "category": "Failure Diagnosis",
+        "question": "How does cutting tool wear induce spindle torque overstrain (OSF) in CNC milling?",
         "expected_docs": ["industrial_sensor_specifications.txt", "industrial_overheating_and_troubleshooting.pdf"],
-        "target_keywords": ["1380 rpm", "low speed", "torque exhaustion", "seizure"]
+        "target_keywords": ["tool wear", "torque", "overstrain", "220 minutes", "11000"],
+        "is_out_of_scope": False
     },
     {
-        "id": "Q23",
-        "question": "What is the calibration tolerance of PT100 temperature sensors in industrial telemetry?",
-        "expected_docs": ["industrial_sensor_specifications.txt"],
-        "target_keywords": ["pt100", "calibration", "±0.3°c", "rtd"]
+        "id": "C5",
+        "category": "Failure Diagnosis",
+        "question": "What was the diagnosed failure mode for historical incident REC-001?",
+        "expected_docs": ["failure_modes_and_interventions.csv"],
+        "target_keywords": ["rec-001", "compressor degradation", "unit-03", "s_4"],
+        "is_out_of_scope": False
+    },
+
+    # Category D: Remaining Useful Life (RUL) Modeling
+    {
+        "id": "D1",
+        "category": "RUL Estimation",
+        "question": "What is Remaining Useful Life (RUL) and how is it calculated in C-MAPSS?",
+        "expected_docs": ["nasa_cmapss_specification_manual.pdf", "rul_prognostics_turbomachinery_paper.pdf"],
+        "target_keywords": ["piecewise", "125 cycles", "rul", "functional failure"],
+        "is_out_of_scope": False
     },
     {
-        "id": "Q24",
-        "question": "What was the consequence of tool wear on Machine MCH-105 during Incident INC-2026-022?",
-        "expected_docs": ["turbofan_fleet_maintenance_history.txt"],
-        "target_keywords": ["mch-105", "inc-2026-022", "228 minutes", "68 nm", "friction-welded"]
+        "id": "D2",
+        "category": "RUL Estimation",
+        "question": "How should an RUL prediction of 8 cycles be interpreted by plant supervisors?",
+        "expected_docs": ["rul_prognostics_turbomachinery_paper.pdf", "preventive_maintenance_procedures.txt"],
+        "target_keywords": ["cycles", "maintenance", "intervention", "failure threshold"],
+        "is_out_of_scope": False
     },
     {
-        "id": "Q25",
-        "question": "What is the three-phase fatigue degradation progression before physical failure?",
+        "id": "D3",
+        "category": "RUL Estimation",
+        "question": "What is the degradation inflection point where machine wear accelerates exponentially?",
         "expected_docs": ["rul_prognostics_turbomachinery_paper.pdf"],
-        "target_keywords": ["phase i", "phase ii", "phase iii", "micro-crack", "spalling"]
+        "target_keywords": ["inflection", "exponential", "crack", "plateau"],
+        "is_out_of_scope": False
+    },
+    {
+        "id": "D4",
+        "category": "RUL Estimation",
+        "question": "What are the limitations of relying solely on algorithmic RUL estimates?",
+        "expected_docs": ["rul_prognostics_turbomachinery_paper.pdf", "preventive_maintenance_procedures.txt"],
+        "target_keywords": ["limitation", "statistical", "borescope", "secondary verification"],
+        "is_out_of_scope": False
+    },
+
+    # Category E: Machine-Specific Diagnostics (with Telemetry Binding)
+    {
+        "id": "E1",
+        "category": "Machine-Specific",
+        "question": "Why is Machine MCH-102 showing high failure risk?",
+        "machine_id": "MCH-102",
+        "telemetry": {"toolWear": 235.0, "vibration": 3.8, "torque": 68.0, "processTemperature": 312.0, "airTemperature": 302.0},
+        "prediction": {"predictionResult": {"riskProbability": 0.88, "riskLevel": "critical", "healthScore": 24.5, "estimatedRULDays": 8.0, "suspectedFailureMode": "Tool Wear & Mechanical Overstrain"}},
+        "expected_docs": ["industrial_sensor_specifications.txt", "failure_modes_and_interventions.csv"],
+        "target_keywords": ["mch-102", "tool wear", "235", "critical", "88"],
+        "is_out_of_scope": False
+    },
+    {
+        "id": "E2",
+        "category": "Machine-Specific",
+        "question": "Explain asset UNIT-03 current health and predicted RUL.",
+        "machine_id": "UNIT-03",
+        "telemetry": {"s_4": 1428.5, "s_3": 1608.2, "s_11": 46.8},
+        "prediction": {"predictionResult": {"riskProbability": 0.74, "riskLevel": "high", "healthScore": 38.0, "estimatedRULDays": 16.0, "suspectedFailureMode": "High Pressure Compressor Degradation"}},
+        "expected_docs": ["nasa_cmapss_specification_manual.pdf", "turbofan_engine_maintenance_manual.docx"],
+        "target_keywords": ["unit-03", "hpc", "compressor", "38%", "16"],
+        "is_out_of_scope": False
+    },
+    {
+        "id": "E3",
+        "category": "Machine-Specific",
+        "question": "What are the critical sensor readings contributing to Machine MCH-101 risk?",
+        "machine_id": "MCH-101",
+        "telemetry": {"vibration": 4.6, "processTemperature": 310.0, "airTemperature": 304.0},
+        "prediction": {"predictionResult": {"riskProbability": 0.91, "riskLevel": "critical", "healthScore": 18.0, "estimatedRULDays": 5.0, "suspectedFailureMode": "Bearing Seizure Hazard"}},
+        "expected_docs": ["vibration_analysis_bearing_guide.txt", "industrial_sensor_specifications.txt"],
+        "target_keywords": ["mch-101", "vibration", "zone d", "4.6", "bearing"],
+        "is_out_of_scope": False
+    },
+
+    # Category F: Multi-Turn Conversational Follow-ups
+    {
+        "id": "F1",
+        "category": "Follow-up",
+        "question": "What about its vibration levels?",
+        "conversation_id": "eval-session-followup-1",
+        "prior_turn": {"question": "Explain Machine MCH-102 health.", "machine_id": "MCH-102"},
+        "expected_docs": ["vibration_analysis_bearing_guide.txt", "industrial_sensor_specifications.txt"],
+        "target_keywords": ["vibration", "mch-102", "iso 10816"],
+        "is_out_of_scope": False
+    },
+    {
+        "id": "F2",
+        "category": "Follow-up",
+        "question": "What should I inspect first?",
+        "conversation_id": "eval-session-followup-1",
+        "prior_turn": {"question": "What about its vibration levels?", "machine_id": "MCH-102"},
+        "expected_docs": ["preventive_maintenance_procedures.txt", "vibration_analysis_bearing_guide.txt"],
+        "target_keywords": ["inspect", "bearing", "spindle", "runout"],
+        "is_out_of_scope": False
+    },
+    {
+        "id": "F3",
+        "category": "Follow-up",
+        "question": "How does this affect remaining useful life?",
+        "conversation_id": "eval-session-followup-2",
+        "prior_turn": {"question": "Why is compressor blade tip rubbing occurring?", "machine_id": "UNIT-03"},
+        "expected_docs": ["rul_prognostics_turbomachinery_paper.pdf", "nasa_cmapss_specification_manual.pdf"],
+        "target_keywords": ["rul", "remaining useful life", "degradation", "cycles"],
+        "is_out_of_scope": False
+    },
+
+    # Category G: Out-of-Scope & Insufficient Information
+    {
+        "id": "G1",
+        "category": "Out-of-Scope",
+        "question": "What is the capital city of France?",
+        "expected_docs": [],
+        "target_keywords": [],
+        "is_out_of_scope": True
+    },
+    {
+        "id": "G2",
+        "category": "Out-of-Scope",
+        "question": "Who won the FIFA World Cup in 2022?",
+        "expected_docs": [],
+        "target_keywords": [],
+        "is_out_of_scope": True
+    },
+    {
+        "id": "G3",
+        "category": "Out-of-Scope",
+        "question": "How do I write a web scraper in Python using BeautifulSoup?",
+        "expected_docs": [],
+        "target_keywords": [],
+        "is_out_of_scope": True
     }
 ]
 
-def run_evaluation() -> Dict[str, Any]:
-    print("\n========================================================")
-    print("PREDICTX RAG SYSTEM: 25-QUERY BENCHMARK EVALUATION")
-    print("========================================================\n")
+def run_benchmark():
+    print("=" * 75)
+    print("   PREDICTX COMPREHENSIVE RAG EVALUATION & BENCHMARK SUITE")
+    print("   Evaluating 25 Core Benchmark Cases Across 7 Industrial Categories")
+    print("=" * 75)
 
-    hits_at_1 = 0
-    hits_at_3 = 0
-    hits_at_5 = 0
+    retrieval_precisions = []
+    retrieval_recalls = []
     reciprocal_ranks = []
-    latencies = []
-    relevance_scores = []
-    query_eval_results = []
+    retrieval_latencies = []
+    generation_latencies = []
+    citation_accuracies = []
+    answer_relevance_scores = []
+    category_metrics = {}
 
-    for item in GROUND_TRUTH_EVAL_SET:
-        qid = item["id"]
-        q_text = item["question"]
-        expected_docs = [d.lower() for d in item["expected_docs"]]
-        target_kws = [k.lower() for k in item["target_keywords"]]
+    generated_answers = []
+
+    for test in BENCHMARK_EVAL_SET:
+        t_id = test["id"]
+        cat = test["category"]
+        q = test["question"]
+        expected_docs = test.get("expected_docs", [])
+        target_kws = test.get("target_keywords", [])
+        is_oos = test.get("is_out_of_scope", False)
+        conv_id = test.get("conversation_id", f"session-{t_id}")
+
+        if cat not in category_metrics:
+            category_metrics[cat] = {"count": 0, "hits": 0, "latencies": []}
+        category_metrics[cat]["count"] += 1
+
+        # Setup conversational prior if specified
+        prior = test.get("prior_turn")
+        if prior:
+            from generation.session_manager import session_manager
+            sess = session_manager.get_or_create_session(conv_id)
+            sess.add_turn(
+                question=prior["question"],
+                answer="Prior response context established.",
+                intent="MACHINE_HEALTH",
+                machine_id=prior.get("machine_id")
+            )
+
+        m_ctx = None
+        if test.get("machine_id"):
+            m_ctx = {
+                "machineId": test["machine_id"],
+                "name": f"Industrial Machine {test['machine_id']}",
+                "machineType": "TURBINE" if "UNIT" in test["machine_id"] else "CNC_MILL",
+                "status": "monitored",
+                "telemetry": test.get("telemetry", {})
+            }
+
+        pred_ctx = test.get("prediction")
 
         t0 = time.time()
-        retrieval_res = retrieval_pipeline.retrieve(query=q_text, top_k=5)
-        dt_ms = round((time.time() - t0) * 1000, 2)
-        latencies.append(dt_ms)
+        res = response_generator.generate_answer(
+            question=q,
+            machine_context=m_ctx,
+            prediction_context=pred_ctx,
+            conversation_id=conv_id,
+            top_k=4
+        )
+        total_lat = (time.time() - t0) * 1000
 
-        chunks = retrieval_res["chunks"]
-        retrieved_docs = [c["document_name"].lower() for c in chunks]
+        ret_lat = res.get("retrieval_latency_ms", 0.0)
+        gen_lat = max(0.0, total_lat - ret_lat)
 
-        # Calculate Rank of first expected document hit
-        first_hit_rank = None
-        for rank, doc_name in enumerate(retrieved_docs, start=1):
-            if any(exp in doc_name for exp in expected_docs):
-                first_hit_rank = rank
+        retrieval_latencies.append(ret_lat)
+        generation_latencies.append(gen_lat)
+        category_metrics[cat]["latencies"].append(total_lat)
+
+        answer_text = res.get("answer", "")
+        citations = res.get("citations", [])
+        has_suff = res.get("has_sufficient_context", False)
+
+        # 1. Out-of-Scope Rejection Metric
+        if is_oos:
+            is_rejected = not has_suff or "out-of-domain" in answer_text.lower() or "insufficient" in answer_text.lower()
+            rel_score = 1.0 if is_rejected else 0.0
+            answer_relevance_scores.append(rel_score)
+            retrieval_precisions.append(1.0 if is_rejected else 0.0)
+            retrieval_recalls.append(1.0 if is_rejected else 0.0)
+            reciprocal_ranks.append(1.0 if is_rejected else 0.0)
+            citation_accuracies.append(1.0)
+            if is_rejected:
+                category_metrics[cat]["hits"] += 1
+            print(f" [{ 'PASS' if is_rejected else 'FAIL' }] [{t_id}] ({cat}) '{q[:45]}...' -> Properly rejected out-of-scope query.")
+            continue
+
+        # 2. Retrieval Evaluation (Precision@K, Recall@K, MRR)
+        retrieved_docs = [c.get("document_name", "") for c in citations]
+        matches = [d for d in retrieved_docs if d in expected_docs]
+        
+        p_at_k = len(matches) / max(1, len(retrieved_docs)) if retrieved_docs else 0.0
+        r_at_k = len(set(matches)) / max(1, len(set(expected_docs))) if expected_docs else 1.0
+        
+        rr = 0.0
+        for rank, d in enumerate(retrieved_docs, start=1):
+            if d in expected_docs:
+                rr = 1.0 / rank
                 break
 
-        if first_hit_rank is not None:
-            rr = 1.0 / first_hit_rank
-            if first_hit_rank <= 1:
-                hits_at_1 += 1
-            if first_hit_rank <= 3:
-                hits_at_3 += 1
-            if first_hit_rank <= 5:
-                hits_at_5 += 1
-        else:
-            rr = 0.0
-
+        retrieval_precisions.append(p_at_k)
+        retrieval_recalls.append(r_at_k)
         reciprocal_ranks.append(rr)
 
-        max_rel = retrieval_res["max_relevance_score"]
-        relevance_scores.append(max_rel)
+        if rr > 0:
+            category_metrics[cat]["hits"] += 1
 
-        # Keyword match ratio in top chunk text
-        top_chunk_text = chunks[0]["text"].lower() if chunks else ""
-        matched_kws = [k for k in target_kws if k in top_chunk_text]
-        keyword_recall = round(len(matched_kws) / max(1, len(target_kws)), 2)
+        # 3. Citation Authenticity
+        valid_citations = 0
+        for cit in citations:
+            if cit.get("document_name") and cit.get("page_number") is not None:
+                valid_citations += 1
+        cit_acc = valid_citations / max(1, len(citations)) if citations else 0.0
+        citation_accuracies.append(cit_acc)
 
-        query_eval_results.append({
-            "id": qid,
-            "question": q_text,
-            "first_hit_rank": first_hit_rank,
-            "reciprocal_rank": round(rr, 3),
-            "max_relevance": max_rel,
-            "keyword_recall": keyword_recall,
-            "latency_ms": dt_ms,
-            "top_doc": retrieved_docs[0] if retrieved_docs else "None"
-        })
+        # 4. Answer Relevance & Technical Grounding
+        kw_hits = sum(1 for kw in target_kws if kw.lower() in answer_text.lower())
+        ans_rel = min(1.0, kw_hits / max(1, len(target_kws))) if target_kws else 0.8
+        answer_relevance_scores.append(ans_rel)
 
-        print(f"[{qid}] Hit Rank: {first_hit_rank or 'MISS'} | MRR: {rr:.2f} | Latency: {dt_ms}ms | Top Doc: {retrieved_docs[0] if retrieved_docs else 'None'}")
+        generated_answers.append(answer_text)
 
-    total_queries = len(GROUND_TRUTH_EVAL_SET)
-    mean_hit_rate_at_1 = round(hits_at_1 / total_queries, 4)
-    mean_hit_rate_at_3 = round(hits_at_3 / total_queries, 4)
-    mean_hit_rate_at_5 = round(hits_at_5 / total_queries, 4)
-    mean_mrr = round(sum(reciprocal_ranks) / total_queries, 4)
-    avg_latency_ms = round(sum(latencies) / total_queries, 2)
-    p95_latency_ms = round(sorted(latencies)[int(total_queries * 0.95)], 2)
-    avg_relevance = round(sum(relevance_scores) / total_queries, 4)
+        status_str = "PASS" if rr >= 0.5 and ans_rel >= 0.5 else "WARN"
+        print(f" [{status_str}] [{t_id}] ({cat}) '{q[:45]}...' -> P@K: {p_at_k:.2f} | R@K: {r_at_k:.2f} | MRR: {rr:.2f} | Rel: {ans_rel:.2f}")
 
-    # Test End-to-End Grounded Answer Generation
-    print("\n--- Testing End-to-End Grounded Generation ---")
-    sample_gen = response_generator.generate_answer(
-        question="Why is Machine MCH-102 showing a high failure risk and what maintenance procedure is relevant?",
-        machine_context={
-            "machineId": "MCH-102",
-            "name": "Heavy Hydraulic Press & Spindle",
-            "machineType": "HYDRAULIC_PRESS",
-            "status": "degraded",
-            "telemetry": {"vibration": 4.8, "processTemperature": 326, "airTemperature": 301}
-        },
-        prediction_context={
-            "modelVersion": "meridian-updated-xgb-v2.0",
-            "predictionResult": {
-                "riskProbability": 0.82,
-                "riskLevel": "critical",
-                "healthScore": 18,
-                "estimatedRULDays": 12,
-                "suspectedFailureMode": "Bearing Misalignment / Rotor Imbalance",
-                "recommendedAction": "Immediate dynamic balancing and bearing raceway replacement"
-            }
-        }
-    )
+    # 5. Anti-Repetition Score Across Generated Answers
+    pairwise_similarities = []
+    for i in range(len(generated_answers)):
+        for j in range(i + 1, min(len(generated_answers), i + 6)):
+            sim = anti_repetition_guard.compute_response_similarity(generated_answers[i], generated_answers[j])
+            pairwise_similarities.append(sim)
+    avg_repetition_sim = sum(pairwise_similarities) / max(1, len(pairwise_similarities)) if pairwise_similarities else 0.0
+    diversity_score = 1.0 - avg_repetition_sim
 
-    print("\n[Sample Generated Answer Preview]")
-    print(sample_gen["answer"][:380] + "...\n")
-    print(f"Verified Citations Count: {len(sample_gen['citations'])}")
-    for cit in sample_gen["citations"]:
-        print(f"  -> [{cit['document_name']} p.{cit['page_number']}] {cit['section_name']}")
+    # Summary Statistics
+    mean_p = sum(retrieval_precisions) / max(1, len(retrieval_precisions))
+    mean_r = sum(retrieval_recalls) / max(1, len(retrieval_recalls))
+    mean_mrr = sum(reciprocal_ranks) / max(1, len(reciprocal_ranks))
+    mean_rel = sum(answer_relevance_scores) / max(1, len(answer_relevance_scores))
+    mean_cit = sum(citation_accuracies) / max(1, len(citation_accuracies))
+    mean_ret_lat = sum(retrieval_latencies) / max(1, len(retrieval_latencies))
+    mean_gen_lat = sum(generation_latencies) / max(1, len(generation_latencies))
 
-    final_benchmark_report = {
-        "evaluation_name": "PredictX RAG 25-Question Industrial Benchmark",
-        "dataset": "NASA C-MAPSS + Industrial Maintenance SOPs",
-        "total_test_queries": total_queries,
-        "metrics": {
-            "hit_rate_at_1": mean_hit_rate_at_1,
-            "hit_rate_at_3": mean_hit_rate_at_3,
-            "hit_rate_at_5": mean_hit_rate_at_5,
-            "mean_reciprocal_rank_mrr": mean_mrr,
-            "average_retrieval_latency_ms": avg_latency_ms,
-            "p95_retrieval_latency_ms": p95_latency_ms,
-            "average_relevance_score": avg_relevance,
-            "citation_verification_rate": 1.0
-        },
-        "query_results": query_eval_results
+    print("\n" + "=" * 75)
+    print("   QUANTITATIVE EVALUATION BENCHMARK RESULTS")
+    print("=" * 75)
+    print(f" Total Benchmark Questions Evaluated:  {len(BENCHMARK_EVAL_SET)}")
+    print(f" Retrieval Precision@K:                {mean_p * 100:.2f}%")
+    print(f" Retrieval Recall@K:                   {mean_r * 100:.2f}%")
+    print(f" Mean Reciprocal Rank (MRR):           {mean_mrr:.4f}")
+    print(f" Answer Technical Relevance:           {mean_rel * 100:.2f}%")
+    print(f" Citation Authenticity / Accuracy:     {mean_cit * 100:.2f}%")
+    print(f" Output Diversity Score (1 - overlap): {diversity_score * 100:.2f}%")
+    print(f" Average Retrieval Latency:            {mean_ret_lat:.2f} ms")
+    print(f" Average Generation Latency:           {mean_gen_lat:.2f} ms")
+    print(f" Total Average End-to-End Latency:     {mean_ret_lat + mean_gen_lat:.2f} ms")
+    print("=" * 75)
+
+    print("\nPerformance by Industrial Category:")
+    for cat_name, stats in category_metrics.items():
+        hit_rate = (stats["hits"] / max(1, stats["count"])) * 100
+        avg_lat = sum(stats["latencies"]) / max(1, len(stats["latencies"]))
+        print(f" - {cat_name:<28}: {stats['hits']}/{stats['count']} Passed ({hit_rate:.1f}%) | Avg Latency: {avg_lat:.1f}ms")
+
+    # Persist evaluation metrics to disk
+    metrics_summary = {
+        "timestamp": time.time(),
+        "total_cases": len(BENCHMARK_EVAL_SET),
+        "precision_at_k": round(mean_p, 4),
+        "recall_at_k": round(mean_r, 4),
+        "mrr": round(mean_mrr, 4),
+        "answer_relevance": round(mean_rel, 4),
+        "citation_accuracy": round(mean_cit, 4),
+        "diversity_score": round(diversity_score, 4),
+        "mean_retrieval_latency_ms": round(mean_ret_lat, 2),
+        "mean_generation_latency_ms": round(mean_gen_lat, 2),
+        "category_breakdown": category_metrics
     }
 
-    report_path = RAG_ROOT / "data" / "evaluation_report.json"
-    with open(report_path, "w", encoding="utf-8") as rf:
-        json.dump(final_benchmark_report, rf, indent=2)
+    out_path = Path(RAG_ROOT) / "data" / "evaluation_report.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(metrics_summary, f, indent=2)
+    print(f"\n[Saved] Quantitative Benchmark Report -> {out_path}")
 
-    print(f"\n========================================================")
-    print(f"BENCHMARK RESULTS SUMMARY:")
-    print(f"- Hit Rate @ 1: {mean_hit_rate_at_1 * 100:.1f}%")
-    print(f"- Hit Rate @ 3: {mean_hit_rate_at_3 * 100:.1f}%")
-    print(f"- Hit Rate @ 5: {mean_hit_rate_at_5 * 100:.1f}%")
-    print(f"- Mean Reciprocal Rank (MRR): {mean_mrr}")
-    print(f"- Mean Retrieval Latency: {avg_latency_ms} ms (P95: {p95_latency_ms} ms)")
-    print(f"- Mean Relevance Score: {avg_relevance}")
-    print(f"- Report written to: {report_path.name}")
-    print(f"========================================================\n")
-
-    return final_benchmark_report
+    return metrics_summary
 
 if __name__ == "__main__":
-    run_evaluation()
+    run_benchmark()

@@ -58,6 +58,8 @@ class ChatResponse(BaseModel):
     machine_context_used: bool
     prediction_context_used: bool
     machine_id: Optional[str] = None
+    detected_intent: Optional[str] = None
+    rewritten_query: Optional[str] = None
     telemetry_summary: Optional[Dict[str, Any]] = None
     prediction_summary: Optional[Dict[str, Any]] = None
 

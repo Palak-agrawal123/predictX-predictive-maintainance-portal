@@ -386,31 +386,6 @@ export function AIAssistantPage() {
             </div>
           )}
 
-          {/* KNOWLEDGE BASE METRICS */}
-          <div className="bg-white border border-[#E0E6E0] rounded-xl p-4 shadow-sm">
-            <h4 className="text-xs font-bold text-[#202A27] uppercase tracking-wider mb-3 flex items-center gap-2">
-              <BookOpen size={14} className="text-[#176B52]" />
-              Knowledge Base Coverage
-            </h4>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between items-center py-1 border-b border-[#F4F6F3]">
-                <span className="text-[#68756F]">Indexed Chunks:</span>
-                <span className="font-mono font-bold text-[#176B52]">36 chunks</span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-[#F4F6F3]">
-                <span className="text-[#68756F]">Embedding Model:</span>
-                <span className="font-mono text-[11px] text-[#202A27]">all-MiniLM-L6-v2</span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-[#F4F6F3]">
-                <span className="text-[#68756F]">Vector DB:</span>
-                <span className="font-mono text-[11px] text-[#202A27]">ChromaDB (Cosine)</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-[#68756F]">Search Method:</span>
-                <span className="font-medium text-[11px] text-[#176B52]">Hybrid (Dense + BM25)</span>
-              </div>
-            </div>
-          </div>
 
           {/* INDUSTRIAL SAFETY DISCLAIMER */}
           <div className="bg-[#FFFBEB] border border-[#FDE68A] rounded-xl p-3 text-[11px] text-[#92400E] flex items-start gap-2">

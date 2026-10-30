@@ -87,14 +87,17 @@ rag_service/
 │   │   ├── sensors/                    # ISO 10816-3 vibration & PT100 RTD sensor guides
 │   │   └── troubleshooting/            # Thermal & heat dissipation fault trees
 │   ├── ingestion_reports/              # Automated JSON audit reports of indexed documents
-│   └── evaluation_report.json          # 25-query quantitative benchmark report
+│   └── evaluation_report.json          # 28-query quantitative benchmark report
 ├── embeddings/                         # Vector Embeddings
 │   └── embedding.py                    # SentenceTransformer singleton (all-MiniLM-L6-v2, 384-dim)
 ├── generation/                         # LLM Grounding & Citation Extraction
+│   ├── anti_repetition.py              # 3-gram & Jaccard repetition detector & guardrail
 │   ├── citation_manager.py             # Genuine citation extractor & verifier
-│   ├── llm_client.py                   # Multi-provider client (Gemini, OpenAI, Offline Fallback)
-│   ├── prompt_template.py              # Strict industrial maintenance system prompt
-│   └── response_generator.py           # End-to-end RAG answer generation coordinator
+│   ├── context_builder.py              # Query-tailored dynamic context formatter
+│   ├── llm_client.py                   # Multi-provider client (Gemini, OpenAI, Dynamic Synthesis)
+│   ├── prompt_template.py              # Strict 15-rule industrial maintenance system prompt
+│   ├── response_generator.py           # End-to-end RAG answer generation coordinator
+│   └── session_manager.py              # Thread-safe LRU multi-turn conversation memory
 ├── ingestion/                          # Multi-Format Ingestion Pipeline
 │   ├── document_loader.py              # Categorized document scanner
 │   ├── document_parser.py              # Multi-format parser (PDF, DOCX, TXT, CSV)
