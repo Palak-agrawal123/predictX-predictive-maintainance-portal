@@ -38,7 +38,6 @@ export default {
         }
       },
       fontFamily: {
-        heading: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'sans-serif'],
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       }

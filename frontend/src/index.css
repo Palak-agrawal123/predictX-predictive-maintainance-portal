@@ -9,44 +9,11 @@
 body {
   margin: 0;
   background-color: #F5F6F2;
-  color: #1F2823;
+  color: #202925;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* Distinct Headings Typography (Plus Jakarta Sans) */
-h1, h2, h3, h4, h5, h6, .font-heading {
-  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  letter-spacing: -0.025em;
-  color: #18231E;
-}
-
-h1 {
-  font-weight: 700;
-  letter-spacing: -0.03em;
-}
-
-h2 {
-  font-weight: 700;
-  letter-spacing: -0.025em;
-}
-
-h3, h4 {
-  font-weight: 600;
-  letter-spacing: -0.015em;
-}
-
-/* Statements & Body Descriptions (Clean Inter with relaxed readability) */
-p, .statement {
-  letter-spacing: -0.005em;
-  line-height: 1.55;
-}
-
-th {
-  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-  letter-spacing: 0.025em;
 }
 
 code, pre, .font-mono {

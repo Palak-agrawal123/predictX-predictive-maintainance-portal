@@ -62,8 +62,8 @@ export function PriorityBadge({ priority }) {
 export function StatCard({ title, value, subtitle, icon: Icon, badge }) {
   return (
     <div className="bg-white border border-[#DFE4DD] rounded-lg p-4 transition-all hover:border-[#C2CDC0]">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-[#68756E] font-heading">{title}</span>
+      <div className="flex items-center justify-between text-[#68736C] mb-2">
+        <span className="text-xs font-medium tracking-tight text-[#68736C]">{title}</span>
         {Icon && (
           <div className="p-1 rounded text-[#68736C]">
             <Icon size={15} strokeWidth={1.75} />
@@ -71,10 +71,10 @@ export function StatCard({ title, value, subtitle, icon: Icon, badge }) {
         )}
       </div>
       <div className="flex items-baseline justify-between">
-        <span className="text-2xl font-bold font-mono tracking-tight text-[#16221D]">{value}</span>
+        <span className="text-2xl font-semibold font-mono tracking-tight text-[#202925]">{value}</span>
         {badge && <span className="text-[11px] text-[#68736C] font-mono">{badge}</span>}
       </div>
-      {subtitle && <p className="text-xs text-[#596860] mt-1.5 leading-relaxed truncate">{subtitle}</p>}
+      {subtitle && <p className="text-[12px] text-[#68736C] mt-1 truncate">{subtitle}</p>}
     </div>
   );
 }
@@ -83,8 +83,8 @@ export function SectionHeader({ title, subtitle, action }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-[#DFE4DD] gap-3">
       <div>
-        <h2 className="text-base font-bold font-heading tracking-tight text-[#16221D]">{title}</h2>
-        {subtitle && <p className="text-xs text-[#596860] mt-1 leading-relaxed">{subtitle}</p>}
+        <h2 className="text-sm font-semibold tracking-tight text-[#202925]">{title}</h2>
+        {subtitle && <p className="text-xs text-[#68736C] mt-0.5">{subtitle}</p>}
       </div>
       {action && <div>{action}</div>}
     </div>

@@ -65,6 +65,12 @@ export function Layout({ children, pageTitle = "Overview" }) {
         },
         { to: "/predictions", label: "Models & Evaluation", icon: Activity }
       ]
+    },
+    {
+      title: "INTELLIGENT SUPPORT",
+      items: [
+        { to: "/ai-assistant", label: "AI Maintenance Copilot", icon: Sparkles, tag: "RAG" }
+      ]
     }
   ];
 
@@ -105,23 +111,21 @@ export function Layout({ children, pageTitle = "Overview" }) {
 
       {/* SIDEBAR NAVIGATION */}
       <aside className={`
-        fixed md:sticky top-0 h-screen w-64 bg-[#F0F2ED] border-r border-[#DFE4DD] flex flex-col justify-between z-30 transition-transform duration-200 ease-in-out
+        fixed md:sticky top-0 h-screen w-60 bg-[#F0F2ED] border-r border-[#DFE4DD] flex flex-col justify-between z-30 transition-transform duration-200 ease-in-out
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <div className="flex flex-col h-full">
           {/* Identity */}
-          <div className="h-16 px-5 border-b border-[#DFE4DD] flex items-center justify-between bg-[#ECEFE9]/40">
+          <div className="px-5 py-4 border-b border-[#DFE4DD] flex items-center justify-between">
             <NavLink to="/dashboard" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-lg bg-[#246B52] flex items-center justify-center text-white shadow-xs group-hover:bg-[#1B5440] transition-colors">
-                <Activity size={16} strokeWidth={2.2} />
+              <div className="w-7 h-7 rounded-md bg-[#246B52] flex items-center justify-center text-white shadow-xs">
+                <Activity size={15} strokeWidth={2.2} />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-[15px] tracking-tight text-[#16221D] font-heading leading-tight">
+                <span className="font-semibold text-sm tracking-tight text-[#202925]">
                   Predict<span className="text-[#246B52]">X</span>
                 </span>
-                <span className="text-[10px] text-[#63726A] tracking-wider uppercase font-semibold font-heading">
-                  Fleet Intelligence
-                </span>
+                <span className="text-[10px] text-[#68736C] tracking-tight">Fleet Intelligence</span>
               </div>
             </NavLink>
           </div>
@@ -130,7 +134,7 @@ export function Layout({ children, pageTitle = "Overview" }) {
           <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
             {navigationSections.map((sec, idx) => (
               <div key={idx} className="space-y-1">
-                <div className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-[#798880] font-heading">
+                <div className="px-2.5 pb-1 text-[11px] font-medium text-[#85918A]">
                   {sec.title}
                 </div>
                 {sec.items.map(item => {
@@ -142,33 +146,19 @@ export function Layout({ children, pageTitle = "Overview" }) {
                       to={item.to}
                       onClick={() => setMobileMenuOpen(false)}
                       className={`
-                        relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all group
+                        flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors group
                         ${isActive
-                          ? 'bg-[#E5ECE4] text-[#1E5C45] font-semibold shadow-xs'
-                          : 'text-[#5A6860] hover:text-[#18231E] hover:bg-[#E9ECE6]'}
+                          ? 'bg-[#E8F0EA] text-[#246B52] font-semibold'
+                          : 'text-[#68736C] hover:text-[#202925] hover:bg-[#E9ECE6]'}
                       `}
                     >
-                      {isActive && (
-                        <span className="absolute left-1 top-2 bottom-2 w-1 bg-[#246B52] rounded-full" />
-                      )}
-                      <div className="flex items-center gap-2.5 min-w-0 pl-1">
-                        <Icon
-                          size={16}
-                          strokeWidth={isActive ? 2.1 : 1.75}
-                          className={`flex-shrink-0 transition-colors ${
-                            isActive ? 'text-[#246B52]' : 'text-[#6B7971] group-hover:text-[#18231E]'
-                          }`}
-                        />
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Icon size={15} strokeWidth={1.8} className={`flex-shrink-0 ${isActive ? 'text-[#246B52]' : 'text-[#68736C] group-hover:text-[#202925]'}`} />
                         <span className="truncate">{item.label}</span>
                       </div>
                       {item.badge !== undefined && item.badge !== null && (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-bold ${item.badgeColor || 'bg-[#246B52] text-white'}`}>
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-medium ${item.badgeColor || 'bg-[#E8F0EA] text-[#246B52]'}`}>
                           {item.badge}
-                        </span>
-                      )}
-                      {item.tag && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#246B52]/10 text-[#246B52] font-mono border border-[#246B52]/25 tracking-wide">
-                          {item.tag}
                         </span>
                       )}
                     </NavLink>
@@ -178,15 +168,21 @@ export function Layout({ children, pageTitle = "Overview" }) {
             ))}
           </nav>
 
-          {/* Clean Footer without Connected / Port 5000 */}
-          <div className="p-3 border-t border-[#DFE4DD] bg-[#ECEFE9]/40">
+          {/* Quiet Footer */}
+          <div className="p-3 border-t border-[#DFE4DD] bg-[#ECEFE9]/60 text-xs">
+            <div className="flex items-center justify-between text-[11px] text-[#68736C] mb-2 px-1">
+              <span className="flex items-center gap-1.5">
+                <span className={`w-1.5 h-1.5 rounded-full ${backendStatus?.online ? 'bg-[#368363]' : 'bg-[#B98232]'}`} />
+                <span>{backendStatus?.online ? 'Connected' : 'Offline Mode'}</span>
+              </span>
+              <span className="font-mono text-[10px] text-[#85918A]">Port 5000</span>
+            </div>
             <button
               onClick={resetAllDemoData}
-              className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-[#DFE4DD] bg-white hover:bg-[#F5F6F2] text-[#5A6860] hover:text-[#18231E] hover:border-[#C8D1C6] text-[11px] font-medium transition-all shadow-2xs cursor-pointer group"
+              className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md bg-white hover:bg-[#F5F6F2] border border-[#DFE4DD] text-[#68736C] hover:text-[#202925] text-[11px] font-medium transition-colors"
               title="Reset data to baseline"
             >
-              <RefreshCw size={12} strokeWidth={1.8} className="text-[#6B7971] group-hover:rotate-180 transition-transform duration-300" />
-              <span>Reset Local Data</span>
+              <RefreshCw size={11} strokeWidth={1.75} /> Reset Local Data
             </button>
           </div>
         </div>
@@ -195,20 +191,20 @@ export function Layout({ children, pageTitle = "Overview" }) {
       {/* MAIN VIEWPORT */}
       <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0 bg-[#F5F6F2]">
         {/* TOP HEADER */}
-        <header className="h-16 bg-white border-b border-[#DFE4DD] px-6 flex items-center justify-between sticky top-0 z-20">
+        <header className="h-13 bg-white border-b border-[#DFE4DD] px-6 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-2">
-            <h1 className="text-[15px] font-bold tracking-tight text-[#16221D] font-heading">
+            <h1 className="text-sm font-semibold tracking-tight text-[#202925]">
               {pageTitle}
             </h1>
           </div>
 
-          <div className="flex items-center gap-2.5 text-xs">
+          <div className="flex items-center gap-3 text-xs">
             {/* Launch Guided Demo */}
             <button
               onClick={() => setDemoModalOpen(true)}
-              className="h-8 px-3 rounded-lg bg-[#246B52] hover:bg-[#1B5440] text-white font-medium text-xs flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+              className="px-2.5 py-1.5 rounded-md bg-[#246B52] hover:bg-[#1B5440] text-white font-medium text-xs flex items-center gap-1.5 transition-colors shadow-xs"
             >
-              <Sparkles size={13} strokeWidth={2} />
+              <Sparkles size={12} strokeWidth={2} />
               <span className="hidden sm:inline">Guided Demo</span>
               <span className="sm:hidden">Demo</span>
             </button>
@@ -217,16 +213,16 @@ export function Layout({ children, pageTitle = "Overview" }) {
             <button
               onClick={() => refreshData(true)}
               disabled={isLoading}
-              className="w-8 h-8 rounded-lg border border-[#DFE4DD] bg-white hover:bg-[#F5F6F2] hover:border-[#C8D1C6] text-[#55635C] hover:text-[#18231E] flex items-center justify-center transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+              className="p-1.5 rounded-md border border-[#DFE4DD] bg-white text-[#68736C] hover:text-[#202925] hover:border-[#C2CDC0] transition-colors"
               title="Sync live data"
               aria-label="Sync live data"
             >
-              <RefreshCw size={13} strokeWidth={2} className={isLoading ? 'animate-spin text-[#246B52]' : ''} />
+              <RefreshCw size={13} strokeWidth={1.75} className={isLoading ? 'animate-spin text-[#246B52]' : ''} />
             </button>
 
-            {/* Clock Status Pill */}
-            <div className="hidden sm:flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-[#DFE4DD] bg-[#F7F8F5] text-[#55635C] text-xs font-mono font-medium shadow-2xs">
-              <Clock size={12} strokeWidth={2} className="text-[#7A8881]" />
+            {/* Clock */}
+            <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 text-[#68736C] text-[11px] font-mono">
+              <Clock size={11} strokeWidth={1.75} />
               <span>{currentTime}</span>
             </div>
 
@@ -234,25 +230,25 @@ export function Layout({ children, pageTitle = "Overview" }) {
             <div className="relative">
               <button
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="relative w-8 h-8 rounded-lg border border-[#DFE4DD] bg-white hover:bg-[#F5F6F2] hover:border-[#C8D1C6] text-[#55635C] hover:text-[#18231E] flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+                className="p-1.5 rounded-md border border-[#DFE4DD] bg-white text-[#68736C] hover:text-[#202925] hover:border-[#C2CDC0] transition-colors relative"
                 title="Notifications"
                 aria-label="Notifications"
               >
-                <Bell size={14} strokeWidth={1.8} />
+                <Bell size={13} strokeWidth={1.75} />
                 {unreadAlerts.length > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#B74747] ring-2 ring-white" />
+                  <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-[#B74747]" />
                 )}
               </button>
 
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white border border-[#DFE4DD] rounded-xl shadow-lg p-3 z-50 animate-fadeIn">
+                <div className="absolute right-0 mt-2 w-80 bg-white border border-[#DFE4DD] rounded-lg shadow-lg p-3 z-50 animate-fadeIn">
                   <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#E7ECE5]">
-                    <span className="text-xs font-bold font-heading text-[#18231E]">
+                    <span className="text-xs font-semibold text-[#202925]">
                       Alerts ({alerts.length})
                     </span>
                     <button
                       onClick={() => setNotificationsOpen(false)}
-                      className="text-[#68736C] hover:text-[#202925] p-1 rounded hover:bg-[#F5F6F2]"
+                      className="text-[#68736C] hover:text-[#202925]"
                     >
                       <X size={13} />
                     </button>
@@ -266,7 +262,7 @@ export function Layout({ children, pageTitle = "Overview" }) {
                           navigate(`/machines/${alert.machineId}`);
                           setNotificationsOpen(false);
                         }}
-                        className={`p-2.5 rounded-lg border cursor-pointer transition-all text-xs ${
+                        className={`p-2 rounded border cursor-pointer transition-colors text-xs ${
                           alert.severity === 'Critical'
                             ? 'bg-[#F8EBEB]/60 border-[#EFCACA] hover:border-[#B74747]'
                             : 'bg-[#FAF3E7]/60 border-[#F3E0BD] hover:border-[#B98232]'
@@ -284,19 +280,10 @@ export function Layout({ children, pageTitle = "Overview" }) {
               )}
             </div>
 
-            {/* Vertical Divider */}
-            <div className="h-5 w-px bg-[#DFE4DD] mx-1" />
-
-            {/* PredictX Logo Mark */}
-            <div
-              className="flex items-center pl-1 select-none"
-              title="PredictX"
-            >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#164333] via-[#205E48] to-[#12382A] text-white flex items-center justify-center text-xs font-bold font-heading shadow-xs border border-[#164333]/40 hover:scale-[1.04] transition-transform cursor-pointer">
-                <span className="flex items-center leading-none">
-                  <span className="text-white tracking-tight">P</span>
-                  <span className="text-[#5FE3A1] tracking-tight font-extrabold">X</span>
-                </span>
+            {/* Operator Identifier */}
+            <div className="flex items-center gap-1.5 pl-2 border-l border-[#DFE4DD]">
+              <div className="w-5 h-5 rounded bg-[#E8F0EA] border border-[#D1E1D5] flex items-center justify-center text-[10px] text-[#246B52] font-semibold">
+                PX
               </div>
             </div>
           </div>
