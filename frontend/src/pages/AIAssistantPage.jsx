@@ -165,14 +165,7 @@ export function AIAssistantPage() {
                 <Sparkles size={17} />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-bold text-[#202A27]">PredictX AI Copilot</h2>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-[#176B52]/10 text-[#176B52] border border-[#176B52]/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#176B52] animate-pulse" />
-                    RAG Grounded
-                  </span>
-                </div>
-                <p className="text-[11px] text-[#68756F]">NASA C-MAPSS + ChromaDB Vector Knowledge Base</p>
+                <h2 className="text-sm font-bold text-[#202A27]">PredictX AI Copilot</h2>
               </div>
             </div>
 
