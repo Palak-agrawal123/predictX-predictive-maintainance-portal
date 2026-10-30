@@ -230,7 +230,15 @@ async function seedDatabase() {
         isMock: false,
         executionSource: 'ml_service_fastapi',
         inputFeatures: DEMO_MACHINES[2].operatingParameters,
-        predictionTimestamp: new Date(Date.now() - 2 * 60 * 60 * 1000)
+        predictionTimestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        predictedRisk: 'HIGH',
+        maintenancePriority: 'HIGH',
+        reviewStatus: 'PENDING',
+        isOverridden: false,
+        reviewedBy: null,
+        reviewedAt: null,
+        reviewReason: '',
+        reviewHistory: []
       },
       {
         predictionId: 'PRD-DEMO-002',
@@ -249,7 +257,15 @@ async function seedDatabase() {
         isMock: false,
         executionSource: 'ml_service_fastapi',
         inputFeatures: DEMO_MACHINES[1].operatingParameters,
-        predictionTimestamp: new Date(Date.now() - 4 * 60 * 60 * 1000)
+        predictionTimestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
+        predictedRisk: 'HIGH',
+        maintenancePriority: 'HIGH',
+        reviewStatus: 'PENDING',
+        isOverridden: false,
+        reviewedBy: null,
+        reviewedAt: null,
+        reviewReason: '',
+        reviewHistory: []
       },
       {
         predictionId: 'PRD-DEMO-003',
@@ -268,7 +284,24 @@ async function seedDatabase() {
         isMock: false,
         executionSource: 'ml_service_fastapi',
         inputFeatures: DEMO_MACHINES[0].operatingParameters,
-        predictionTimestamp: new Date(Date.now() - 6 * 60 * 60 * 1000)
+        predictionTimestamp: new Date(Date.now() - 6 * 60 * 60 * 1000),
+        predictedRisk: 'LOW',
+        maintenancePriority: 'LOW',
+        reviewStatus: 'REVIEWED',
+        isOverridden: false,
+        reviewedBy: 'Alex Rivera (Lead Mechatronics)',
+        reviewedAt: new Date(Date.now() - 5 * 60 * 60 * 1000),
+        reviewReason: 'Verified nominal baseline sensors. Concur with LOW risk assessment.',
+        reviewHistory: [
+          {
+            action: 'CONFIRMED',
+            previousPriority: 'LOW',
+            newPriority: 'LOW',
+            reason: 'Verified nominal baseline sensors. Concur with LOW risk assessment.',
+            reviewedBy: 'Alex Rivera (Lead Mechatronics)',
+            reviewedAt: new Date(Date.now() - 5 * 60 * 60 * 1000)
+          }
+        ]
       }
     ];
 

@@ -79,6 +79,7 @@ export const initialWorkOrders = [
     technician: "Elena Rostova",
     scheduledDate: "2026-10-18",
     createdAt: "2026-10-15",
+    completedAt: "2026-10-18 14:30",
     estimatedHours: 2.5,
     resolutionNotes: "Completed on 2026-10-18. Lubricant flushed, vibration dropped from 3.8 mm/s to 1.1 mm/s. Machine cleared for production.",
     source: "Scheduled PM Cycle"
@@ -95,6 +96,7 @@ export const initialWorkOrders = [
     technician: "Alex Rivera",
     scheduledDate: "2026-10-10",
     createdAt: "2026-10-08",
+    completedAt: "2026-10-10 11:15",
     estimatedHours: 1.5,
     resolutionNotes: "Filter replaced with genuine Hydac 0330D010ON. Lab sample sent; zero contamination reported.",
     source: "Routine Schedule"

@@ -83,11 +83,13 @@ export function WorkOrderPrintModal({ order, isOpen, onClose }) {
               </div>
               <div className="p-2 rounded bg-[#F4F7F5] border border-[#E0E6E0]">
                 <span className="text-[9px] text-[#75837D] uppercase block">Assigned Tech</span>
-                <span className="font-bold text-[#38BDF8] truncate block">{order.technician}</span>
+                <span className="font-bold text-[#176B52] truncate block">{order.technician}</span>
               </div>
               <div className="p-2 rounded bg-[#F4F7F5] border border-[#E0E6E0]">
-                <span className="text-[9px] text-[#75837D] uppercase block">Target Due Date</span>
-                <span className="font-bold text-[#176B52]">{order.scheduledDate}</span>
+                <span className="text-[9px] text-[#75837D] uppercase block">
+                  {order.completedAt ? "Completed At" : "Target Due Date"}
+                </span>
+                <span className="font-bold text-[#176B52]">{order.completedAt || order.scheduledDate}</span>
               </div>
             </div>
 

@@ -27,11 +27,18 @@ export async function createWorkOrder(req, res, next) {
       return next(new AppError(`Referenced machine '${cleanMachineId}' does not exist`, 404));
     }
 
-    // 2. Validate predictionId if provided
+    // 2. Validate predictionId if provided & use approved human maintenance priority
+    let resolvedPriority = priority;
     if (predictionId) {
       const prediction = await Prediction.findOne({ predictionId });
       if (!prediction) {
         return next(new AppError(`Referenced prediction '${predictionId}' not found`, 404));
+      }
+      if (!resolvedPriority) {
+        const approvedPriority = prediction.maintenancePriority || prediction.predictedRisk;
+        if (approvedPriority) {
+          resolvedPriority = approvedPriority.toLowerCase() === 'critical' ? 'urgent' : approvedPriority.toLowerCase();
+        }
       }
     }
 
@@ -46,7 +53,7 @@ export async function createWorkOrder(req, res, next) {
       predictionId: predictionId || null,
       title,
       description,
-      priority: priority || 'medium',
+      priority: (resolvedPriority || 'medium').toLowerCase(),
       status: 'draft',
       assignedTo: assignedTo || 'Unassigned',
       scheduledDate: scheduledDate ? new Date(scheduledDate) : undefined
@@ -74,8 +81,17 @@ export async function getAllWorkOrders(req, res, next) {
     const filter = {};
 
     if (machineId) filter.machineId = machineId.toUpperCase();
-    if (status) filter.status = status;
-    if (priority) filter.priority = priority;
+    if (status) {
+      const cleanStatus = status.trim();
+      if (cleanStatus.startsWith('!')) {
+        filter.status = { $ne: cleanStatus.slice(1).trim().toLowerCase() };
+      } else if (cleanStatus.includes(',')) {
+        filter.status = { $in: cleanStatus.split(',').map(s => s.trim().toLowerCase()) };
+      } else {
+        filter.status = cleanStatus.toLowerCase();
+      }
+    }
+    if (priority) filter.priority = priority.toLowerCase();
 
     const pageNum = Math.max(1, parseInt(page, 10));
     const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
@@ -182,7 +198,7 @@ export async function updateWorkOrder(req, res, next) {
 export async function updateWorkOrderStatus(req, res, next) {
   try {
     const { id } = req.params;
-    const { status: newStatus, resolutionNotes } = req.body;
+    const { status: newStatus, resolutionNotes, force } = req.body;
 
     const query = id.match(/^[0-9a-fA-F]{24}$/)
       ? { $or: [{ _id: id }, { workOrderId: id }] }
@@ -195,35 +211,47 @@ export async function updateWorkOrderStatus(req, res, next) {
     }
 
     const currentStatus = workOrder.status;
-
-    // Validate lifecycle transition
-    const allowed = VALID_TRANSITIONS[currentStatus] || [];
-    if (!allowed.includes(newStatus)) {
+    const targetStatus = newStatus?.toLowerCase()?.trim();
+    const validStatuses = ['draft', 'approved', 'in_progress', 'completed', 'cancelled'];
+    if (!validStatuses.includes(targetStatus)) {
       return next(
         new AppError(
-          `Invalid state transition: Cannot change status from '${currentStatus}' to '${newStatus}'. Allowed transitions: ${allowed.join(', ') || 'None (terminal state)'}`,
-          400,
-          { currentStatus, requestedStatus: newStatus, allowedTransitions: allowed }
+          `Invalid status '${newStatus}'. Allowed: ${validStatuses.join(', ')}`,
+          400
         )
       );
     }
 
-    workOrder.status = newStatus;
+    // Validate lifecycle transition (allows direct override when force is true)
+    const allowed = VALID_TRANSITIONS[currentStatus] || [];
+    if (!force && !allowed.includes(targetStatus)) {
+      return next(
+        new AppError(
+          `Invalid state transition: Cannot change status from '${currentStatus}' to '${targetStatus}'. Allowed transitions: ${allowed.join(', ') || 'None (terminal state)'}`,
+          400,
+          { currentStatus, requestedStatus: targetStatus, allowedTransitions: allowed }
+        )
+      );
+    }
 
-    if (newStatus === 'completed') {
-      workOrder.completedAt = new Date();
+    workOrder.status = targetStatus;
+
+    if (targetStatus === 'completed') {
+      workOrder.completedAt = workOrder.completedAt || new Date();
       if (resolutionNotes) {
         workOrder.resolutionNotes = resolutionNotes;
       }
-    } else if (resolutionNotes) {
-      workOrder.resolutionNotes = resolutionNotes;
+    } else {
+      if (resolutionNotes) {
+        workOrder.resolutionNotes = resolutionNotes;
+      }
     }
 
     await workOrder.save();
 
     res.json({
       success: true,
-      message: `Work order transitioned from '${currentStatus}' to '${newStatus}'`,
+      message: `Work order transitioned from '${currentStatus}' to '${targetStatus}'`,
       data: workOrder
     });
   } catch (err) {

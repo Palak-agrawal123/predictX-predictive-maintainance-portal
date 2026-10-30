@@ -29,17 +29,22 @@ export function WorkOrdersPage() {
   const [detailModalOrder, setDetailModalOrder] = useState(null);
   const [printModalOrder, setPrintModalOrder] = useState(null);
 
-  const statuses = ['Draft', 'Approved', 'In Progress', 'Completed', 'Cancelled'];
+  // Active and pending statuses only (Completed is tracked in Work Audits)
+  const activeStatuses = ['Draft', 'Approved', 'In Progress', 'Cancelled'];
+  const allWorkflowStatuses = ['Draft', 'Approved', 'In Progress', 'Completed', 'Cancelled'];
 
-  const filteredOrders = workOrders.filter(wo => {
+  // Work Orders table displays ONLY active/pending orders (not Completed)
+  const activeWorkOrders = workOrders.filter(wo => wo.status?.toLowerCase() !== 'completed');
+
+  const filteredOrders = activeWorkOrders.filter(wo => {
     const matchesSearch =
       wo.id.toLowerCase().includes(search.toLowerCase()) ||
       wo.machineId.toLowerCase().includes(search.toLowerCase()) ||
       wo.machineName.toLowerCase().includes(search.toLowerCase()) ||
       wo.technician.toLowerCase().includes(search.toLowerCase()) ||
-      wo.suspectedIssue.toLowerCase().includes(search.toLowerCase());
+      (wo.suspectedIssue && wo.suspectedIssue.toLowerCase().includes(search.toLowerCase()));
 
-    const matchesStatus = statusFilter === 'ALL' || wo.status === statusFilter;
+    const matchesStatus = statusFilter === 'ALL' || wo.status?.toLowerCase() === statusFilter.toLowerCase();
     const matchesPriority = priorityFilter === 'ALL' || wo.priority.toLowerCase() === priorityFilter.toLowerCase();
 
     return matchesSearch && matchesStatus && matchesPriority;
@@ -52,10 +57,16 @@ export function WorkOrdersPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E0E6E0] gap-3">
           <div>
             <h1 className="text-base font-bold tracking-tight text-[#202A27] flex items-center gap-2">
-              <span className="text-[#176B52]">//</span> MAINTENANCE WORK ORDER LOGISTICS
+              <span className="text-[#176B52]">//</span> ACTIVE MAINTENANCE WORK ORDERS
             </h1>
             <p className="text-xs text-[#68756F] mt-0.5">
-              Draft, dispatch, execute, and sign off on predictive maintenance intervention tasks
+              Draft, dispatch, and execute active maintenance tasks. Completed tasks are archived in{' '}
+              <button
+                onClick={() => navigate('/work-audits')}
+                className="text-[#176B52] font-semibold underline hover:text-[#10543F]"
+              >
+                Work Audits
+              </button>.
             </p>
           </div>
           <button
@@ -66,10 +77,10 @@ export function WorkOrdersPage() {
           </button>
         </div>
 
-        {/* METRIC COUNTERS */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
-          {statuses.map(s => {
-            const count = workOrders.filter(w => w.status === s).length;
+        {/* METRIC COUNTERS (Active & Pending Statuses) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          {activeStatuses.map(s => {
+            const count = activeWorkOrders.filter(w => w.status?.toLowerCase() === s.toLowerCase()).length;
             return (
               <div
                 key={s}
@@ -106,8 +117,8 @@ export function WorkOrdersPage() {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full bg-[#F7FAF8] border border-[#E0E6E0] rounded px-2.5 py-1.5 text-[#202A27] focus:border-[#176B52] focus:outline-none"
               >
-                <option value="ALL">Status: All</option>
-                {statuses.map(s => (
+                <option value="ALL">Status: All Active</option>
+                {activeStatuses.map(s => (
                   <option key={s} value={s}>{s}</option>
                 ))}
               </select>
@@ -188,7 +199,7 @@ export function WorkOrdersPage() {
                             onChange={(e) => updateWorkOrderStatus(wo.id, e.target.value)}
                             className="bg-[#F7FAF8] border border-[#E0E6E0] rounded px-2 py-1 text-[11px] text-[#202A27] focus:border-[#176B52] focus:outline-none"
                           >
-                            {statuses.map(s => (
+                            {allWorkflowStatuses.map(s => (
                               <option key={s} value={s}>{s}</option>
                             ))}
                           </select>

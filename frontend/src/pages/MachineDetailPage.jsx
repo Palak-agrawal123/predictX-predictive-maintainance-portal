@@ -25,7 +25,7 @@ import { api } from '../services/api';
 export function MachineDetailPage() {
   const { machineId } = useParams();
   const navigate = useNavigate();
-  const { machines, workOrders, addToast } = useAppData();
+  const { machines, workOrders, addToast, runMachinePrediction, updateMachineStatus } = useAppData();
 
   const [machine, setMachine] = useState(null);
   const [sensorData, setSensorData] = useState([]);
@@ -51,10 +51,27 @@ export function MachineDetailPage() {
 
   const handleSimulateInference = async () => {
     setIsInferring(true);
-    addToast('Executing inference against C-MAPSS model artifact...', 'info');
-    await api.triggerPrediction(machineId);
-    setIsInferring(false);
-    addToast(`Prediction updated: Machine ${machineId} RUL verified at ${machine?.predictedRul} cycles.`, 'success');
+    try {
+      const pred = await runMachinePrediction(machineId, machine?.operatingParameters);
+      if (pred) {
+        setMachine(prev => ({
+          ...prev,
+          healthScore: pred.healthScore ?? prev.healthScore,
+          riskScore: pred.riskScore ?? prev.riskScore,
+          riskLevel: pred.riskBand ?? prev.riskLevel,
+          predictedRul: pred.predictedRul ?? prev.predictedRul,
+          predictedFault: pred.suspectedFailureMode || prev.predictedFault,
+          recommendedAction: pred.recommendedAction || prev.recommendedAction
+        }));
+        // Reload sensor history as new point was saved to MongoDB
+        const updatedHistory = await api.getSensorHistory(machineId, selectedRange);
+        setSensorData(updatedHistory);
+      }
+    } catch (err) {
+      addToast(`Inference error: ${err.message}`, 'warning');
+    } finally {
+      setIsInferring(false);
+    }
   };
 
   // Compute five standard sensor signals, reusing telemetry and augmenting simulated fields:
@@ -160,7 +177,21 @@ export function MachineDetailPage() {
             <div>
               <div className="flex items-center gap-2.5">
                 <h1 className="text-base font-bold text-[#202A27]">{machine.name}</h1>
-                <StatusBadge status={machine.status} />
+                <select
+                  value={machine.status}
+                  onChange={(e) => {
+                    const newStatus = e.target.value;
+                    setMachine(prev => ({ ...prev, status: newStatus }));
+                    updateMachineStatus(machine.id, newStatus);
+                  }}
+                  className="bg-[#F7FAF8] hover:bg-[#E8EFEA] border border-[#E0E6E0] rounded px-2.5 py-1 text-xs font-semibold text-[#202A27] focus:border-[#176B52] focus:outline-none cursor-pointer"
+                  title="Change machine operating status in MongoDB"
+                >
+                  <option value="Operational">Operational</option>
+                  <option value="Degraded">Degraded</option>
+                  <option value="Under Maintenance">Under Maintenance</option>
+                  <option value="Critical">Critical</option>
+                </select>
               </div>
               <div className="flex items-center gap-2 text-xs text-[#68756F] mt-0.5">
                 <span>{machine.id}</span>

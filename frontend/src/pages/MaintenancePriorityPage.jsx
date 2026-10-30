@@ -1,6 +1,6 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SlidersHorizontal, ArrowUpDown, Info, Wrench, ShieldAlert, Sparkles, RotateCcw, Flame } from 'lucide-react';
+import { SlidersHorizontal, ArrowUpDown, Info, Wrench, ShieldAlert, Sparkles, RotateCcw, Flame, UserCheck, Clock, CheckCircle2 } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
 import { Layout } from '../components/layout/Layout';
 import { PriorityBadge, StatusBadge } from '../components/common/UIComponents';
@@ -8,7 +8,7 @@ import { WorkOrderModal } from '../components/work-orders/WorkOrderModal';
 import { calculatePriorityScore } from '../services/api';
 
 export function MaintenancePriorityPage() {
-  const { machines, priorityWeights, setPriorityWeights } = useAppData();
+  const { machines, priorityWeights, setPriorityWeights, pendingReviewsCount = 0 } = useAppData();
   const navigate = useNavigate();
 
   const [weights, setWeights] = useState(priorityWeights);
@@ -52,15 +52,26 @@ export function MaintenancePriorityPage() {
               <span className="text-[#176B52]">//</span> IMPACT-AWARE MAINTENANCE PRIORITY MATRIX
             </h1>
             <p className="text-xs text-[#68756F] mt-0.5">
-              DEV-P04 Decision Layer: Operational ranking factoring Failure Risk, Machine Criticality, Production Loss and Schedule Urgency
+              DEV-P04 Decision Layer: Operational ranking factoring ML Risk, Human Review Approvals, Machine Criticality, and Loss Impact
             </p>
           </div>
-          <button
-            onClick={resetWeights}
-            className="px-3 py-1.5 rounded bg-[#F7FAF8] hover:bg-[#DFE8E2] border border-[#E0E6E0] text-[#68756F] hover:text-[#202A27] text-xs flex items-center gap-1.5 self-start sm:self-auto"
-          >
-            <RotateCcw size={13} /> Reset Baseline Weights
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {pendingReviewsCount > 0 && (
+              <button
+                onClick={() => navigate('/reviews')}
+                className="px-3 py-1.5 rounded bg-[#D99A24]/15 hover:bg-[#D99A24]/25 border border-[#D99A24]/40 text-[#A66E0C] text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+              >
+                <Clock size={13} className="animate-spin" />
+                <span>{pendingReviewsCount} Pending Human Reviews</span>
+              </button>
+            )}
+            <button
+              onClick={resetWeights}
+              className="px-3 py-1.5 rounded bg-[#F7FAF8] hover:bg-[#DFE8E2] border border-[#E0E6E0] text-[#68756F] hover:text-[#202A27] text-xs flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+            >
+              <RotateCcw size={13} /> Reset Baseline Weights
+            </button>
+          </div>
         </div>
 
         {/* WHAT-IF WEIGHT CONTROL PANEL */}
@@ -76,13 +87,13 @@ export function MaintenancePriorityPage() {
           </div>
 
           <div className="text-[11px] text-[#68756F] bg-[#F4F7F5] p-2.5 rounded border border-[#D2DDD5] mb-3">
-            <code>Priority Score = ({weights.risk.toFixed(2)} × Risk) + ({weights.criticality.toFixed(2)} × Criticality) + ({weights.impact.toFixed(2)} × Impact) + ({weights.urgency.toFixed(2)} × Urgency)</code>
+            <code>Priority Score = ({weights.risk.toFixed(2)} × Operational Risk) + ({weights.criticality.toFixed(2)} × Criticality) + ({weights.impact.toFixed(2)} × Impact) + ({weights.urgency.toFixed(2)} × Urgency)</code>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
             <div className="p-2.5 rounded bg-[#F7FAF8] border border-[#E0E6E0]">
               <div className="flex justify-between mb-1.5">
-                <span className="text-[#68756F]">ML Risk Weight:</span>
+                <span className="text-[#68756F]">Risk Weight:</span>
                 <span className="font-bold text-[#176B52]">{(weights.risk * 100).toFixed(0)}%</span>
               </div>
               <input
@@ -152,7 +163,7 @@ export function MaintenancePriorityPage() {
             <button
               key={t}
               onClick={() => setTierFilter(t)}
-              className={`px-3 py-1.5 rounded border transition-colors ${
+              className={`px-3 py-1.5 rounded border transition-colors cursor-pointer ${
                 tierFilter === t
                   ? 'bg-[#176B52]/15 border-[#176B52] text-[#176B52] font-semibold'
                   : 'bg-[#FFFFFF] border-[#E0E6E0] text-[#68756F] hover:text-[#202A27]'
@@ -164,75 +175,124 @@ export function MaintenancePriorityPage() {
         </div>
 
         {/* RANKED LIST TABLE */}
-        <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg overflow-hidden">
+        <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
                 <tr className="bg-[#F4F7F5] border-b border-[#E0E6E0] text-[#68756F] uppercase text-[10px] tracking-wider">
-                  <th className="py-3 px-4">Rank</th>
-                  <th className="py-3 px-4">Machine ID & Name</th>
-                  <th className="py-3 px-4 text-center">Failure Risk</th>
-                  <th className="py-3 px-4 text-center">Criticality</th>
-                  <th className="py-3 px-4 text-center">Impact</th>
-                  <th className="py-3 px-4 text-center">Combined Priority</th>
-                  <th className="py-3 px-4">Priority Tier</th>
-                  <th className="py-3 px-4">Recommended Next Action</th>
-                  <th className="py-3 px-4 text-right">Dispatch</th>
+                  <th className="py-3 px-3">Rank</th>
+                  <th className="py-3 px-3">Equipment Unit</th>
+                  <th className="py-3 px-3 text-center">Original ML Risk</th>
+                  <th className="py-3 px-3 text-center">Approved Priority</th>
+                  <th className="py-3 px-3">Human Review State</th>
+                  <th className="py-3 px-3 text-center">Composite Score</th>
+                  <th className="py-3 px-3">Priority Tier</th>
+                  <th className="py-3 px-3">Operational Justification</th>
+                  <th className="py-3 px-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E5EBE6]">
-                {filtered.map((item, idx) => (
-                  <tr
-                    key={item.id}
-                    onClick={() => navigate(`/machines/${item.id}`)}
-                    className="hover:bg-[#F4F7F5] transition-colors cursor-pointer"
-                  >
-                    <td className="py-3 px-4 font-bold text-[#176B52]">#{idx + 1}</td>
-                    <td className="py-3 px-4">
-                      <div className="font-semibold text-[#202A27]">{item.id}</div>
-                      <div className="text-[11px] text-[#75837D]">{item.name}</div>
-                    </td>
-                    <td className="py-3 px-4 text-center font-bold">
-                      <span className={item.riskScore >= 65 ? 'text-[#B94040]' : item.riskScore >= 35 ? 'text-[#D99A24]' : 'text-[#27845C]'}>
-                        {item.riskScore}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-center text-[#68756F]">{item.criticalityScore}</td>
-                    <td className="py-3 px-4 text-center text-[#68756F]">{item.productionImpact}</td>
-                    <td className="py-3 px-4 text-center font-bold text-sm text-[#202A27]">
-                      {item.calc.score}
-                    </td>
-                    <td className="py-3 px-4">
-                      <PriorityBadge priority={item.calc.band} />
-                    </td>
-                    <td className="py-3 px-4 text-[#68756F] max-w-[200px] truncate">
-                      {item.calc.action}
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedMachine(item);
-                          setModalOpen(true);
-                        }}
-                        className="px-2.5 py-1 rounded bg-[#F7FAF8] hover:bg-[#176B52] hover:text-white border border-[#E0E6E0] text-[#202A27] transition-colors text-[11px]"
-                      >
-                        Create Order
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {filtered.map((item, idx) => {
+                  const isPending = item.reviewStatus === 'PENDING';
+                  const isOverridden = item.isOverridden;
+                  const originalRisk = item.predictedRisk || 'MEDIUM';
+                  const operationalPriority = item.maintenancePriority || item.calc.band;
+
+                  return (
+                    <tr
+                      key={item.id}
+                      onClick={() => navigate(`/machines/${item.id}`)}
+                      className="hover:bg-[#F4F7F5] transition-colors cursor-pointer"
+                    >
+                      <td className="py-3 px-3 font-bold text-[#176B52]">#{idx + 1}</td>
+                      <td className="py-3 px-3">
+                        <div className="font-semibold text-[#202A27]">{item.id}</div>
+                        <div className="text-[11px] text-[#75837D]">{item.name}</div>
+                      </td>
+
+                      {/* Original ML Risk Badge */}
+                      <td className="py-3 px-3 text-center">
+                        <PriorityBadge priority={originalRisk} />
+                        <div className="text-[9px] text-[#75837D] mt-0.5">
+                          {item.riskScore}% risk
+                        </div>
+                      </td>
+
+                      {/* Approved Operational Priority Badge */}
+                      <td className="py-3 px-3 text-center">
+                        <PriorityBadge priority={operationalPriority} />
+                        {isOverridden && (
+                          <div className="text-[9px] font-bold text-[#1E7598] mt-0.5">
+                            HUMAN OVERRIDE
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Review State Tag */}
+                      <td className="py-3 px-3">
+                        {isOverridden ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-[#1E7598]/10 text-[#1E7598] border border-[#1E7598]/30 font-bold">
+                            <SlidersHorizontal size={10} /> OVERRIDDEN
+                          </span>
+                        ) : isPending ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-[#D99A24]/10 text-[#A66E0C] border border-[#D99A24]/30 font-bold">
+                            <Clock size={10} /> PENDING REVIEW
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-[#27845C]/10 text-[#27845C] border border-[#27845C]/30 font-bold">
+                            <CheckCircle2 size={10} /> CONFIRMED
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3 px-3 text-center font-bold text-sm text-[#202A27]">
+                        {item.calc.score}
+                      </td>
+
+                      <td className="py-3 px-3">
+                        <PriorityBadge priority={item.calc.band} />
+                      </td>
+
+                      <td className="py-3 px-3 text-[#68756F] max-w-[220px] truncate" title={item.reviewReason || item.calc.action}>
+                        {isOverridden && item.reviewReason ? `[Override] ${item.reviewReason}` : item.calc.action}
+                      </td>
+
+                      <td className="py-3 px-3 text-right space-x-1.5 whitespace-nowrap">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate('/reviews');
+                          }}
+                          className="px-2 py-1 rounded bg-[#F7FAF8] hover:bg-[#E8EFEA] border border-[#E0E6E0] text-[#176B52] transition-colors text-[11px] font-semibold cursor-pointer"
+                          title="Review / Override in Human Review Console"
+                        >
+                          Review
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedMachine(item);
+                            setModalOpen(true);
+                          }}
+                          className="px-2.5 py-1 rounded bg-[#176B52] hover:bg-[#10543F] text-white transition-colors text-[11px] font-semibold cursor-pointer"
+                        >
+                          Create Order
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </div>
 
         {/* DECISION JUSTIFICATION NOTICE */}
-        <div className="p-3 bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg text-xs text-[#68756F] flex items-start gap-2.5">
+        <div className="p-3 bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg text-xs text-[#68756F] flex items-start gap-2.5 shadow-xs">
           <Info size={16} className="text-[#38BDF8] flex-shrink-0 mt-0.5" />
           <div>
-            <strong className="text-[#202A27]">Decision Support Principle: </strong>
-            Priority ranking blends algorithmic risk with practical plant constraints. An auxiliary equipment unit with severe degradation may yield lower overall downtime impact than a moderately degraded core line bottleneck.
+            <strong className="text-[#202A27]">Human-in-the-Loop Ranking Guarantee: </strong>
+            Reviewed operational priority ({'`maintenancePriority`'}) governs dispatch order while the original ML prediction ({'`predictedRisk`'}) remains strictly unchanged for transparent model auditability and NASA C-MAPSS validation.
           </div>
         </div>
       </div>
