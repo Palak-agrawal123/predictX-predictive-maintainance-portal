@@ -1,6 +1,7 @@
 import { Prediction } from '../models/Prediction.js';
 import { Machine } from '../models/Machine.js';
 import { ReviewAudit } from '../models/ReviewAudit.js';
+import { notificationService } from '../services/notificationService.js';
 import { AppError } from '../middleware/errorHandler.js';
 
 const VALID_PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
@@ -227,6 +228,20 @@ export async function confirmPredictionPriority(req, res, next) {
     });
     await auditRecord.save();
 
+    // Event notification for confirmed human review
+    try {
+      await notificationService.dispatchEvent('REVIEW_APPROVED', {
+        machineId: prediction.machineId,
+        predictionId: prediction.predictionId,
+        priority: prediction.predictedRisk,
+        reviewedBy: reviewer,
+        relatedEntityType: 'ReviewAudit',
+        relatedEntityId: prediction.predictionId
+      });
+    } catch (notifErr) {
+      console.warn('[Notification Warning] confirmPredictionPriority notification failed:', notifErr.message);
+    }
+
     res.json({
       success: true,
       message: `Prediction ${prediction.predictionId} priority confirmed as ${prediction.predictedRisk}`,
@@ -321,6 +336,22 @@ export async function overridePredictionPriority(req, res, next) {
       reviewedAt: now
     });
     await auditRecord.save();
+
+    // Event notification for overridden human review
+    try {
+      await notificationService.dispatchEvent('REVIEW_OVERRIDDEN', {
+        machineId: prediction.machineId,
+        predictionId: prediction.predictionId,
+        previousPriority,
+        newPriority: cleanNewPriority,
+        reason: cleanReason,
+        reviewedBy: reviewer,
+        relatedEntityType: 'ReviewAudit',
+        relatedEntityId: prediction.predictionId
+      });
+    } catch (notifErr) {
+      console.warn('[Notification Warning] overridePredictionPriority notification failed:', notifErr.message);
+    }
 
     res.json({
       success: true,

@@ -688,9 +688,129 @@ export const api = {
     return [...initialMaintenanceHistory];
   },
 
-  // GET /api/alerts
+  // GET /api/notifications
+  async getNotifications(params = {}) {
+    try {
+      const query = new URLSearchParams();
+      if (params.page) query.append('page', params.page);
+      if (params.limit) query.append('limit', params.limit);
+      if (params.isRead !== undefined) query.append('isRead', params.isRead);
+      if (params.category) query.append('category', params.category);
+      if (params.severity) query.append('severity', params.severity);
+      if (params.machineId) query.append('machineId', params.machineId);
+
+      const qs = query.toString() ? `?${query.toString()}` : '';
+      const res = await fetchWithTimeout(`${API_BASE}/notifications${qs}`);
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn('[API Warning] getNotifications failed:', err.message);
+    }
+    return null;
+  },
+
+  // GET /api/notifications/unread-count
+  async getNotificationUnreadCount() {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/notifications/unread-count`);
+      if (res.ok) {
+        const json = await res.json();
+        return json.unreadCount ?? 0;
+      }
+    } catch (err) {
+      console.warn('[API Warning] getNotificationUnreadCount failed:', err.message);
+    }
+    return 0;
+  },
+
+  // PATCH /api/notifications/:id/read
+  async markNotificationAsRead(id) {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/notifications/${id}/read`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn('[API Warning] markNotificationAsRead failed:', err.message);
+    }
+    return null;
+  },
+
+  // PATCH /api/notifications/read-all
+  async markAllNotificationsAsRead() {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/notifications/read-all`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn('[API Warning] markAllNotificationsAsRead failed:', err.message);
+    }
+    return null;
+  },
+
+  // DELETE /api/notifications/:id
+  async deleteNotification(id) {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/notifications/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn('[API Warning] deleteNotification failed:', err.message);
+    }
+    return null;
+  },
+
+  // DELETE /api/notifications/read
+  async deleteAllReadNotifications() {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/notifications/read`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn('[API Warning] deleteAllReadNotifications failed:', err.message);
+    }
+    return null;
+  },
+
+  // GET /api/alerts (backwards-compatible adapter connecting backend notifications)
   async getAlerts() {
-    return [...initialAlerts];
+    try {
+      const res = await this.getNotifications({ limit: 50 });
+      if (res?.data && Array.isArray(res.data)) {
+        return res.data.map(n => ({
+          id: n.notificationId || n._id,
+          notificationId: n.notificationId,
+          machineId: n.machineId || 'SYSTEM',
+          machineName: n.metadata?.machineName || n.machineId || 'Industrial Asset',
+          severity: n.severity === 'CRITICAL' ? 'Critical' : n.severity === 'WARNING' ? 'Warning' : n.severity === 'SUCCESS' ? 'Success' : 'Info',
+          message: n.message || n.title,
+          title: n.title,
+          category: n.category,
+          eventType: n.eventType,
+          actionUrl: n.actionUrl,
+          timestamp: n.timeAgo || 'recently',
+          read: n.isRead,
+          createdAt: n.createdAt
+        }));
+      }
+    } catch (err) {
+      console.warn('[API Warning] getAlerts failed:', err.message);
+    }
+    return [];
   },
 
 

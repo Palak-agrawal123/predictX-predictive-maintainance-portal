@@ -1,6 +1,7 @@
 import { WorkOrder } from '../models/WorkOrder.js';
 import { Machine } from '../models/Machine.js';
 import { Prediction } from '../models/Prediction.js';
+import { notificationService } from '../services/notificationService.js';
 import { AppError } from '../middleware/errorHandler.js';
 
 // Valid status lifecycle transitions
@@ -43,8 +44,19 @@ export async function createWorkOrder(req, res, next) {
     }
 
     // 3. Generate unique Work Order ID
-    const count = await WorkOrder.countDocuments();
-    const workOrderId = `WO-${String(count + 1001).padStart(5, '0')}`;
+    let workOrderId;
+    let isUnique = false;
+    let offset = 0;
+    const baseCount = await WorkOrder.countDocuments();
+    while (!isUnique) {
+      workOrderId = `WO-${String(baseCount + 1001 + offset).padStart(5, '0')}`;
+      const existing = await WorkOrder.exists({ workOrderId });
+      if (!existing) {
+        isUnique = true;
+      } else {
+        offset++;
+      }
+    }
 
     // 4. Create record in 'draft' status by default
     const workOrder = new WorkOrder({
@@ -60,6 +72,31 @@ export async function createWorkOrder(req, res, next) {
     });
 
     await workOrder.save();
+
+    // Generate Work Order Created event notification
+    try {
+      await notificationService.dispatchEvent('WORK_ORDER_CREATED', {
+        workOrderId: workOrder.workOrderId,
+        machineId: cleanMachineId,
+        title: workOrder.title,
+        priority: workOrder.priority,
+        relatedEntityType: 'WorkOrder',
+        relatedEntityId: workOrder.workOrderId
+      });
+
+      if (workOrder.assignedTo && workOrder.assignedTo !== 'Unassigned') {
+        await notificationService.dispatchEvent('WORK_ORDER_ASSIGNED', {
+          workOrderId: workOrder.workOrderId,
+          machineId: cleanMachineId,
+          assignedTo: workOrder.assignedTo,
+          scheduledDate: workOrder.scheduledDate ? workOrder.scheduledDate.toISOString().slice(0, 10) : 'Upcoming',
+          relatedEntityType: 'WorkOrder',
+          relatedEntityId: workOrder.workOrderId
+        });
+      }
+    } catch (notifErr) {
+      console.warn('[Notification Warning] createWorkOrder notification failed:', notifErr.message);
+    }
 
     res.status(201).json({
       success: true,
@@ -172,6 +209,12 @@ export async function updateWorkOrder(req, res, next) {
     // Disallow arbitrary status skipping in general update
     delete updates.status;
 
+    // Retrieve existing to detect priority and assignment changes
+    const existingWorkOrder = await WorkOrder.findOne(query).lean();
+    if (!existingWorkOrder) {
+      return next(new AppError(`Work order not found with ID: ${id}`, 404));
+    }
+
     const workOrder = await WorkOrder.findOneAndUpdate(query, updates, {
       new: true,
       runValidators: true
@@ -179,6 +222,33 @@ export async function updateWorkOrder(req, res, next) {
 
     if (!workOrder) {
       return next(new AppError(`Work order not found with ID: ${id}`, 404));
+    }
+
+    // Detect priority escalation or reassignment
+    try {
+      if (updates.priority && updates.priority.toLowerCase() !== existingWorkOrder.priority?.toLowerCase()) {
+        await notificationService.dispatchEvent('WORK_ORDER_PRIORITY_CHANGED', {
+          workOrderId: workOrder.workOrderId,
+          machineId: workOrder.machineId,
+          newPriority: workOrder.priority,
+          previousPriority: existingWorkOrder.priority,
+          relatedEntityType: 'WorkOrder',
+          relatedEntityId: workOrder.workOrderId
+        });
+      }
+
+      if (updates.assignedTo && updates.assignedTo !== existingWorkOrder.assignedTo && updates.assignedTo !== 'Unassigned') {
+        await notificationService.dispatchEvent('WORK_ORDER_ASSIGNED', {
+          workOrderId: workOrder.workOrderId,
+          machineId: workOrder.machineId,
+          assignedTo: workOrder.assignedTo,
+          scheduledDate: workOrder.scheduledDate ? workOrder.scheduledDate.toISOString().slice(0, 10) : 'Upcoming',
+          relatedEntityType: 'WorkOrder',
+          relatedEntityId: workOrder.workOrderId
+        });
+      }
+    } catch (notifErr) {
+      console.warn('[Notification Warning] updateWorkOrder notification failed:', notifErr.message);
     }
 
     res.json({
@@ -248,6 +318,34 @@ export async function updateWorkOrderStatus(req, res, next) {
     }
 
     await workOrder.save();
+
+    // Dispatch status transition event
+    try {
+      if (targetStatus === 'in_progress') {
+        await notificationService.dispatchEvent('WORK_ORDER_IN_PROGRESS', {
+          workOrderId: workOrder.workOrderId,
+          machineId: workOrder.machineId,
+          relatedEntityType: 'WorkOrder',
+          relatedEntityId: workOrder.workOrderId
+        });
+      } else if (targetStatus === 'completed') {
+        await notificationService.dispatchEvent('WORK_ORDER_COMPLETED', {
+          workOrderId: workOrder.workOrderId,
+          machineId: workOrder.machineId,
+          relatedEntityType: 'WorkOrder',
+          relatedEntityId: workOrder.workOrderId
+        });
+      } else if (targetStatus === 'cancelled') {
+        await notificationService.dispatchEvent('WORK_ORDER_CANCELLED', {
+          workOrderId: workOrder.workOrderId,
+          machineId: workOrder.machineId,
+          relatedEntityType: 'WorkOrder',
+          relatedEntityId: workOrder.workOrderId
+        });
+      }
+    } catch (notifErr) {
+      console.warn('[Notification Warning] updateWorkOrderStatus event failed:', notifErr.message);
+    }
 
     res.json({
       success: true,

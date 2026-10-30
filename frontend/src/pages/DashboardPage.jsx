@@ -235,19 +235,48 @@ export function DashboardPage() {
             </div>
 
             <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
-              {alerts.slice(0, 4).map(alert => (
-                <div
-                  key={alert.id}
-                  onClick={() => navigate(`/machines/${alert.machineId}`)}
-                  className="p-2.5 rounded-md bg-[#F5F6F2] border border-[#DFE4DD] hover:border-[#C2CDC0] transition-colors cursor-pointer text-xs"
-                >
-                  <div className="flex items-center justify-between text-[11px] text-[#68736C] mb-0.5">
-                    <span className="font-semibold font-mono text-[#202925]">{alert.machineId}</span>
-                    <span className="font-mono text-[10px]">{alert.timestamp}</span>
-                  </div>
-                  <p className="text-[11px] text-[#202925] line-clamp-1">{alert.message}</p>
+              {alerts.length === 0 ? (
+                <div className="text-center py-6 text-xs text-[#828F87]">
+                  No active telemetry alerts
                 </div>
-              ))}
+              ) : (
+                alerts.slice(0, 5).map(alert => (
+                  <div
+                    key={alert.id || alert.notificationId}
+                    onClick={() => {
+                      if (alert.actionUrl) {
+                        navigate(alert.actionUrl);
+                      } else if (alert.machineId && alert.machineId !== 'SYSTEM') {
+                        navigate(`/machines/${alert.machineId}`);
+                      } else {
+                        navigate('/machines');
+                      }
+                    }}
+                    className={`p-2.5 rounded-md border transition-all cursor-pointer text-xs ${
+                      alert.severity === 'Critical'
+                        ? 'bg-[#FEF2F2] border-[#FCA5A5] hover:border-[#F87171]'
+                        : alert.severity === 'Warning'
+                        ? 'bg-[#FFFBEB] border-[#FDE68A] hover:border-[#FCD34D]'
+                        : 'bg-[#F5F6F2] border-[#DFE4DD] hover:border-[#C2CDC0]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-[11px] text-[#68736C] mb-0.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold font-mono text-[#202925]">{alert.machineId}</span>
+                        {alert.severity && alert.severity !== 'Info' && (
+                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-medium ${
+                            alert.severity === 'Critical' ? 'bg-[#EF4444] text-white' : 'bg-[#F59E0B] text-white'
+                          }`}>
+                            {alert.severity.toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-mono text-[10px]">{alert.timestamp}</span>
+                    </div>
+                    <p className="text-[11px] text-[#202925] line-clamp-1">{alert.message || alert.title}</p>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

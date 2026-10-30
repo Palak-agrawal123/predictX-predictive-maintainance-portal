@@ -13,7 +13,11 @@ import {
   Menu,
   X,
   Clock,
-  Sparkles
+  Sparkles,
+  CheckCheck,
+  Trash2,
+  CheckCircle2,
+  AlertTriangle
 } from 'lucide-react';
 import { useAppData } from '../../context/AppDataContext';
 import { ToastContainer } from '../common/Toast';
@@ -24,7 +28,19 @@ export function Layout({ children, pageTitle = "Overview" }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('en-US', { hour12: false }));
-  const { alerts, markAlertAsRead, resetAllDemoData, pendingReviewsCount = 0, backendStatus, refreshData, isLoading } = useAppData();
+  const [activeFilter, setActiveFilter] = useState('ALL');
+  const {
+    alerts,
+    markAlertAsRead,
+    markAllAlertsAsRead,
+    deleteAlert,
+    clearReadAlerts,
+    resetAllDemoData,
+    pendingReviewsCount = 0,
+    backendStatus,
+    refreshData,
+    isLoading
+  } = useAppData();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -36,6 +52,13 @@ export function Layout({ children, pageTitle = "Overview" }) {
   }, []);
 
   const unreadAlerts = alerts.filter(a => !a.read);
+
+  const filteredAlerts = alerts.filter(a => {
+    if (activeFilter === 'UNREAD') return !a.read;
+    if (activeFilter === 'CRITICAL') return a.severity === 'Critical' || a.severity === 'CRITICAL';
+    if (activeFilter === 'WORK_ORDER') return a.category === 'WORK_ORDER' || a.category === 'MAINTENANCE';
+    return true;
+  });
 
   const navigationSections = [
     {
@@ -223,47 +246,206 @@ export function Layout({ children, pageTitle = "Overview" }) {
               >
                 <Bell size={15} strokeWidth={1.8} />
                 {unreadAlerts.length > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#D93838] ring-2 ring-white" />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#D93838] ring-2 ring-white animate-pulse" />
                 )}
               </button>
 
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white border border-[#DFE4DD] rounded-lg shadow-lg p-3 z-50 animate-fadeIn">
-                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#E7ECE5]">
-                    <span className="text-xs font-semibold text-[#202925]">
-                      Alerts ({alerts.length})
-                    </span>
-                    <button
-                      onClick={() => setNotificationsOpen(false)}
-                      className="text-[#68736C] hover:text-[#202925]"
-                    >
-                      <X size={13} />
-                    </button>
-                  </div>
-                  <div className="space-y-1.5 max-h-64 overflow-y-auto">
-                    {alerts.map(alert => (
-                      <div
-                        key={alert.id}
-                        onClick={() => {
-                          markAlertAsRead(alert.id);
-                          navigate(`/machines/${alert.machineId}`);
-                          setNotificationsOpen(false);
-                        }}
-                        className={`p-2 rounded border cursor-pointer transition-colors text-xs ${
-                          alert.severity === 'Critical'
-                            ? 'bg-[#F8EBEB]/60 border-[#EFCACA] hover:border-[#B74747]'
-                            : 'bg-[#FAF3E7]/60 border-[#F3E0BD] hover:border-[#B98232]'
-                        } ${alert.read ? 'opacity-60' : 'opacity-100'}`}
-                      >
-                        <div className="flex items-center justify-between text-[10px] text-[#68736C] mb-0.5">
-                          <span className="font-semibold text-[#202925] font-mono">{alert.machineId}</span>
-                          <span className="font-mono">{alert.timestamp}</span>
-                        </div>
-                        <p className="text-[11px] text-[#202925] leading-tight">{alert.message}</p>
+                <>
+                  {/* Backdrop to close on click outside */}
+                  <div
+                    className="fixed inset-0 z-40 bg-transparent"
+                    onClick={() => setNotificationsOpen(false)}
+                  />
+
+                  <div className="absolute right-0 mt-2 w-84 sm:w-96 bg-white border border-[#DFE4DD] rounded-xl shadow-xl z-50 overflow-hidden animate-fadeIn flex flex-col font-sans">
+                    {/* DROPDOWN TOP BAR */}
+                    <div className="px-3.5 py-2.5 bg-[#FAFBF9] border-b border-[#E7ECE5] flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-[#151D19]">
+                          Notifications
+                        </span>
+                        {unreadAlerts.length > 0 ? (
+                          <span className="text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold bg-[#D93838]/10 text-[#D93838] border border-[#D93838]/20">
+                            {unreadAlerts.length} new
+                          </span>
+                        ) : (
+                          <span className="text-[10px] px-1.5 py-0.2 rounded-full font-mono text-[#5C6A63] bg-[#E8ECE7]">
+                            {alerts.length} total
+                          </span>
+                        )}
                       </div>
-                    ))}
+
+                      <div className="flex items-center gap-2">
+                        {unreadAlerts.length > 0 && (
+                          <button
+                            onClick={markAllAlertsAsRead}
+                            className="text-[11px] text-[#176B52] hover:text-[#0F4E3A] font-medium flex items-center gap-1 hover:underline cursor-pointer"
+                            title="Mark all notifications as read"
+                          >
+                            <CheckCheck size={12} /> Mark read
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setNotificationsOpen(false)}
+                          className="text-[#68736C] hover:text-[#151D19] p-0.5 rounded transition-colors cursor-pointer"
+                          aria-label="Close notifications"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* COMPACT FILTER TABS */}
+                    <div className="flex items-center gap-1 px-3 py-1.5 bg-white border-b border-[#E7ECE5] text-[11px] overflow-x-auto">
+                      <button
+                        onClick={() => setActiveFilter('ALL')}
+                        className={`px-2 py-0.5 rounded-md font-medium transition-colors cursor-pointer ${
+                          activeFilter === 'ALL'
+                            ? 'bg-[#E3EDE5] text-[#1D634B] font-semibold'
+                            : 'text-[#68736C] hover:text-[#151D19] hover:bg-[#F0F2ED]'
+                        }`}
+                      >
+                        All ({alerts.length})
+                      </button>
+                      <button
+                        onClick={() => setActiveFilter('UNREAD')}
+                        className={`px-2 py-0.5 rounded-md font-medium transition-colors cursor-pointer ${
+                          activeFilter === 'UNREAD'
+                            ? 'bg-[#E3EDE5] text-[#1D634B] font-semibold'
+                            : 'text-[#68736C] hover:text-[#151D19] hover:bg-[#F0F2ED]'
+                        }`}
+                      >
+                        Unread ({unreadAlerts.length})
+                      </button>
+                      <button
+                        onClick={() => setActiveFilter('CRITICAL')}
+                        className={`px-2 py-0.5 rounded-md font-medium transition-colors cursor-pointer ${
+                          activeFilter === 'CRITICAL'
+                            ? 'bg-[#FDF2F2] text-[#B91C1C] font-semibold'
+                            : 'text-[#68736C] hover:text-[#151D19] hover:bg-[#F0F2ED]'
+                        }`}
+                      >
+                        Critical
+                      </button>
+                      <button
+                        onClick={() => setActiveFilter('WORK_ORDER')}
+                        className={`px-2 py-0.5 rounded-md font-medium transition-colors cursor-pointer ${
+                          activeFilter === 'WORK_ORDER'
+                            ? 'bg-[#E3EDE5] text-[#1D634B] font-semibold'
+                            : 'text-[#68736C] hover:text-[#151D19] hover:bg-[#F0F2ED]'
+                        }`}
+                      >
+                        Work Orders
+                      </button>
+                    </div>
+
+                    {/* NOTIFICATION CARDS LIST */}
+                    <div className="p-2 space-y-1.5 max-h-72 overflow-y-auto bg-[#F9FAF8]">
+                      {filteredAlerts.length === 0 ? (
+                        <div className="py-8 text-center text-xs text-[#68736C] space-y-1">
+                          <CheckCircle2 size={24} className="mx-auto text-[#176B52]/60" />
+                          <p className="font-semibold text-[#151D19]">No alerts to display</p>
+                          <p className="text-[11px]">All plant systems operating within normal parameters.</p>
+                        </div>
+                      ) : (
+                        filteredAlerts.map(alert => {
+                          const isCrit = alert.severity === 'Critical' || alert.severity === 'CRITICAL';
+                          const isWarn = alert.severity === 'Warning' || alert.severity === 'WARNING';
+                          const isSucc = alert.severity === 'Success' || alert.severity === 'SUCCESS';
+
+                          const cardBg = isCrit
+                            ? 'bg-[#FDF4F4] border-[#F8B4B4] hover:border-[#DC2626]'
+                            : isWarn
+                            ? 'bg-[#FFFBEB] border-[#FDE68A] hover:border-[#D97706]'
+                            : isSucc
+                            ? 'bg-[#F0FDF4] border-[#BBF7D0] hover:border-[#16A34A]'
+                            : 'bg-[#FFFFFF] border-[#E2E8E0] hover:border-[#94A3B8]';
+
+                          return (
+                            <div
+                              key={alert.id || alert.notificationId}
+                              onClick={() => {
+                                markAlertAsRead(alert.id || alert.notificationId);
+                                if (alert.actionUrl) {
+                                  navigate(alert.actionUrl);
+                                } else if (alert.machineId && alert.machineId !== 'SYSTEM') {
+                                  navigate(`/machines/${alert.machineId}`);
+                                } else {
+                                  navigate('/dashboard');
+                                }
+                                setNotificationsOpen(false);
+                              }}
+                              className={`p-2.5 rounded-lg border cursor-pointer transition-all text-xs relative group shadow-2xs ${cardBg} ${
+                                alert.read ? 'opacity-70 hover:opacity-100' : 'opacity-100'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between text-[10px] mb-1">
+                                <div className="flex items-center gap-1.5">
+                                  {!alert.read && (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#176B52]" title="Unread" />
+                                  )}
+                                  <span
+                                    className={`px-1.5 py-0.2 rounded font-mono font-bold uppercase text-[9px] ${
+                                      isCrit
+                                        ? 'bg-[#DC2626]/10 text-[#DC2626]'
+                                        : isWarn
+                                        ? 'bg-[#D97706]/10 text-[#D97706]'
+                                        : isSucc
+                                        ? 'bg-[#16A34A]/10 text-[#16A34A]'
+                                        : 'bg-[#64748B]/10 text-[#64748B]'
+                                    }`}
+                                  >
+                                    {alert.severity}
+                                  </span>
+                                  {alert.machineId && (
+                                    <span className="font-semibold text-[#151D19] font-mono">
+                                      {alert.machineId}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center gap-1.5 text-[#68736C]">
+                                  <span className="font-mono text-[10px]">{alert.timestamp || 'now'}</span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      deleteAlert(alert.id || alert.notificationId);
+                                    }}
+                                    className="opacity-0 group-hover:opacity-100 hover:text-red-600 transition-opacity p-0.5"
+                                    title="Dismiss alert"
+                                  >
+                                    <Trash2 size={11} />
+                                  </button>
+                                </div>
+                              </div>
+
+                              <p className={`text-[11.5px] leading-snug ${alert.read ? 'text-[#3D4D46]' : 'text-[#151D19] font-medium'}`}>
+                                {alert.message || alert.title}
+                              </p>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* FOOTER BAR */}
+                    <div className="px-3 py-2 bg-[#FAFBF9] border-t border-[#E7ECE5] flex items-center justify-between text-[10px] text-[#68736C]">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] animate-pulse" />
+                        <span>Live Event Stream Active</span>
+                      </div>
+                      {alerts.some(a => a.read) && (
+                        <button
+                          onClick={clearReadAlerts}
+                          className="hover:text-red-600 hover:underline transition-colors cursor-pointer"
+                        >
+                          Clear read
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
 

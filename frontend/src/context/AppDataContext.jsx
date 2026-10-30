@@ -19,7 +19,16 @@ export function AppDataProvider({ children }) {
 
   const [alerts, setAlerts] = useState(() => {
     const saved = localStorage.getItem('predictx_alerts_v2');
-    return saved ? JSON.parse(saved) : initialAlerts;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // Strictly filter out legacy dummy records (ALT-1, ALT-2, MC-8210, etc.)
+          return parsed.filter(a => a && !String(a.id || '').startsWith('ALT-') && a.machineId !== 'MC-8210' && a.machineId !== 'MC-5099' && a.machineId !== 'MC-7801' && a.machineId !== 'MC-6122');
+        }
+      } catch (e) {}
+    }
+    return [];
   });
 
   const [dashboardSummary, setDashboardSummary] = useState(null);
@@ -68,12 +77,13 @@ export function AppDataProvider({ children }) {
       });
 
       if (health.online) {
-        // 2. Parallel fetch machines, work orders, dashboard summary, and review metrics
-        const [liveMachines, liveOrders, liveSummary, reviewRes] = await Promise.all([
+        // 2. Parallel fetch machines, work orders, dashboard summary, review metrics, and real notifications
+        const [liveMachines, liveOrders, liveSummary, reviewRes, liveAlerts] = await Promise.all([
           api.getMachines(),
           api.getWorkOrders(),
           api.getDashboardSummary(),
-          api.getAllReviews({ limit: 1 }).catch(() => null)
+          api.getAllReviews({ limit: 1 }).catch(() => null),
+          api.getAlerts().catch(() => null)
         ]);
 
         if (Array.isArray(liveMachines) && liveMachines.length > 0) {
@@ -84,6 +94,11 @@ export function AppDataProvider({ children }) {
         if (Array.isArray(liveOrders) && liveOrders.length > 0) {
           setWorkOrders(liveOrders);
           localStorage.setItem('predictx_workorders_v2', JSON.stringify(liveOrders));
+        }
+
+        if (Array.isArray(liveAlerts)) {
+          setAlerts(liveAlerts);
+          localStorage.setItem('predictx_alerts_v2', JSON.stringify(liveAlerts));
         }
 
         if (liveSummary) {
@@ -123,6 +138,70 @@ export function AppDataProvider({ children }) {
     }, 20000);
     return () => clearInterval(interval);
   }, [refreshData]);
+
+  // Real-Time Server-Sent Events (SSE) Notification Stream
+  useEffect(() => {
+    let eventSource = null;
+    try {
+      const sseUrl = 'http://localhost:5000/api/notifications/stream';
+      eventSource = new EventSource(sseUrl);
+
+      eventSource.addEventListener('notification:new', (e) => {
+        try {
+          const newNotif = JSON.parse(e.data);
+          const mapped = {
+            id: newNotif.notificationId || newNotif._id,
+            notificationId: newNotif.notificationId,
+            machineId: newNotif.machineId || 'SYSTEM',
+            machineName: newNotif.metadata?.machineName || newNotif.machineId || 'Industrial Asset',
+            severity: newNotif.severity === 'CRITICAL' ? 'Critical' : newNotif.severity === 'WARNING' ? 'Warning' : newNotif.severity === 'SUCCESS' ? 'Success' : 'Info',
+            message: newNotif.message || newNotif.title,
+            title: newNotif.title,
+            category: newNotif.category,
+            eventType: newNotif.eventType,
+            actionUrl: newNotif.actionUrl,
+            timestamp: 'just now',
+            read: false,
+            createdAt: newNotif.createdAt || new Date().toISOString()
+          };
+          setAlerts(prev => [mapped, ...prev.filter(a => a.id !== mapped.id && a.notificationId !== mapped.id)]);
+          
+          if (newNotif.severity === 'CRITICAL') {
+            addToast(`[CRITICAL] ${newNotif.title}`, 'error');
+          } else if (newNotif.severity === 'WARNING') {
+            addToast(`[ALERT] ${newNotif.title}`, 'warning');
+          } else if (newNotif.severity === 'SUCCESS') {
+            addToast(`[SUCCESS] ${newNotif.title}`, 'success');
+          }
+        } catch (err) {
+          console.warn('[SSE Parse Error]', err);
+        }
+      });
+
+      eventSource.addEventListener('notification:read', (e) => {
+        try {
+          const { notificationId } = JSON.parse(e.data);
+          setAlerts(prev => prev.map(a => (a.id === notificationId || a.notificationId === notificationId) ? { ...a, read: true } : a));
+        } catch (err) {}
+      });
+
+      eventSource.addEventListener('notification:read_all', () => {
+        setAlerts(prev => prev.map(a => ({ ...a, read: true })));
+      });
+
+      eventSource.onerror = () => {
+        // Native EventSource automatically handles reconnection
+      };
+    } catch (err) {
+      console.warn('[SSE Init Error]', err);
+    }
+
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
+  }, [addToast]);
 
   // Save changes locally as cache
   useEffect(() => {
@@ -262,7 +341,7 @@ export function AppDataProvider({ children }) {
   const resetAllDemoData = () => {
     setMachines(initialMachines);
     setWorkOrders(initialWorkOrders);
-    setAlerts(initialAlerts);
+    setAlerts([]);
     setPriorityWeights({ risk: 0.50, criticality: 0.25, impact: 0.15, urgency: 0.10 });
     localStorage.removeItem('predictx_machines_v2');
     localStorage.removeItem('predictx_workorders_v2');
@@ -271,8 +350,32 @@ export function AppDataProvider({ children }) {
     refreshData(false);
   };
 
-  const markAlertAsRead = (alertId) => {
-    setAlerts(prev => prev.map(a => a.id === alertId ? { ...a, read: true } : a));
+  const markAlertAsRead = async (alertId) => {
+    setAlerts(prev => prev.map(a => (a.id === alertId || a.notificationId === alertId) ? { ...a, read: true } : a));
+    try {
+      await api.markNotificationAsRead(alertId);
+    } catch (e) {}
+  };
+
+  const markAllAlertsAsRead = async () => {
+    setAlerts(prev => prev.map(a => ({ ...a, read: true })));
+    try {
+      await api.markAllNotificationsAsRead();
+    } catch (e) {}
+  };
+
+  const deleteAlert = async (alertId) => {
+    setAlerts(prev => prev.filter(a => a.id !== alertId && a.notificationId !== alertId));
+    try {
+      await api.deleteNotification(alertId);
+    } catch (e) {}
+  };
+
+  const clearReadAlerts = async () => {
+    setAlerts(prev => prev.filter(a => !a.read));
+    try {
+      await api.deleteAllReadNotifications();
+    } catch (e) {}
   };
 
   return (
@@ -293,6 +396,9 @@ export function AppDataProvider({ children }) {
       overrideReview,
       alerts,
       markAlertAsRead,
+      markAllAlertsAsRead,
+      deleteAlert,
+      clearReadAlerts,
       priorityWeights,
       setPriorityWeights,
       resetAllDemoData,

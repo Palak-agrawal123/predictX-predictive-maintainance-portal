@@ -1,6 +1,7 @@
 import { Machine } from '../models/Machine.js';
 import { SensorLog } from '../models/SensorLog.js';
 import { Prediction } from '../models/Prediction.js';
+import { notificationService } from '../services/notificationService.js';
 import { AppError } from '../middleware/errorHandler.js';
 
 /**
@@ -88,6 +89,19 @@ export async function createMachine(req, res, next) {
 
     await machine.save();
 
+    try {
+      await notificationService.dispatchEvent('MACHINE_REGISTERED', {
+        machineId: machine.machineId,
+        name: machine.name,
+        machineType: machine.machineType,
+        location: machine.location,
+        relatedEntityType: 'Machine',
+        relatedEntityId: machine.machineId
+      });
+    } catch (notifErr) {
+      console.warn('[Notification Warning] createMachine event failed:', notifErr.message);
+    }
+
     res.status(201).json({
       success: true,
       message: 'Machine registered successfully',
@@ -114,6 +128,12 @@ export async function updateMachine(req, res, next) {
     delete updates.machineId;
     delete updates._id;
 
+    // Look up existing machine to detect status transitions
+    const existingMachine = await Machine.findOne(query).lean();
+    if (!existingMachine) {
+      return next(new AppError(`Machine not found with identifier: ${id}`, 404));
+    }
+
     const machine = await Machine.findOneAndUpdate(query, updates, {
       new: true,
       runValidators: true
@@ -121,6 +141,20 @@ export async function updateMachine(req, res, next) {
 
     if (!machine) {
       return next(new AppError(`Machine not found with identifier: ${id}`, 404));
+    }
+
+    try {
+      if (updates.status && updates.status.toLowerCase() !== existingMachine.status?.toLowerCase()) {
+        await notificationService.dispatchEvent('MACHINE_STATUS_CHANGED', {
+          machineId: machine.machineId,
+          oldStatus: existingMachine.status,
+          newStatus: machine.status,
+          relatedEntityType: 'Machine',
+          relatedEntityId: machine.machineId
+        });
+      }
+    } catch (notifErr) {
+      console.warn('[Notification Warning] updateMachine event failed:', notifErr.message);
     }
 
     res.json({
