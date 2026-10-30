@@ -64,7 +64,14 @@ class ResponseGenerator:
         )
 
         # 4. Generate answer via configured LLM provider
-        raw_answer = self.llm_client.generate(SYSTEM_PROMPT, user_prompt)
+        raw_answer = self.llm_client.generate(
+            system_prompt=SYSTEM_PROMPT,
+            user_prompt=user_prompt,
+            question=question,
+            retrieved_chunks=retrieved_chunks,
+            machine_context=machine_context,
+            prediction_context=prediction_context
+        )
 
         # 5. Extract and verify genuine citations
         citations = self.citation_manager.extract_and_verify_citations(raw_answer, retrieved_chunks)

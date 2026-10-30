@@ -117,6 +117,14 @@ async def chat_rag(payload: ChatRequest):
                         "recommendedAction": "Perform visual borescope inspection and check temperature differential."
                     }
                 }
+        elif payload.sensors and any(payload.sensors.values()):
+            machine_ctx = {
+                "machineId": "MONITORED-ASSET",
+                "name": "Live Monitored Asset",
+                "machineType": "INDUSTRIAL_MACHINE",
+                "status": "monitored",
+                "telemetry": payload.sensors
+            }
 
         # 3. Generate grounded RAG response
         gen_result = response_generator.generate_answer(
