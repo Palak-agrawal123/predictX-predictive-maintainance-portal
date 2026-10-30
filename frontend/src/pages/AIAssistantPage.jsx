@@ -113,7 +113,7 @@ export function AIAssistantPage() {
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (err) {
-      addToast(`Error communicating with RAG service: ${err.message}`, 'error');
+      addToast(`Error communicating with AI service: ${err.message}`, 'error');
       setMessages(prev => [
         ...prev,
         {
@@ -121,7 +121,7 @@ export function AIAssistantPage() {
           role: "assistant",
           isError: true,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          text: `**Service Communication Notice**\nCould not reach the RAG microservice. Please ensure the backend and RAG service are running on ports 5000 and 8001.\n*Details: ${err.message}*`,
+          text: `**Service Communication Notice**\nCould not reach the AI service. Please ensure the backend and AI services are running.\n*Details: ${err.message}*`,
           citations: []
         }
       ]);
@@ -168,10 +168,10 @@ export function AIAssistantPage() {
                   <h2 className="text-sm font-bold text-[#202A27]">PredictX AI Copilot</h2>
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-[#176B52]/10 text-[#176B52] border border-[#176B52]/20">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#176B52] animate-pulse" />
-                    RAG Grounded
+                    AI Powered
                   </span>
                 </div>
-                <p className="text-[11px] text-[#68756F]">NASA C-MAPSS + ChromaDB Vector Knowledge Base</p>
+                <p className="text-[11px] text-[#68756F]">NASA C-MAPSS Technical Knowledge Base</p>
               </div>
             </div>
 
@@ -286,7 +286,7 @@ export function AIAssistantPage() {
                   <div className="w-2 h-2 rounded-full bg-[#176B52] animate-bounce" style={{ animationDelay: '0ms' }} />
                   <div className="w-2 h-2 rounded-full bg-[#176B52] animate-bounce" style={{ animationDelay: '150ms' }} />
                   <div className="w-2 h-2 rounded-full bg-[#176B52] animate-bounce" style={{ animationDelay: '300ms' }} />
-                  <span className="text-xs text-[#68756F] ml-2">Searching ChromaDB & evaluating ML models...</span>
+                  <span className="text-xs text-[#68756F] ml-2">Searching technical manuals & evaluating ML models...</span>
                 </div>
               </div>
             )}
@@ -386,39 +386,13 @@ export function AIAssistantPage() {
             </div>
           )}
 
-          {/* KNOWLEDGE BASE METRICS */}
-          <div className="bg-white border border-[#E0E6E0] rounded-xl p-4 shadow-sm">
-            <h4 className="text-xs font-bold text-[#202A27] uppercase tracking-wider mb-3 flex items-center gap-2">
-              <BookOpen size={14} className="text-[#176B52]" />
-              Knowledge Base Coverage
-            </h4>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between items-center py-1 border-b border-[#F4F6F3]">
-                <span className="text-[#68756F]">Indexed Chunks:</span>
-                <span className="font-mono font-bold text-[#176B52]">36 chunks</span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-[#F4F6F3]">
-                <span className="text-[#68756F]">Embedding Model:</span>
-                <span className="font-mono text-[11px] text-[#202A27]">all-MiniLM-L6-v2</span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-[#F4F6F3]">
-                <span className="text-[#68756F]">Vector DB:</span>
-                <span className="font-mono text-[11px] text-[#202A27]">ChromaDB (Cosine)</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-[#68756F]">Search Method:</span>
-                <span className="font-medium text-[11px] text-[#176B52]">Hybrid (Dense + BM25)</span>
-              </div>
-            </div>
-          </div>
-
           {/* INDUSTRIAL SAFETY DISCLAIMER */}
           <div className="bg-[#FFFBEB] border border-[#FDE68A] rounded-xl p-3 text-[11px] text-[#92400E] flex items-start gap-2">
             <ShieldAlert size={16} className="shrink-0 mt-0.5 text-[#D97706]" />
             <div>
               <p className="font-semibold">Engineering Disclaimer</p>
               <p className="mt-0.5 leading-relaxed text-[10px]">
-                Predictions and RAG answers provide decision support. Always confirm physical mechanical condition via borescope or dial gauge inspection before dispatching major overhauls.
+                Predictions and AI guidance provide decision support. Always confirm physical mechanical condition via borescope or dial gauge inspection before dispatching major overhauls.
               </p>
             </div>
           </div>

@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Layers,
   Activity,
-  AlertTriangle,
   Wrench,
-  CheckCircle2,
   ArrowRight,
   Flame,
   UserCheck,
@@ -83,13 +80,13 @@ export function DashboardPage() {
                 <UserCheck size={16} strokeWidth={2} />
               </div>
               <div>
-                <div className="text-xs font-semibold text-[#202925] flex items-center gap-2">
+                <div className="text-sm font-bold font-heading text-[#16221D] flex items-center gap-2">
                   <span>Pending Human Review</span>
                   <span className="text-[10px] px-1.5 py-0.2 rounded font-mono font-medium bg-[#B98232] text-white">
                     {pendingReviewsCount}
                   </span>
                 </div>
-                <p className="text-[12px] text-[#68736C] mt-0.5">
+                <p className="text-xs text-[#596860] mt-1 leading-relaxed">
                   High-risk model predictions require engineer confirmation or operational override.
                 </p>
               </div>
@@ -109,26 +106,18 @@ export function DashboardPage() {
           <StatCard
             title="Monitored Assets"
             value={totalMachines}
-            subtitle={`${operationalWithDegraded || operationalCount} active on line`}
-            icon={Layers}
           />
           <StatCard
             title="Fleet Health"
             value={`${avgHealth}%`}
-            subtitle="Weighted operational score"
-            icon={CheckCircle2}
           />
           <StatCard
             title="High-Risk Assets"
             value={criticalRiskCount}
-            subtitle="Risk score ≥ 60"
-            icon={AlertTriangle}
           />
           <StatCard
             title="Open Work Orders"
             value={activeOrders}
-            subtitle={`${completedCount} resolved to date`}
-            icon={Wrench}
           />
         </div>
 
@@ -137,9 +126,7 @@ export function DashboardPage() {
           {/* Fleet Risk Distribution */}
           <div className="lg:col-span-6 bg-white border border-[#DFE4DD] rounded-lg p-4">
             <div className="flex items-center justify-between pb-2 mb-3 border-b border-[#E7ECE5]">
-              <span className="text-xs font-semibold text-[#202925]">
-                Risk Tier Distribution
-              </span>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#68756E] font-heading">Risk Tier Distribution</h3>
               <span className="text-[11px] text-[#68736C] font-mono">{totalMachines} assets</span>
             </div>
             <FleetRiskBarChart data={fleetRiskDistribution} height={180} />
@@ -148,9 +135,7 @@ export function DashboardPage() {
           {/* Maintenance Workload Trend */}
           <div className="lg:col-span-6 bg-white border border-[#DFE4DD] rounded-lg p-4">
             <div className="flex items-center justify-between pb-2 mb-3 border-b border-[#E7ECE5]">
-              <span className="text-xs font-semibold text-[#202925]">
-                Maintenance Workload
-              </span>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#68756E] font-heading">Maintenance Workload</h3>
               <div className="flex items-center gap-3 text-[11px] text-[#68736C]">
                 <span className="flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#246B52]" /> Created ({workOrders.length})
@@ -171,9 +156,7 @@ export function DashboardPage() {
             <div className="flex items-center justify-between pb-2 border-b border-[#E7ECE5]">
               <div className="flex items-center gap-2">
                 <Flame size={14} className="text-[#B74747]" />
-                <span className="text-xs font-semibold text-[#202925]">
-                  Primary Action Required
-                </span>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#68756E] font-heading">Primary Action Required</h3>
               </div>
               <span className="text-[11px] text-[#68736C]">Priority Rank #1</span>
             </div>
@@ -182,7 +165,7 @@ export function DashboardPage() {
               <div className="p-3.5 rounded-md bg-[#F5F6F2] border border-[#DFE4DD] flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-[#202925]">{topUrgentMachine.name}</span>
+                    <span className="text-sm font-bold font-heading text-[#16221D]">{topUrgentMachine.name}</span>
                     <PriorityBadge priority={topUrgentMachine.calculated.band} />
                   </div>
                   <div className="text-xs text-[#68736C]">
@@ -224,9 +207,7 @@ export function DashboardPage() {
           {/* Plant Telemetry Alerts */}
           <div className="lg:col-span-5 bg-white border border-[#DFE4DD] rounded-lg p-4 space-y-3">
             <div className="flex items-center justify-between pb-2 border-b border-[#E7ECE5]">
-              <span className="text-xs font-semibold text-[#202925]">
-                Telemetry Alerts ({alerts.length})
-              </span>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#68756E] font-heading">Telemetry Alerts ({alerts.length})</h3>
               <button
                 onClick={() => navigate('/machines')}
                 className="text-[11px] text-[#246B52] hover:underline"
@@ -256,9 +237,7 @@ export function DashboardPage() {
         {/* FULL FLEET STATUS TABLE */}
         <div className="bg-white border border-[#DFE4DD] rounded-lg p-4">
           <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#E7ECE5]">
-            <span className="text-xs font-semibold text-[#202925]">
-              Asset Health & Priority Ranking
-            </span>
+            <h3 className="text-sm font-bold font-heading text-[#16221D]">Asset Health & Priority Ranking</h3>
             <button
               onClick={() => navigate('/machines')}
               className="text-xs text-[#246B52] hover:underline font-medium"
