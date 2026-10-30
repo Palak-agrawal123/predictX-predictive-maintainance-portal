@@ -9,6 +9,7 @@ import { MachineDetailPage } from './pages/MachineDetailPage';
 import { MaintenancePriorityPage } from './pages/MaintenancePriorityPage';
 import { WorkOrdersPage } from './pages/WorkOrdersPage';
 import { PredictionsPage } from './pages/PredictionsPage';
+import { AIAssistantPage } from './pages/AIAssistantPage';
 
 export function App() {
   return (
@@ -22,6 +23,7 @@ export function App() {
           <Route path="/maintenance-priority" element={<MaintenancePriorityPage />} />
           <Route path="/work-orders" element={<WorkOrdersPage />} />
           <Route path="/predictions" element={<PredictionsPage />} />
+          <Route path="/ai-assistant" element={<AIAssistantPage />} />
           
           {/* Legacy redirects for removed extra routes */}
           <Route path="/welcome" element={<Navigate to="/dashboard" replace />} />

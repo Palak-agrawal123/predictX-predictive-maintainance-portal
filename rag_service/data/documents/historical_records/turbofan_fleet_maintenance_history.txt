@@ -1,0 +1,39 @@
+PREDICTX FLEET HISTORICAL MAINTENANCE INCIDENT RECORDS
+Archive Reference: HIST-INC-ARCHIVE-2024-2026
+Confidential Plant Operations Database
+
+---
+INCIDENT REPORT: INC-2025-089
+Machine ID: UNIT-12 (Turbofan Engine Assembly #12)
+Date: 2025-08-14
+Reported Symptoms:
+Core exhaust gas temperature (T50) climbed steadily from 1409 R to 1438 R over 18 operating cycles. Static pressure Ps30 dropped by 2.2 psia.
+Predicted RUL at detection: 19 cycles (Critical Risk tier).
+Physical Findings:
+Borescope inspection CP-03 revealed stage 7 and 8 compressor blade tip erosion exceeding 1.6 mm due to sandy particulate ingestion. Significant stator rubbing noted.
+Action Taken:
+Engine removed from wing/mount. HPC module replaced with freshly overhauled unit. All engine telemetry returned to nominal baseline. Zero unscheduled inflight shutdown occurred.
+
+---
+INCIDENT REPORT: INC-2025-114
+Machine ID: MCH-102 (Heavy Hydraulic Press & Spindle)
+Date: 2025-11-02
+Reported Symptoms:
+Process temperature rose to 326 K while ambient temperature was 301 K. Vibration accelerometer recorded 4.8 mm/s RMS (Zone D).
+Predicted RUL: 12 days (Critical Risk tier).
+Physical Findings:
+Drive spindle main bearing lubrication line was partially blocked by oxidized oil sludge. Outer bearing raceway exhibited severe flaking (BPFO frequency dominant in FFT).
+Action Taken:
+Emergency shutdown executed. Spindle bearings replaced, lubrication lines power-flushed, and synthetic ISO VG 68 oil refilled. Vibration dropped to 1.1 mm/s RMS (Zone A).
+
+---
+INCIDENT REPORT: INC-2026-022
+Machine ID: MCH-105 (Precision CNC Mill)
+Date: 2026-02-18
+Reported Symptoms:
+Torque telemetry surged to 68 Nm during roughing pass. Tool wear reading reached 228 minutes.
+Predicted RUL: 8 hours (Critical Risk tier).
+Physical Findings:
+Carbide tool insert had chipped and friction-welded to workpiece holder, causing acute spindle overload.
+Action Taken:
+Emergency Tool Change procedure executed. Replaced toolholder and calibrated dynamic spindle balance. Updated preventive maintenance rule to enforce mandatory insert swap at 180 minutes.

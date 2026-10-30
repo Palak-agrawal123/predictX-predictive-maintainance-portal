@@ -12,6 +12,7 @@ import priorityRoutes from './routes/priorityRoutes.js';
 import workOrderRoutes from './routes/workOrderRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import modelMetricsRoutes from './routes/modelMetricsRoutes.js';
+import ragRoutes from './routes/ragRoutes.js';
 
 export function createApp() {
   const app = express();
@@ -50,12 +51,13 @@ export function createApp() {
   // 4. API Endpoints Mounting
   app.use('/api/health', healthRoutes);
   app.use('/api/machines', machineRoutes);
-  app.use('/api/predict', predictionRoutes);      // POST /api/predict
-  app.use('/api/predictions', predictionRoutes);  // GET /api/predictions
+  app.use('/api/predict', predictionRoutes);          // POST /api/predict
+  app.use('/api/predictions', predictionRoutes);      // GET /api/predictions
   app.use('/api/machine-priorities', priorityRoutes); // GET /api/machine-priorities
-  app.use('/api/dashboard', dashboardRoutes);     // GET /api/dashboard/summary
-  app.use('/api/model-metrics', modelMetricsRoutes); // GET /api/model-metrics
-  app.use('/api/work-orders', workOrderRoutes);   // /api/work-orders
+  app.use('/api/dashboard', dashboardRoutes);         // GET /api/dashboard/summary
+  app.use('/api/model-metrics', modelMetricsRoutes);   // GET /api/model-metrics
+  app.use('/api/work-orders', workOrderRoutes);       // /api/work-orders
+  app.use('/api/rag', ragRoutes);                     // /api/rag (Chat, Retrieve, Documents)
 
   // Root welcome route
   app.get('/', (req, res) => {

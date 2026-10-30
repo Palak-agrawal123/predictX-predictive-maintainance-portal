@@ -1,0 +1,21 @@
+VIBRATION ANALYSIS AND BEARING DEGRADATION GUIDE
+Standard: ISO 10816-3 Mechanical Vibration Guidelines for Industrial Machines
+Document Reference: VIB-SPEC-ISO10816
+
+1. VIBRATION SEVERITY ZONES (RMS Velocity 10 Hz - 1000 Hz)
+- Zone A (< 1.4 mm/s): Vibration of newly commissioned machinery. Excellent operating condition.
+- Zone B (1.4 - 2.8 mm/s): Machines normally considered acceptable for unrestricted long-term operation.
+- Zone C (2.8 - 4.5 mm/s): Machines considered unsatisfactory for long-term continuous operation. Machine may operate in restricted capacity until remedial maintenance can be scheduled.
+- Zone D (> 4.5 mm/s): Vibration severity sufficient to cause rapid machine damage. Immediate trip and mandatory shutdown required.
+
+2. BEARING DEFECT FREQUENCY CALCULATION
+Rolling element bearings exhibit characteristic defect frequencies based on internal geometry (pitch diameter D, ball diameter d, number of rolling elements n, contact angle alpha):
+- BPFO (Ball Pass Frequency Outer Race): BPFO = (n / 2) * RPM * (1 - (d / D) * cos(alpha))
+- BPFI (Ball Pass Frequency Inner Race): BPFI = (n / 2) * RPM * (1 + (d / D) * cos(alpha))
+- BSF (Ball Spin Frequency): BSF = (D / (2 * d)) * RPM * (1 - ((d / D) * cos(alpha))^2)
+- FTF (Fundamental Train Frequency / Cage): FTF = (1 / 2) * RPM * (1 - (d / D) * cos(alpha))
+
+3. VIBRATION SENSOR MOUNTING AND INTERPRETATION
+- Accelerometers must be stud-mounted or magnetically attached directly to the bearing housing in the radial load zone.
+- Never mount accelerometers onto sheet metal shrouds or flexible covers.
+- In PredictX, vibration telemetry (vibrationMmS) is continuously evaluated against the 4.5 mm/s safety threshold.

@@ -17,6 +17,10 @@ export const env = {
   ML_SERVICE_TIMEOUT_MS: parseInt(process.env.ML_SERVICE_TIMEOUT_MS, 10) || 4000,
   MOCK_ML_SERVICE: process.env.MOCK_ML_SERVICE === 'true',
   
+  // Python FastAPI RAG Service
+  RAG_SERVICE_URL: process.env.RAG_SERVICE_URL || 'http://127.0.0.1:8001',
+  RAG_SERVICE_TIMEOUT_MS: parseInt(process.env.RAG_SERVICE_TIMEOUT_MS, 10) || 15000,
+
   // Priority scoring weights
   PRIORITY_WEIGHT_RISK: parseFloat(process.env.PRIORITY_WEIGHT_RISK) || 0.50,
   PRIORITY_WEIGHT_CRITICALITY: parseFloat(process.env.PRIORITY_WEIGHT_CRITICALITY) || 0.25,

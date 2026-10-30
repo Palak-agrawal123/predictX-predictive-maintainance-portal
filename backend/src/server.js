@@ -6,9 +6,21 @@ const app = createApp();
 
 async function startServer() {
   try {
-    // 1. Connect to MongoDB
+    // 1. Connect to MongoDB (Non-fatal if offline to maintain RAG & mock API availability)
+
     console.log('[Server] Connecting to MongoDB...');
-    await connectDB();
+
+    try {
+
+      await connectDB();
+
+    } catch (dbErr) {
+
+      console.warn("[Server Warning] MongoDB connection failed:", dbErr.message);
+
+      console.warn('[Server Warning] Operating in degraded mode (DB writes disabled, but /api/rag and mock adapters remain operational).');
+
+    }
 
     // 2. Start Express HTTP Server
     const server = app.listen(env.PORT, () => {

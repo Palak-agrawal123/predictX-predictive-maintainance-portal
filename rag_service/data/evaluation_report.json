@@ -1,0 +1,267 @@
+{
+  "evaluation_name": "PredictX RAG 25-Question Industrial Benchmark",
+  "dataset": "NASA C-MAPSS + Industrial Maintenance SOPs",
+  "total_test_queries": 25,
+  "metrics": {
+    "hit_rate_at_1": 0.84,
+    "hit_rate_at_3": 1.0,
+    "hit_rate_at_5": 1.0,
+    "mean_reciprocal_rank_mrr": 0.92,
+    "average_retrieval_latency_ms": 15.85,
+    "p95_retrieval_latency_ms": 18.32,
+    "average_relevance_score": 0.7043,
+    "citation_verification_rate": 1.0
+  },
+  "query_results": [
+    {
+      "id": "Q01",
+      "question": "What are the common causes of engine overheating in turbofan and industrial machinery?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.7128,
+      "keyword_recall": 1.0,
+      "latency_ms": 18.46,
+      "top_doc": "industrial_overheating_and_troubleshooting.pdf"
+    },
+    {
+      "id": "Q02",
+      "question": "What is the acceptable vibration severity limit for industrial machines under ISO 10816-3?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.8848,
+      "keyword_recall": 0.17,
+      "latency_ms": 15.64,
+      "top_doc": "vibration_analysis_bearing_guide.txt"
+    },
+    {
+      "id": "Q03",
+      "question": "Explain the role and nominal baseline reading of sensor s_4 (T50) in NASA C-MAPSS.",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.6325,
+      "keyword_recall": 0.0,
+      "latency_ms": 14.56,
+      "top_doc": "nasa_cmapss_specification_manual.pdf"
+    },
+    {
+      "id": "Q04",
+      "question": "What is the borescope inspection procedure for High Pressure Compressor blade tip erosion?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.8506,
+      "keyword_recall": 0.8,
+      "latency_ms": 16.38,
+      "top_doc": "turbofan_engine_maintenance_manual.docx"
+    },
+    {
+      "id": "Q05",
+      "question": "How does tool wear affect CNC milling spindle torque and when must inserts be replaced?",
+      "first_hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "max_relevance": 0.8241,
+      "keyword_recall": 0.6,
+      "latency_ms": 15.64,
+      "top_doc": "turbofan_fleet_maintenance_history.txt"
+    },
+    {
+      "id": "Q06",
+      "question": "What are the operating regime clusters in NASA C-MAPSS FD002 and FD004?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.6889,
+      "keyword_recall": 1.0,
+      "latency_ms": 16.56,
+      "top_doc": "nasa_cmapss_specification_manual.pdf"
+    },
+    {
+      "id": "Q07",
+      "question": "What does a pop-up indicator on the oil filter differential pressure delta-P mean?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.7543,
+      "keyword_recall": 1.0,
+      "latency_ms": 14.66,
+      "top_doc": "turbofan_engine_maintenance_manual.docx"
+    },
+    {
+      "id": "Q08",
+      "question": "What characteristic defect frequency corresponds to bearing outer race micro-spalling?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.6893,
+      "keyword_recall": 1.0,
+      "latency_ms": 16.44,
+      "top_doc": "vibration_analysis_bearing_guide.txt"
+    },
+    {
+      "id": "Q09",
+      "question": "Explain the Paris crack propagation law in machine prognostics.",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.7848,
+      "keyword_recall": 1.0,
+      "latency_ms": 16.86,
+      "top_doc": "rul_prognostics_turbomachinery_paper.pdf"
+    },
+    {
+      "id": "Q10",
+      "question": "What was the root cause and corrective action for Incident INC-2025-089?",
+      "first_hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "max_relevance": 0.4797,
+      "keyword_recall": 0.0,
+      "latency_ms": 16.54,
+      "top_doc": "preventive_maintenance_procedures.txt"
+    },
+    {
+      "id": "Q11",
+      "question": "What are the Tier 1 autonomous telemetry audit triggers in PredictX preventive maintenance?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.6552,
+      "keyword_recall": 1.0,
+      "latency_ms": 15.02,
+      "top_doc": "preventive_maintenance_procedures.txt"
+    },
+    {
+      "id": "Q12",
+      "question": "What is the piecewise linear RUL target modeling logic used in C-MAPSS benchmarks?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.6611,
+      "keyword_recall": 1.0,
+      "latency_ms": 16.21,
+      "top_doc": "nasa_cmapss_specification_manual.pdf"
+    },
+    {
+      "id": "Q13",
+      "question": "What indicates Heat Dissipation Failure (HDF) in machine telemetry?",
+      "first_hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "max_relevance": 0.7905,
+      "keyword_recall": 0.75,
+      "latency_ms": 18.32,
+      "top_doc": "failure_modes_and_interventions.csv"
+    },
+    {
+      "id": "Q14",
+      "question": "What is the compressor water wash detergent procedure for turbofan engines?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.6204,
+      "keyword_recall": 1.0,
+      "latency_ms": 16.03,
+      "top_doc": "turbofan_engine_maintenance_manual.docx"
+    },
+    {
+      "id": "Q15",
+      "question": "What does magnetic chip detector Class C debris indicate?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.5993,
+      "keyword_recall": 1.0,
+      "latency_ms": 15.02,
+      "top_doc": "turbofan_engine_maintenance_manual.docx"
+    },
+    {
+      "id": "Q16",
+      "question": "What is the nominal value and engineering unit of static pressure sensor s_11 (Ps30)?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.6342,
+      "keyword_recall": 1.0,
+      "latency_ms": 15.69,
+      "top_doc": "nasa_cmapss_specification_manual.pdf"
+    },
+    {
+      "id": "Q17",
+      "question": "What was the physical finding for Machine MCH-102 during incident INC-2025-114?",
+      "first_hit_rank": 2,
+      "reciprocal_rank": 0.5,
+      "max_relevance": 0.6296,
+      "keyword_recall": 0.0,
+      "latency_ms": 16.01,
+      "top_doc": "failure_modes_and_interventions.csv"
+    },
+    {
+      "id": "Q18",
+      "question": "What maximum total indicated runout (TIR) is permitted on CNC spindle shafts?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.6055,
+      "keyword_recall": 1.0,
+      "latency_ms": 12.83,
+      "top_doc": "preventive_maintenance_procedures.txt"
+    },
+    {
+      "id": "Q19",
+      "question": "What causes abnormal core speed s_9 (Nc) increase during turbofan operation?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.6694,
+      "keyword_recall": 0.8,
+      "latency_ms": 14.75,
+      "top_doc": "nasa_cmapss_specification_manual.pdf"
+    },
+    {
+      "id": "Q20",
+      "question": "What actions are required when PredictX ML model flags Critical Risk tier?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.7188,
+      "keyword_recall": 0.75,
+      "latency_ms": 14.57,
+      "top_doc": "preventive_maintenance_procedures.txt"
+    },
+    {
+      "id": "Q21",
+      "question": "What is the function of Bypass Ratio sensor s_15 (BPR) in engine diagnostics?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.5914,
+      "keyword_recall": 1.0,
+      "latency_ms": 17.93,
+      "top_doc": "nasa_cmapss_specification_manual.pdf"
+    },
+    {
+      "id": "Q22",
+      "question": "How does rotational speed dropping below 1380 RPM affect machine health?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.7052,
+      "keyword_recall": 1.0,
+      "latency_ms": 13.61,
+      "top_doc": "industrial_sensor_specifications.txt"
+    },
+    {
+      "id": "Q23",
+      "question": "What is the calibration tolerance of PT100 temperature sensors in industrial telemetry?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.8624,
+      "keyword_recall": 1.0,
+      "latency_ms": 16.15,
+      "top_doc": "industrial_sensor_specifications.txt"
+    },
+    {
+      "id": "Q24",
+      "question": "What was the consequence of tool wear on Machine MCH-105 during Incident INC-2026-022?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.8296,
+      "keyword_recall": 1.0,
+      "latency_ms": 15.74,
+      "top_doc": "turbofan_fleet_maintenance_history.txt"
+    },
+    {
+      "id": "Q25",
+      "question": "What is the three-phase fatigue degradation progression before physical failure?",
+      "first_hit_rank": 1,
+      "reciprocal_rank": 1.0,
+      "max_relevance": 0.734,
+      "keyword_recall": 0.8,
+      "latency_ms": 16.66,
+      "top_doc": "rul_prognostics_turbomachinery_paper.pdf"
+    }
+  ]
+}
