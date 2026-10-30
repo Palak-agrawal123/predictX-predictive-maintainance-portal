@@ -1,0 +1,9 @@
+record_id,machine_id,machine_type,failure_mode,dominant_sensor,sensor_value_at_failure,threshold_limit,remedial_action,downtime_hours,cost_usd
+REC-001,UNIT-03,TURBINE,High Pressure Compressor Degradation,s_3_T30,1612.4,1605.0 R,Borescope inspection and stage 5-8 blade blend wash,14.5,8500
+REC-002,UNIT-14,TURBINE,Low Pressure Turbine Thermal Creep,s_4_T50,1434.1,1425.0 R,HPT/LPT seal replacement and turbine disc overhaul,28.0,24000
+REC-003,MCH-102,HYDRAULIC_PRESS,Bearing Misalignment / Pitting,vibration,5.4,4.5 mm/s,Dynamic balancing and deep-groove ball bearing replacement,8.0,3200
+REC-004,MCH-103,CNC_MILL,Heat Dissipation Failure (HDF),temperature_delta,6.8,8.6 K,Coolant flushing and radiator fin ultrasonic de-scaling,4.5,1200
+REC-005,MCH-105,CNC_MILL,Tool Wear & Mechanical Overstrain,toolWear,235.0,220.0 min,Immediate tool insert change and spindle taper cleaning,1.5,450
+REC-006,UNIT-28,TURBINE,LPC Outlet Over-temperature,s_2_T24,646.2,643.5 R,LPC stator vane angle recalibration and bleed check,12.0,6800
+REC-007,MCH-101,ROBOTIC_ARM,Power Transmission Failure,motorPower,9400.0,9000.0 W,Inverter drive gate driver repair and motor cable replacement,6.0,2900
+REC-008,UNIT-42,TURBINE,Static Pressure Drop (HPC Fouling),s_11_Ps30,46.1,47.0 psia,Gas path detergent wash and inlet guide vane inspection,6.5,3500

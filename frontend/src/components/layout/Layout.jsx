@@ -73,6 +73,12 @@ export function Layout({ children, pageTitle = "Overview", breadcrumb = [] }) {
         },
         { to: "/predictions", label: "Models & Evaluation", icon: Activity, tag: "NASA" }
       ]
+    },
+    {
+      title: "INTELLIGENT SUPPORT",
+      items: [
+        { to: "/ai-assistant", label: "AI Maintenance Copilot", icon: Sparkles, tag: "RAG" }
+      ]
     }
   ];
 
@@ -315,8 +321,17 @@ export function Layout({ children, pageTitle = "Overview", breadcrumb = [] }) {
         </header>
 
         {/* WORKSPACE CONTENT BODY */}
-        <main className="flex-1 p-5 md:p-6 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-5 md:p-6 max-w-7xl w-full mx-auto relative">
           {children}
+          {/* Floating AI Copilot Trigger */}
+          <button
+            onClick={() => navigate('/ai-assistant')}
+            className="fixed bottom-6 right-6 z-40 bg-[#176B52] hover:bg-[#11523E] text-white px-4 py-2.5 rounded-full shadow-lg hover:shadow-xl flex items-center gap-2 border border-[#176B52]/20 transition-all font-sans text-xs font-semibold group cursor-pointer"
+            title="Open PredictX AI Maintenance Assistant"
+          >
+            <Sparkles size={16} className="text-[#A2E3C4] group-hover:rotate-12 transition-transform" />
+            <span>Ask PredictX AI</span>
+          </button>
         </main>
       </div>
 

@@ -11,6 +11,7 @@ import { WorkOrdersPage } from './pages/WorkOrdersPage';
 import { WorkAuditsPage } from './pages/WorkAuditsPage';
 import { PredictionsPage } from './pages/PredictionsPage';
 import { HumanReviewPage } from './pages/HumanReviewPage';
+import { AIAssistantPage } from './pages/AIAssistantPage';
 
 export function App() {
   return (
@@ -28,6 +29,7 @@ export function App() {
           <Route path="/work-orders" element={<WorkOrdersPage />} />
           <Route path="/work-audits" element={<WorkAuditsPage />} />
           <Route path="/predictions" element={<PredictionsPage />} />
+          <Route path="/ai-assistant" element={<AIAssistantPage />} />
           
           {/* Legacy redirects */}
           <Route path="/welcome" element={<Navigate to="/dashboard" replace />} />

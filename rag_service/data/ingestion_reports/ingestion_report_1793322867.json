@@ -1,0 +1,87 @@
+{
+  "ingestion_id": "INGEST-1793322867",
+  "timestamp": "2026-10-30T01:14:27.768467",
+  "duration_seconds": 1.42,
+  "total_discovered": 9,
+  "successfully_processed": 9,
+  "failed_documents_count": 0,
+  "total_pages_extracted": 36,
+  "total_chunks_generated": 36,
+  "stored_embeddings_count": 36,
+  "current_collection_total": 36,
+  "processed_documents": [
+    {
+      "document_id": "DOC-026D9ED72B",
+      "document_name": "turbofan_engine_maintenance_manual.docx",
+      "category": "engine_manuals",
+      "total_pages": 4,
+      "total_chunks": 4,
+      "file_hash": "026d9ed72b2629abd4227aeebb0981b741161bf8f00681590635fd0f17dbad77"
+    },
+    {
+      "document_id": "DOC-B55CC6C996",
+      "document_name": "failure_modes_and_interventions.csv",
+      "category": "historical_records",
+      "total_pages": 8,
+      "total_chunks": 8,
+      "file_hash": "b55cc6c996e24d7b68af6c3213020742ad10de9484216ec32d30efe00163db30"
+    },
+    {
+      "document_id": "DOC-E6073B058F",
+      "document_name": "turbofan_fleet_maintenance_history.txt",
+      "category": "historical_records",
+      "total_pages": 4,
+      "total_chunks": 4,
+      "file_hash": "e6073b058fc547a88f6c4cda426c552ae3bbaddaf8d77f8f17eca12c660299c6"
+    },
+    {
+      "document_id": "DOC-566C09E798",
+      "document_name": "preventive_maintenance_procedures.txt",
+      "category": "maintenance",
+      "total_pages": 4,
+      "total_chunks": 4,
+      "file_hash": "566c09e798ebba4eb1651c779e31a0fd17f9b01ebe52d96c3bb772ea2517b044"
+    },
+    {
+      "document_id": "DOC-4C13011D57",
+      "document_name": "nasa_cmapss_specification_manual.pdf",
+      "category": "nasa",
+      "total_pages": 3,
+      "total_chunks": 3,
+      "file_hash": "4c13011d579179bcbfe39040f11bbd1e61b6d3db5728fbb50fe9cccc0150e2d3"
+    },
+    {
+      "document_id": "DOC-D09D865089",
+      "document_name": "rul_prognostics_turbomachinery_paper.pdf",
+      "category": "research_papers",
+      "total_pages": 2,
+      "total_chunks": 2,
+      "file_hash": "d09d865089e7af2f49bbcbcc257db8f8eee17eaf78e72f410fde7861e4bdd3df"
+    },
+    {
+      "document_id": "DOC-5E9F992CD4",
+      "document_name": "industrial_sensor_specifications.txt",
+      "category": "sensors",
+      "total_pages": 5,
+      "total_chunks": 5,
+      "file_hash": "5e9f992cd4edff2a4cf1eba59c059cfdfc26ba9ae83af3ead8959429f0f5d1aa"
+    },
+    {
+      "document_id": "DOC-A556E1D805",
+      "document_name": "vibration_analysis_bearing_guide.txt",
+      "category": "sensors",
+      "total_pages": 4,
+      "total_chunks": 4,
+      "file_hash": "a556e1d805b618b7ec7c6ce080e3937b947adf63bfdb3e3b324c5b86161eb024"
+    },
+    {
+      "document_id": "DOC-4DD16AF6AF",
+      "document_name": "industrial_overheating_and_troubleshooting.pdf",
+      "category": "troubleshooting",
+      "total_pages": 2,
+      "total_chunks": 2,
+      "file_hash": "4dd16af6afeacf30abebad35b0598c7144963ada41e8097c5aa4936be6c52549"
+    }
+  ],
+  "failed_documents": []
+}
