@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Layers, Plus, ChevronRight, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
@@ -7,7 +7,7 @@ import { StatusBadge, PriorityBadge } from '../components/common/UIComponents';
 import { WorkOrderModal } from '../components/work-orders/WorkOrderModal';
 
 export function MachinesPage() {
-  const { machines } = useAppData();
+  const { machines, updateMachineStatus } = useAppData();
   const navigate = useNavigate();
 
   const [search, setSearch] = useState('');
@@ -201,8 +201,17 @@ export function MachinesPage() {
                         <div className="text-[11px] text-[#75837D]">{machine.line}</div>
                       </td>
                       <td className="py-3 px-4 text-[#68756F]">{machine.type}</td>
-                      <td className="py-3 px-4">
-                        <StatusBadge status={machine.status} />
+                      <td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
+                        <select
+                          value={machine.status}
+                          onChange={(e) => updateMachineStatus(machine.id, e.target.value)}
+                          className="bg-[#F7FAF8] hover:bg-[#E8EFEA] border border-[#E0E6E0] rounded px-2 py-1 text-[11px] font-semibold text-[#202A27] focus:border-[#176B52] focus:outline-none cursor-pointer"
+                        >
+                          <option value="Operational">Operational</option>
+                          <option value="Degraded">Degraded</option>
+                          <option value="Under Maintenance">Under Maint.</option>
+                          <option value="Critical">Critical</option>
+                        </select>
                       </td>
                       <td className="py-3 px-4 text-center">
                         <PriorityBadge priority={machine.criticality} />

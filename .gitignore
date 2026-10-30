@@ -49,6 +49,7 @@ ehthumbs.db
 # IDE and Editor directories
 .vscode/*
 !.vscode/extensions.json
+!.vscode/tasks.json
 .idea/
 *.suo
 *.ntvs*

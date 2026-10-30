@@ -5,7 +5,9 @@ import {
   Layers,
   SlidersHorizontal,
   Wrench,
+  ClipboardCheck,
   Activity,
+  UserCheck,
   Bell,
   RefreshCw,
   Terminal,
@@ -28,7 +30,7 @@ export function Layout({ children, pageTitle = "Overview", breadcrumb = [] }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('en-US', { hour12: false }));
-  const { alerts, markAlertAsRead, resetAllDemoData } = useAppData();
+  const { alerts, markAlertAsRead, resetAllDemoData, pendingReviewsCount = 0 } = useAppData();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -54,12 +56,21 @@ export function Layout({ children, pageTitle = "Overview", breadcrumb = [] }) {
     {
       title: "MAINTENANCE ACTIONS",
       items: [
-        { to: "/work-orders", label: "Work Orders", icon: Wrench, tag: "Draft/Log" }
+        { to: "/work-orders", label: "Work Orders", icon: Wrench, tag: "Active" },
+        { to: "/work-audits", label: "Work Audits", icon: ClipboardCheck, tag: "Audit/Log" }
       ]
     },
     {
       title: "ML DECISION ENGINE",
       items: [
+        {
+          to: "/reviews",
+          label: "Human Review",
+          icon: UserCheck,
+          tag: pendingReviewsCount > 0 ? `${pendingReviewsCount} Pending` : "HITL",
+          count: pendingReviewsCount > 0 ? pendingReviewsCount : undefined,
+          highlight: pendingReviewsCount > 0
+        },
         { to: "/predictions", label: "Models & Evaluation", icon: Activity, tag: "NASA" }
       ]
     }

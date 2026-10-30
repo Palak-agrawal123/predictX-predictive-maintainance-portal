@@ -67,7 +67,13 @@ export function validateUpdateMachine(req, res, next) {
     });
   }
 
-  if (status && !VALID_STATUSES.includes(status)) {
+  if (req.body.status) {
+    let s = String(req.body.status).toLowerCase().trim();
+    if (s === 'under maintenance' || s === 'under_maintenance') s = 'maintenance';
+    req.body.status = s;
+  }
+
+  if (status && !VALID_STATUSES.includes(req.body.status)) {
     errors.push({ field: 'status', message: `Status must be one of: ${VALID_STATUSES.join(', ')}` });
   }
 

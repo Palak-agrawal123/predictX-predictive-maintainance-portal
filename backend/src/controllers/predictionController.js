@@ -31,7 +31,10 @@ export async function runPrediction(req, res, next) {
     const randomHex = Math.random().toString(36).substring(2, 7).toUpperCase();
     const predictionId = `PRD-${dateStr}-${randomHex}`;
 
-    // 4. Persist prediction in MongoDB
+    // 4. Persist prediction in MongoDB with Human-in-the-Loop review fields
+    const rawRisk = (predictionData.predictionResult?.riskLevel || 'medium').toUpperCase();
+    const predictedRisk = rawRisk === 'CRITICAL' ? 'HIGH' : rawRisk;
+
     const predictionRecord = new Prediction({
       predictionId,
       machineId: cleanMachineId,
@@ -41,7 +44,16 @@ export async function runPrediction(req, res, next) {
       isMock: predictionData.isMock,
       executionSource: predictionData.executionSource,
       inputFeatures: sensors,
-      predictionTimestamp: predictionData.predictionTimestamp
+      predictionTimestamp: predictionData.predictionTimestamp,
+      // Human Review Workflow Initialization
+      predictedRisk,
+      maintenancePriority: predictedRisk,
+      reviewStatus: 'PENDING',
+      isOverridden: false,
+      reviewedBy: null,
+      reviewedAt: null,
+      reviewReason: '',
+      reviewHistory: []
     });
 
     await predictionRecord.save();
@@ -82,6 +94,10 @@ export async function runPrediction(req, res, next) {
         machineId: cleanMachineId,
         predictionType: predictionRecord.predictionType,
         predictionResult: predictionRecord.predictionResult,
+        predictedRisk: predictionRecord.predictedRisk,
+        maintenancePriority: predictionRecord.maintenancePriority,
+        reviewStatus: predictionRecord.reviewStatus,
+        isOverridden: predictionRecord.isOverridden,
         modelVersion: predictionRecord.modelVersion,
         isMock: predictionRecord.isMock,
         executionSource: predictionRecord.executionSource,

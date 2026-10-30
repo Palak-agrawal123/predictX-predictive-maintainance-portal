@@ -82,14 +82,99 @@ const predictionSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
       index: true
-    }
+    },
+    // Human-in-the-Loop (HITL) Review & Priority Override Fields
+    predictedRisk: {
+      type: String,
+      enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+      default: 'MEDIUM',
+      uppercase: true,
+      index: true
+    },
+    maintenancePriority: {
+      type: String,
+      enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+      default: 'MEDIUM',
+      uppercase: true,
+      index: true
+    },
+    reviewStatus: {
+      type: String,
+      enum: ['PENDING', 'REVIEWED'],
+      default: 'PENDING',
+      uppercase: true,
+      index: true
+    },
+    isOverridden: {
+      type: Boolean,
+      default: false,
+      index: true
+    },
+    reviewedBy: {
+      type: String,
+      default: null,
+      trim: true
+    },
+    reviewedAt: {
+      type: Date,
+      default: null
+    },
+    reviewReason: {
+      type: String,
+      default: '',
+      trim: true
+    },
+    reviewHistory: [
+      {
+        action: {
+          type: String,
+          enum: ['CONFIRMED', 'OVERRIDDEN'],
+          uppercase: true,
+          required: true
+        },
+        previousPriority: {
+          type: String,
+          uppercase: true
+        },
+        newPriority: {
+          type: String,
+          uppercase: true
+        },
+        reason: {
+          type: String,
+          default: ''
+        },
+        reviewedBy: {
+          type: String,
+          default: 'Maintenance Reviewer'
+        },
+        reviewedAt: {
+          type: Date,
+          default: Date.now
+        }
+      }
+    ]
   },
   {
     timestamps: true
   }
 );
 
+// Pre-save hook: ensure predictedRisk and maintenancePriority are initialized
+predictionSchema.pre('save', function (next) {
+  if (!this.predictedRisk && this.predictionResult?.riskLevel) {
+    const r = this.predictionResult.riskLevel.toUpperCase();
+    this.predictedRisk = r === 'CRITICAL' ? 'HIGH' : r;
+  }
+  if (!this.maintenancePriority && this.predictedRisk) {
+    this.maintenancePriority = this.predictedRisk;
+  }
+  next();
+});
+
 // Compound index for querying recent predictions for a machine
 predictionSchema.index({ machineId: 1, predictionTimestamp: -1 });
+predictionSchema.index({ reviewStatus: 1, predictionTimestamp: -1 });
 
 export const Prediction = mongoose.model('Prediction', predictionSchema);
+

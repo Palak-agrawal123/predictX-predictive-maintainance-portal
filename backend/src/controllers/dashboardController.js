@@ -17,7 +17,9 @@ export async function getDashboardSummary(req, res, next) {
       openWorkOrdersCount,
       workOrdersByStatus,
       recentPredictions,
-      mlHealth
+      mlHealth,
+      pendingReviewsCount,
+      overriddenReviewsCount
     ] = await Promise.all([
       Machine.countDocuments(),
       Machine.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
@@ -25,7 +27,9 @@ export async function getDashboardSummary(req, res, next) {
       WorkOrder.countDocuments({ status: { $in: ['draft', 'approved', 'in_progress'] } }),
       WorkOrder.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
       Prediction.find().sort({ predictionTimestamp: -1 }).limit(5).lean(),
-      mlService.checkHealth()
+      mlService.checkHealth(),
+      Prediction.countDocuments({ reviewStatus: 'PENDING' }),
+      Prediction.countDocuments({ isOverridden: true })
     ]);
 
     // Format status counts with defaults
@@ -99,10 +103,29 @@ export async function getDashboardSummary(req, res, next) {
       }
     });
 
+    // Calculate average fleet health from predictions & machines
+    let avgHealth = 82;
+    const healthScores = latestPredictionsGrouped
+      .map(p => p.latestHealthScore ?? (p.latestRiskProb !== undefined ? Math.max(10, Math.round((1 - p.latestRiskProb) * 100)) : null))
+      .filter(h => h !== null && !isNaN(h));
+    
+    if (healthScores.length > 0) {
+      avgHealth = Math.round(healthScores.reduce((acc, val) => acc + val, 0) / healthScores.length);
+    }
+
+    const operationalMachines = (statusCounts.operational || 0) + (statusCounts.degraded || 0);
+    const highRiskTotal = (riskCategoryCounts.critical || 0) + (riskCategoryCounts.high || 0);
+
     res.json({
       success: true,
       timestamp: new Date(),
       data: {
+        totalMachines,
+        operational: statusCounts.operational || 0,
+        operationalWithDegraded: operationalMachines,
+        highRisk: highRiskTotal,
+        openWorkOrders: openWorkOrdersCount,
+        averageFleetHealth: avgHealth,
         fleetOverview: {
           totalMachines,
           statusDistribution: statusCounts,
@@ -121,6 +144,10 @@ export async function getDashboardSummary(req, res, next) {
         workOrders: {
           totalOpen: openWorkOrdersCount,
           byStatus: workOrderStatusMap
+        },
+        humanReviews: {
+          pendingCount: pendingReviewsCount,
+          overriddenCount: overriddenReviewsCount
         },
         recentPredictions,
         mlEngine: {

@@ -8,7 +8,9 @@ import { MachinesPage } from './pages/MachinesPage';
 import { MachineDetailPage } from './pages/MachineDetailPage';
 import { MaintenancePriorityPage } from './pages/MaintenancePriorityPage';
 import { WorkOrdersPage } from './pages/WorkOrdersPage';
+import { WorkAuditsPage } from './pages/WorkAuditsPage';
 import { PredictionsPage } from './pages/PredictionsPage';
+import { HumanReviewPage } from './pages/HumanReviewPage';
 
 export function App() {
   return (
@@ -20,13 +22,17 @@ export function App() {
           <Route path="/machines" element={<MachinesPage />} />
           <Route path="/machines/:machineId" element={<MachineDetailPage />} />
           <Route path="/maintenance-priority" element={<MaintenancePriorityPage />} />
+          <Route path="/reviews" element={<HumanReviewPage />} />
+          <Route path="/human-review" element={<Navigate to="/reviews" replace />} />
+          <Route path="/prediction-reviews" element={<Navigate to="/reviews" replace />} />
           <Route path="/work-orders" element={<WorkOrdersPage />} />
+          <Route path="/work-audits" element={<WorkAuditsPage />} />
           <Route path="/predictions" element={<PredictionsPage />} />
           
-          {/* Legacy redirects for removed extra routes */}
+          {/* Legacy redirects */}
           <Route path="/welcome" element={<Navigate to="/dashboard" replace />} />
           <Route path="/planning" element={<Navigate to="/work-orders" replace />} />
-          <Route path="/maintenance-history" element={<Navigate to="/work-orders" replace />} />
+          <Route path="/maintenance-history" element={<Navigate to="/work-audits" replace />} />
           
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
