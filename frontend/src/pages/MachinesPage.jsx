@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Layers, Plus, ChevronRight, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { Search, Plus, ChevronRight } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
 import { Layout } from '../components/layout/Layout';
-import { StatusBadge, PriorityBadge } from '../components/common/UIComponents';
+import { PriorityBadge } from '../components/common/UIComponents';
 import { WorkOrderModal } from '../components/work-orders/WorkOrderModal';
 
 export function MachinesPage() {
@@ -46,16 +46,14 @@ export function MachinesPage() {
   const machineTypes = Array.from(new Set(machines.map(m => m.type)));
 
   return (
-    <Layout pageTitle="Machine Fleet Registry">
-      <div className="space-y-4 font-mono">
+    <Layout pageTitle="Machine Fleet">
+      <div className="space-y-4">
         {/* HEADER BAR */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E0E6E0] gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#DFE4DD] gap-3">
           <div>
-            <h1 className="text-base font-bold tracking-tight text-[#202A27] flex items-center gap-2">
-              <span className="text-[#176B52]">//</span> ASSET INVENTORY & TELEMETRY REGISTRY
-            </h1>
-            <p className="text-xs text-[#68756F] mt-0.5">
-              Online equipment units, operational state, criticality tier and estimated degradation risk
+            <h2 className="text-base font-semibold text-[#202925]">Equipment Registry</h2>
+            <p className="text-xs text-[#68736C] mt-0.5">
+              Operating assets, real-time health scores, and degradation estimates.
             </p>
           </div>
           <button
@@ -63,24 +61,24 @@ export function MachinesPage() {
               setSelectedMachineForOrder(machines[0]);
               setModalOpen(true);
             }}
-            className="px-3.5 py-1.5 rounded bg-[#176B52] hover:bg-[#10543F] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors self-start sm:self-auto"
+            className="px-3 py-1.5 rounded-md bg-[#246B52] hover:bg-[#1B5440] text-white text-xs font-medium flex items-center gap-1.5 transition-colors self-start sm:self-auto cursor-pointer shadow-xs"
           >
             <Plus size={14} /> Create Work Order
           </button>
         </div>
 
         {/* SEARCH & FILTERS BAR */}
-        <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-3 space-y-3 text-xs">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+        <div className="bg-white border border-[#DFE4DD] rounded-lg p-3 space-y-2.5 text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5">
             {/* Search Box */}
             <div className="md:col-span-4 relative">
-              <Search size={14} className="absolute left-2.5 top-2.5 text-[#68756F]" />
+              <Search size={14} className="absolute left-2.5 top-2.5 text-[#68736C]" />
               <input
                 type="text"
-                placeholder="Search machine ID, model, bay..."
+                placeholder="Search by ID, name, or location..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-[#F7FAF8] border border-[#E0E6E0] rounded pl-8 pr-3 py-1.5 text-[#202A27] focus:border-[#176B52] focus:outline-none placeholder:text-[#829189]"
+                className="w-full bg-[#F5F6F2] border border-[#DFE4DD] rounded-md pl-8 pr-3 py-1.5 text-[#202925] focus:border-[#246B52] focus:bg-white focus:outline-none placeholder:text-[#85918A]"
               />
             </div>
 
@@ -89,9 +87,9 @@ export function MachinesPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full bg-[#F7FAF8] border border-[#E0E6E0] rounded px-2.5 py-1.5 text-[#202A27] focus:border-[#176B52] focus:outline-none"
+                className="w-full bg-[#F5F6F2] border border-[#DFE4DD] rounded-md px-2.5 py-1.5 text-[#202925] focus:border-[#246B52] focus:bg-white focus:outline-none"
               >
-                <option value="ALL">Status: All</option>
+                <option value="ALL">All Statuses</option>
                 <option value="Operational">Operational</option>
                 <option value="Degraded">Degraded</option>
                 <option value="Under Maintenance">Under Maint.</option>
@@ -103,9 +101,9 @@ export function MachinesPage() {
               <select
                 value={criticalityFilter}
                 onChange={(e) => setCriticalityFilter(e.target.value)}
-                className="w-full bg-[#F7FAF8] border border-[#E0E6E0] rounded px-2.5 py-1.5 text-[#202A27] focus:border-[#176B52] focus:outline-none"
+                className="w-full bg-[#F5F6F2] border border-[#DFE4DD] rounded-md px-2.5 py-1.5 text-[#202925] focus:border-[#246B52] focus:bg-white focus:outline-none"
               >
-                <option value="ALL">Criticality: All</option>
+                <option value="ALL">All Criticalities</option>
                 <option value="Critical">Critical</option>
                 <option value="High">High</option>
                 <option value="Medium">Medium</option>
@@ -118,9 +116,9 @@ export function MachinesPage() {
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="w-full bg-[#F7FAF8] border border-[#E0E6E0] rounded px-2.5 py-1.5 text-[#202A27] focus:border-[#176B52] focus:outline-none truncate"
+                className="w-full bg-[#F5F6F2] border border-[#DFE4DD] rounded-md px-2.5 py-1.5 text-[#202925] focus:border-[#246B52] focus:bg-white focus:outline-none truncate"
               >
-                <option value="ALL">Type: All</option>
+                <option value="ALL">All Types</option>
                 {machineTypes.map(t => (
                   <option key={t} value={t}>{t}</option>
                 ))}
@@ -132,19 +130,19 @@ export function MachinesPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full bg-[#F7FAF8] border border-[#E0E6E0] rounded px-2.5 py-1.5 text-[#202A27] focus:border-[#176B52] focus:outline-none"
+                className="w-full bg-[#F5F6F2] border border-[#DFE4DD] rounded-md px-2.5 py-1.5 text-[#202925] focus:border-[#246B52] focus:bg-white focus:outline-none"
               >
-                <option value="risk-desc">Sort: Risk High-Low</option>
-                <option value="risk-asc">Sort: Risk Low-High</option>
-                <option value="health-asc">Sort: Health Low-High</option>
-                <option value="health-desc">Sort: Health High-Low</option>
-                <option value="name-asc">Sort: Name (A-Z)</option>
+                <option value="risk-desc">Risk: High to Low</option>
+                <option value="risk-asc">Risk: Low to High</option>
+                <option value="health-asc">Health: Low to High</option>
+                <option value="health-desc">Health: High to Low</option>
+                <option value="name-asc">Name: A to Z</option>
               </select>
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-[11px] text-[#68756F] pt-1">
-            <span>Displaying {sortedMachines.length} of {machines.length} registered units</span>
+          <div className="flex items-center justify-between text-[11px] text-[#68736C] pt-1">
+            <span>Showing {sortedMachines.length} of {machines.length} assets</span>
             {(search || statusFilter !== 'ALL' || criticalityFilter !== 'ALL' || typeFilter !== 'ALL') && (
               <button
                 onClick={() => {
@@ -153,37 +151,37 @@ export function MachinesPage() {
                   setCriticalityFilter('ALL');
                   setTypeFilter('ALL');
                 }}
-                className="text-[#176B52] hover:underline"
+                className="text-[#246B52] hover:underline font-medium cursor-pointer"
               >
-                Clear all active filters
+                Reset filters
               </button>
             )}
           </div>
         </div>
 
         {/* INVENTORY TABLE */}
-        <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg overflow-hidden">
+        <div className="bg-white border border-[#DFE4DD] rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-[#F4F7F5] border-b border-[#E0E6E0] text-[#68756F] uppercase text-[10px] tracking-wider">
-                  <th className="py-3 px-4">Machine ID</th>
-                  <th className="py-3 px-4">Asset Name & Bay</th>
-                  <th className="py-3 px-4">Equipment Type</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-center">Criticality</th>
-                  <th className="py-3 px-4 text-center">Health</th>
-                  <th className="py-3 px-4 text-center">Risk Score</th>
-                  <th className="py-3 px-4">Predicted RUL</th>
-                  <th className="py-3 px-4">Last Serviced</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                <tr className="border-b border-[#E7ECE5] text-[#68736C] text-[11px] font-medium bg-[#FAFCFA]">
+                  <th className="py-2.5 px-3">Asset ID</th>
+                  <th className="py-2.5 px-3">Machine & Bay</th>
+                  <th className="py-2.5 px-3">Type</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3 text-center">Criticality</th>
+                  <th className="py-2.5 px-3 text-center">Health</th>
+                  <th className="py-2.5 px-3 text-center">Risk Score</th>
+                  <th className="py-2.5 px-3">Predicted RUL</th>
+                  <th className="py-2.5 px-3">Last Serviced</th>
+                  <th className="py-2.5 px-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E5EBE6]">
+              <tbody className="divide-y divide-[#E7ECE5]">
                 {sortedMachines.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="py-8 text-center text-[#68756F]">
-                      No machines found matching your filter criteria.
+                    <td colSpan={10} className="py-8 text-center text-[#68736C]">
+                      No machines match the selected filters.
                     </td>
                   </tr>
                 ) : (
@@ -191,21 +189,21 @@ export function MachinesPage() {
                     <tr
                       key={machine.id}
                       onClick={() => navigate(`/machines/${machine.id}`)}
-                      className="hover:bg-[#F4F7F5] transition-colors cursor-pointer group"
+                      className="hover:bg-[#F5F6F2] transition-colors cursor-pointer group"
                     >
-                      <td className="py-3 px-4 font-bold text-[#202A27] group-hover:text-[#176B52] transition-colors">
+                      <td className="py-2.5 px-3 font-mono font-semibold text-[#202925] group-hover:text-[#246B52] transition-colors">
                         {machine.id}
                       </td>
-                      <td className="py-3 px-4">
-                        <div className="font-semibold text-[#202A27]">{machine.name}</div>
-                        <div className="text-[11px] text-[#75837D]">{machine.line}</div>
+                      <td className="py-2.5 px-3">
+                        <div className="font-medium text-[#202925]">{machine.name}</div>
+                        <div className="text-[11px] text-[#68736C]">{machine.line}</div>
                       </td>
-                      <td className="py-3 px-4 text-[#68756F]">{machine.type}</td>
-                      <td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-2.5 px-3 text-[#68736C]">{machine.type}</td>
+                      <td className="py-2.5 px-3" onClick={(e) => e.stopPropagation()}>
                         <select
                           value={machine.status}
                           onChange={(e) => updateMachineStatus(machine.id, e.target.value)}
-                          className="bg-[#F7FAF8] hover:bg-[#E8EFEA] border border-[#E0E6E0] rounded px-2 py-1 text-[11px] font-semibold text-[#202A27] focus:border-[#176B52] focus:outline-none cursor-pointer"
+                          className="bg-[#F5F6F2] hover:bg-[#E8F0EA] border border-[#DFE4DD] rounded px-2 py-0.5 text-[11px] font-medium text-[#202925] focus:border-[#246B52] focus:outline-none cursor-pointer"
                         >
                           <option value="Operational">Operational</option>
                           <option value="Degraded">Degraded</option>
@@ -213,39 +211,39 @@ export function MachinesPage() {
                           <option value="Critical">Critical</option>
                         </select>
                       </td>
-                      <td className="py-3 px-4 text-center">
+                      <td className="py-2.5 px-3 text-center">
                         <PriorityBadge priority={machine.criticality} />
                       </td>
-                      <td className="py-3 px-4 text-center font-bold">
-                        <span className={machine.healthScore >= 70 ? 'text-[#27845C]' : machine.healthScore >= 40 ? 'text-[#D99A24]' : 'text-[#B94040]'}>
+                      <td className="py-2.5 px-3 text-center font-mono font-medium">
+                        <span className={machine.healthScore >= 70 ? 'text-[#368363]' : machine.healthScore >= 40 ? 'text-[#B98232]' : 'text-[#B74747]'}>
                           {machine.healthScore}%
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-center font-bold">
-                        <span className={machine.riskScore >= 65 ? 'text-[#B94040]' : machine.riskScore >= 35 ? 'text-[#D99A24]' : 'text-[#27845C]'}>
+                      <td className="py-2.5 px-3 text-center font-mono font-medium">
+                        <span className={machine.riskScore >= 65 ? 'text-[#B74747]' : machine.riskScore >= 35 ? 'text-[#B98232]' : 'text-[#368363]'}>
                           {machine.riskScore}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-[#68756F]">
-                        <span className="text-[#202A27] font-semibold">{machine.predictedRul}</span> {machine.rulUnit}
+                      <td className="py-2.5 px-3 text-[#68736C] font-mono">
+                        <span className="text-[#202925] font-medium">{machine.predictedRul}</span> {machine.rulUnit}
                       </td>
-                      <td className="py-3 px-4 text-[#75837D] text-[11px]">{machine.lastMaintenance}</td>
-                      <td className="py-3 px-4 text-right">
-                        <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-2.5 px-3 text-[#68736C] font-mono text-[11px]">{machine.lastMaintenance}</td>
+                      <td className="py-2.5 px-3 text-right">
+                        <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => {
                               setSelectedMachineForOrder(machine);
                               setModalOpen(true);
                             }}
-                            className="px-2 py-1 rounded bg-[#F7FAF8] hover:bg-[#176B52] hover:text-white border border-[#E0E6E0] text-[#68756F] transition-colors text-[11px]"
+                            className="px-2 py-1 rounded bg-[#F5F6F2] hover:bg-[#E8F0EA] hover:text-[#246B52] border border-[#DFE4DD] text-[#202925] transition-colors text-[11px] font-medium"
                           >
                             Order
                           </button>
                           <button
                             onClick={() => navigate(`/machines/${machine.id}`)}
-                            className="p-1 rounded hover:bg-[#DFE8E2] text-[#68756F] hover:text-[#202A27]"
+                            className="p-1 rounded hover:bg-[#E8F0EA] text-[#68736C] hover:text-[#202925]"
                           >
-                            <ChevronRight size={15} />
+                            <ChevronRight size={14} />
                           </button>
                         </div>
                       </td>

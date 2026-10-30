@@ -8,37 +8,38 @@ export default {
     extend: {
       colors: {
         bg: {
-          main: '#F4F6F3',
-          sidebar: '#141E1A',
-          panel: '#FFFFFF',
-          elevated: '#F7FAF8',
+          main: '#F5F6F2',
+          surface: '#FFFFFF',
+          sidebar: '#F0F2ED',
+          subtle: '#E8F0EA',
+          muted: '#ECEEE8',
         },
         border: {
-          subtle: '#E5EBE6',
-          DEFAULT: '#E0E6E0',
-          active: '#B5C4BA',
+          subtle: '#E7ECE5',
+          DEFAULT: '#DFE4DD',
+          strong: '#C2CDC0',
         },
         text: {
-          main: '#202A27',
-          muted: '#68756F',
-          dim: '#829189',
+          main: '#202925',
+          secondary: '#68736C',
+          muted: '#85918A',
         },
         accent: {
-          DEFAULT: '#176B52',
-          hover: '#10543F',
-          dim: '#E2EFEA',
+          DEFAULT: '#246B52',
+          hover: '#1B5440',
+          subtle: '#E8F0EA',
+          border: '#D1E1D5',
         },
         status: {
-          healthy: '#27845C',
-          warning: '#D99A24',
-          critical: '#B94040',
-          blue: '#1E7598',
-          purple: '#6E4BB6',
+          healthy: '#368363',
+          warning: '#B98232',
+          critical: '#B74747',
+          info: '#2B6E8A',
         }
       },
       fontFamily: {
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       }
     },
   },

@@ -1,19 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Layers,
   ArrowLeft,
-  Calendar,
   AlertTriangle,
   Activity,
   Wrench,
-  Clock,
-  ShieldCheck,
   Sparkles,
-  ChevronRight,
-  Sliders,
-  CheckCircle2,
-  Cpu
+  ChevronRight
 } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
 import { Layout } from '../components/layout/Layout';
@@ -63,7 +56,6 @@ export function MachineDetailPage() {
           predictedFault: pred.suspectedFailureMode || prev.predictedFault,
           recommendedAction: pred.recommendedAction || prev.recommendedAction
         }));
-        // Reload sensor history as new point was saved to MongoDB
         const updatedHistory = await api.getSensorHistory(machineId, selectedRange);
         setSensorData(updatedHistory);
       }
@@ -74,37 +66,20 @@ export function MachineDetailPage() {
     }
   };
 
-  // Compute five standard sensor signals, reusing telemetry and augmenting simulated fields:
-  // 1. Temperature: airTemperature & processTemperature (Kelvin)
-  // 2. Rotational Speed: rotationalSpeed (RPM)
-  // 3. Vibration: vibration (mm/s)
-  // 4. Torque and Tool Wear: torque (Nm) & toolWear (min)
-  // 5. Pressure: pressureBar (bar)
   const enrichedSensorData = useMemo(() => {
     if (!sensorData || sensorData.length === 0) return [];
     return sensorData.map((d, index) => {
       const cycleProgress = sensorData.length > 1 ? index / (sensorData.length - 1) : 0;
       const isHighRisk = (machine?.riskScore || 0) > 50;
 
-      // airTemperature: baseline ~298K (approx 25°C ambient) with slight drift
       const airTemp = +(298.15 + (d.temperature ? (d.temperature - 640) * 0.05 : 0) + Math.sin(index * 0.5) * 0.4).toFixed(1);
-      // processTemperature: baseline ~308K with operational thermal load
       const procTemp = +(airTemp + 10.2 + (isHighRisk ? cycleProgress * 4.5 : cycleProgress * 1.0) + Math.cos(index * 0.4) * 0.3).toFixed(1);
-
-      // rotationalSpeed: reuse rpm / s8_nf (approx 1400 - 2400 RPM)
       const rotSpeed = d.rpm || d.s8_nf || Math.round(1500 + Math.sin(index * 0.8) * 35);
-
-      // vibration: reuse vibration amplitude (mm/s)
       const vib = typeof d.vibration === 'number' ? d.vibration : +(2.4 + cycleProgress * 1.5).toFixed(2);
-
-      // torque (Nm) & toolWear (min)
-      // Torque typically 35-65 Nm with degradation variance; tool wear accumulates over operating window
       const baseTorque = isHighRisk ? 48.0 + cycleProgress * 16.5 : 40.0 + cycleProgress * 4.0;
       const torque = +(baseTorque + Math.sin(index * 0.9) * 2.2).toFixed(1);
       const initialWear = Math.max(0, (machine?.currentCycle || 100) - sensorData.length);
       const toolWear = Math.round(initialWear + index * 4.2 + (isHighRisk ? cycleProgress * 45 : 0));
-
-      // pressureBar: convert HPC pressure kPa (e.g. ~540-560 kPa = ~5.4-5.6 bar)
       const pressureBar = d.s7_p30 ? +(d.s7_p30 / 100).toFixed(2) : +(5.5 - (isHighRisk ? cycleProgress * 0.35 : 0.05)).toFixed(2);
 
       return {
@@ -122,9 +97,9 @@ export function MachineDetailPage() {
 
   if (loading) {
     return (
-      <Layout pageTitle="Machine Diagnostic Deep Dive">
-        <div className="py-24 text-center font-mono text-xs text-[#68756F]">
-          Loading machine telemetry stream & sensor history...
+      <Layout pageTitle="Machine Telemetry">
+        <div className="py-24 text-center text-xs text-[#68736C]">
+          Loading telemetry stream...
         </div>
       </Layout>
     );
@@ -133,17 +108,17 @@ export function MachineDetailPage() {
   if (!machine) {
     return (
       <Layout pageTitle="Asset Not Found">
-        <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-8 text-center max-w-lg mx-auto font-mono">
-          <AlertTriangle size={32} className="text-[#B94040] mx-auto mb-3" />
-          <h2 className="text-sm font-bold text-[#202A27] uppercase mb-1">Asset Not Found</h2>
-          <p className="text-xs text-[#68756F] mb-4">
-            Machine ID <span className="text-[#176B52]">{machineId}</span> does not exist in the registered telemetry pool.
+        <div className="bg-white border border-[#DFE4DD] rounded-lg p-8 text-center max-w-lg mx-auto">
+          <AlertTriangle size={28} className="text-[#B74747] mx-auto mb-2" />
+          <h2 className="text-sm font-semibold text-[#202925] mb-1">Asset Not Found</h2>
+          <p className="text-xs text-[#68736C] mb-4">
+            Machine ID <span className="font-mono text-[#246B52] font-semibold">{machineId}</span> does not exist in the registry.
           </p>
           <button
             onClick={() => navigate('/machines')}
-            className="px-3 py-1.5 rounded bg-[#E8EFEA] hover:bg-[#D5E0D9] border border-[#D2DDD5] text-[#202A27] text-xs"
+            className="px-3 py-1.5 rounded-md bg-[#F5F6F2] hover:bg-[#E8F0EA] border border-[#DFE4DD] text-[#202925] text-xs font-medium"
           >
-            Return to Fleet Inventory
+            Return to Fleet
           </button>
         </div>
       </Layout>
@@ -153,30 +128,31 @@ export function MachineDetailPage() {
   const relatedWorkOrders = workOrders.filter(w => w.machineId === machine.id);
 
   const sensorConfigs = {
-    s2_t24: { label: 's2: T24 LPC Outlet Temp (°C)', color: '#176B52' },
-    s4_t50: { label: 's4: T50 LPT Outlet Temp (°C)', color: '#B94040' },
-    s7_p30: { label: 's7: P30 HPC Outlet Pressure (kPa)', color: '#38BDF8' },
-    s8_nf: { label: 's8: Nf Physical Fan Speed (RPM)', color: '#D99A24' },
-    s9_nc: { label: 's9: Nc Physical Core Speed (RPM)', color: '#A78BFA' },
-    s11_ps30: { label: 's11: Ps30 HPC Static Pressure (psia)', color: '#27845C' },
-    vibration: { label: 'Vibration Amplitude (mm/s)', color: '#E879F9' },
+    s2_t24: { label: 'LPC Outlet Temp (°C)', color: '#246B52' },
+    s4_t50: { label: 'LPT Outlet Temp (°C)', color: '#B74747' },
+    s7_p30: { label: 'HPC Outlet Pressure (kPa)', color: '#2B6E8A' },
+    s8_nf: { label: 'Fan Speed (RPM)', color: '#B98232' },
+    s9_nc: { label: 'Core Speed (RPM)', color: '#368363' },
+    s11_ps30: { label: 'HPC Static Pressure (psia)', color: '#246B52' },
+    vibration: { label: 'Vibration (mm/s)', color: '#B74747' },
   };
 
   return (
-    <Layout pageTitle={`Diagnostic: ${machine.id}`}>
-      <div className="space-y-4 font-mono">
+    <Layout pageTitle={`Asset: ${machine.id}`}>
+      <div className="space-y-5">
         {/* HEADER CONTROLS */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E0E6E0] gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#DFE4DD] gap-3">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/machines')}
-              className="p-1.5 rounded bg-[#F4F7F5] hover:bg-[#E8EFEA] border border-[#E0E6E0] text-[#68756F] hover:text-[#202A27] transition-colors"
+              className="p-1.5 rounded-md bg-white hover:bg-[#F5F6F2] border border-[#DFE4DD] text-[#68736C] hover:text-[#202925] transition-colors"
+              aria-label="Back to machine list"
             >
               <ArrowLeft size={16} />
             </button>
             <div>
               <div className="flex items-center gap-2.5">
-                <h1 className="text-base font-bold text-[#202A27]">{machine.name}</h1>
+                <h1 className="text-base font-semibold text-[#202925]">{machine.name}</h1>
                 <select
                   value={machine.status}
                   onChange={(e) => {
@@ -184,8 +160,7 @@ export function MachineDetailPage() {
                     setMachine(prev => ({ ...prev, status: newStatus }));
                     updateMachineStatus(machine.id, newStatus);
                   }}
-                  className="bg-[#F7FAF8] hover:bg-[#E8EFEA] border border-[#E0E6E0] rounded px-2.5 py-1 text-xs font-semibold text-[#202A27] focus:border-[#176B52] focus:outline-none cursor-pointer"
-                  title="Change machine operating status in MongoDB"
+                  className="bg-white border border-[#DFE4DD] rounded px-2 py-0.5 text-xs font-medium text-[#202925] focus:border-[#246B52] focus:outline-none cursor-pointer"
                 >
                   <option value="Operational">Operational</option>
                   <option value="Degraded">Degraded</option>
@@ -193,8 +168,8 @@ export function MachineDetailPage() {
                   <option value="Critical">Critical</option>
                 </select>
               </div>
-              <div className="flex items-center gap-2 text-xs text-[#68756F] mt-0.5">
-                <span>{machine.id}</span>
+              <div className="flex items-center gap-2 text-xs text-[#68736C] mt-0.5">
+                <span className="font-mono text-[#202925]">{machine.id}</span>
                 <span>•</span>
                 <span>{machine.line}</span>
                 <span>•</span>
@@ -207,69 +182,67 @@ export function MachineDetailPage() {
             <button
               onClick={handleSimulateInference}
               disabled={isInferring}
-              className="px-3 py-1.5 rounded bg-[#F4F7F5] hover:bg-[#E8EFEA] border border-[#E0E6E0] text-xs text-[#202A27] flex items-center gap-1.5 transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 rounded-md bg-white hover:bg-[#F5F6F2] border border-[#DFE4DD] text-xs font-medium text-[#202925] flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
             >
-              <Sparkles size={13} className="text-[#176B52]" />
-              <span>{isInferring ? 'Recomputing...' : 'Run Prediction API'}</span>
+              <Sparkles size={13} className="text-[#246B52]" />
+              <span>{isInferring ? 'Evaluating...' : 'Run Inference'}</span>
             </button>
             <button
               onClick={() => setModalOpen(true)}
-              className="px-3.5 py-1.5 rounded bg-[#176B52] hover:bg-[#10543F] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-1.5 rounded-md bg-[#246B52] hover:bg-[#1B5440] text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
-              <Wrench size={14} /> Create Work Order
+              <Wrench size={13} /> Dispatch Order
             </button>
           </div>
         </div>
 
-        {/* 5-BOX OPERATIONAL SPECIFICATION MATRIX */}
+        {/* 5-BOX OPERATIONAL MATRIX */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-          <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-3">
-            <span className="text-[10px] text-[#68756F] uppercase tracking-wider block">Health Index</span>
-            <div className="text-2xl font-bold mt-1 text-[#202A27]">{machine.healthScore}%</div>
-            <span className="text-[10px] text-[#829189]">Operating performance</span>
+          <div className="bg-white border border-[#DFE4DD] rounded-lg p-3">
+            <span className="text-xs font-medium text-[#68736C] block">Health Score</span>
+            <div className="text-2xl font-semibold font-mono mt-1 text-[#202925]">{machine.healthScore}%</div>
+            <span className="text-[11px] text-[#85918A]">Operating baseline</span>
           </div>
 
-          <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-3">
-            <span className="text-[10px] text-[#68756F] uppercase tracking-wider block">Degradation Risk</span>
-            <div className={`text-2xl font-bold mt-1 ${machine.riskScore >= 65 ? 'text-[#B94040]' : machine.riskScore >= 35 ? 'text-[#D99A24]' : 'text-[#27845C]'}`}>
-              {machine.riskScore} <span className="text-xs text-[#829189]">/ 100</span>
+          <div className="bg-white border border-[#DFE4DD] rounded-lg p-3">
+            <span className="text-xs font-medium text-[#68736C] block">Degradation Risk</span>
+            <div className={`text-2xl font-semibold font-mono mt-1 ${machine.riskScore >= 65 ? 'text-[#B74747]' : machine.riskScore >= 35 ? 'text-[#B98232]' : 'text-[#368363]'}`}>
+              {machine.riskScore}
             </div>
-            <span className="text-[10px] text-[#829189]">{machine.riskLevel} classification</span>
+            <span className="text-[11px] text-[#85918A]">{machine.riskLevel} tier</span>
           </div>
 
-          <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-3">
-            <span className="text-[10px] text-[#68756F] uppercase tracking-wider block">Predicted RUL</span>
-            <div className="text-2xl font-bold mt-1 text-[#176B52]">{machine.predictedRul}</div>
-            <span className="text-[10px] text-[#829189]">{machine.rulUnit} to service limit</span>
+          <div className="bg-white border border-[#DFE4DD] rounded-lg p-3">
+            <span className="text-xs font-medium text-[#68736C] block">Predicted RUL</span>
+            <div className="text-2xl font-semibold font-mono mt-1 text-[#246B52]">{machine.predictedRul}</div>
+            <span className="text-[11px] text-[#85918A]">{machine.rulUnit} to limit</span>
           </div>
 
-          <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-3 flex flex-col justify-between">
+          <div className="bg-white border border-[#DFE4DD] rounded-lg p-3 flex flex-col justify-between">
             <div>
-              <span className="text-[10px] text-[#68756F] uppercase tracking-wider block">Asset Criticality</span>
+              <span className="text-xs font-medium text-[#68736C] block">Criticality</span>
               <div className="mt-1.5">
                 <PriorityBadge priority={machine.criticality} />
               </div>
             </div>
-            <span className="text-[10px] text-[#829189] block mt-2">Production Impact: {machine.productionImpact}%</span>
+            <span className="text-[11px] text-[#85918A] block mt-1 font-mono">${machine.downtimeCostPerHour?.toLocaleString()}/hr downtime</span>
           </div>
 
-          <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-3">
-            <span className="text-[10px] text-[#68756F] uppercase tracking-wider block">Service Cycle</span>
-            <div className="text-lg font-bold mt-1 text-[#202A27]">Cycle #{machine.currentCycle}</div>
-            <span className="text-[10px] text-[#829189]">{machine.operatingHours} cumulative hrs</span>
+          <div className="bg-white border border-[#DFE4DD] rounded-lg p-3">
+            <span className="text-xs font-medium text-[#68736C] block">Current Cycle</span>
+            <div className="text-2xl font-semibold font-mono mt-1 text-[#202925]">#{machine.currentCycle}</div>
+            <span className="text-[11px] text-[#85918A] font-mono">{machine.operatingHours} hrs</span>
           </div>
         </div>
 
-        {/* TIME-SERIES SENSOR DEGRADATION VISUALIZATION */}
-        <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-4 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-[#E0E6E0] gap-2">
-            <div>
-              <span className="text-xs font-bold text-[#202A27] uppercase tracking-wider flex items-center gap-2">
-                <Activity size={14} className="text-[#176B52]" /> Sensor Telemetry Historical Trajectory
+        {/* PRIMARY SENSOR TREND CHART */}
+        <div className="bg-white border border-[#DFE4DD] rounded-lg p-4 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-[#E7ECE5] gap-2">
+            <div className="flex items-center gap-2">
+              <Activity size={14} className="text-[#246B52]" />
+              <span className="text-xs font-semibold text-[#202925]">
+                Telemetry Stream History
               </span>
-              <p className="text-[11px] text-[#68756F]">
-                Observed multi-channel sensor dynamics over consecutive run-to-failure cycles
-              </p>
             </div>
 
             {/* Sensor selector & cycle window */}
@@ -277,23 +250,23 @@ export function MachineDetailPage() {
               <select
                 value={selectedSensor}
                 onChange={(e) => setSelectedSensor(e.target.value)}
-                className="bg-[#F7FAF8] border border-[#E0E6E0] text-xs text-[#202A27] px-2.5 py-1 rounded focus:border-[#176B52] focus:outline-none"
+                className="bg-[#F5F6F2] border border-[#DFE4DD] text-xs text-[#202925] px-2.5 py-1 rounded focus:border-[#246B52] focus:bg-white focus:outline-none"
               >
-                <option value="s2_t24">s2: T24 LPC Outlet Temp (°C)</option>
-                <option value="s4_t50">s4: T50 LPT Outlet Temp (°C)</option>
-                <option value="s7_p30">s7: P30 HPC Outlet Pressure (kPa)</option>
-                <option value="s8_nf">s8: Nf Fan Speed (RPM)</option>
-                <option value="s9_nc">s9: Nc Core Speed (RPM)</option>
-                <option value="s11_ps30">s11: Ps30 Static Pressure HPC (psia)</option>
+                <option value="s2_t24">LPC Outlet Temp (°C)</option>
+                <option value="s4_t50">LPT Outlet Temp (°C)</option>
+                <option value="s7_p30">HPC Outlet Pressure (kPa)</option>
+                <option value="s8_nf">Fan Speed (RPM)</option>
+                <option value="s9_nc">Core Speed (RPM)</option>
+                <option value="s11_ps30">HPC Static Pressure (psia)</option>
                 <option value="vibration">Vibration Amplitude (mm/s)</option>
               </select>
 
-              <div className="flex items-center border border-[#E0E6E0] rounded overflow-hidden text-xs">
+              <div className="flex items-center border border-[#DFE4DD] rounded overflow-hidden text-xs">
                 {[20, 35, 50].map(cnt => (
                   <button
                     key={cnt}
                     onClick={() => setSelectedRange(cnt)}
-                    className={`px-2 py-1 ${selectedRange === cnt ? 'bg-[#DFE8E2] text-[#202A27]' : 'bg-[#F4F7F5] text-[#68756F] hover:text-[#202A27]'}`}
+                    className={`px-2 py-1 font-mono text-[11px] ${selectedRange === cnt ? 'bg-[#E8F0EA] text-[#246B52] font-semibold' : 'bg-white text-[#68736C] hover:text-[#202925]'}`}
                   >
                     {cnt} cyc
                   </button>
@@ -307,255 +280,143 @@ export function MachineDetailPage() {
             selectedSensor={selectedSensor}
             sensorLabel={sensorConfigs[selectedSensor].label}
             color={sensorConfigs[selectedSensor].color}
-            height={260}
+            height={240}
           />
-
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-2 border-t border-[#E0E6E0] text-[11px] text-[#68756F] gap-2">
-            <span>Telemetric Source: {machine.dataSource}</span>
-            <span className="flex items-center gap-1.5 text-[#27845C]">
-              <ShieldCheck size={13} /> {machine.dataQuality}
-            </span>
-          </div>
         </div>
 
-        {/* ADDITIONAL SPECIALIZED SENSOR TELEMETRY GRAPHS (4 ADDITIONAL GRAPHS) */}
+        {/* MULTI-SENSOR TELEMETRY CARDS */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Graph 1: Temperature (airTemperature and processTemperature) */}
-          <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-4 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E0E6E0]">
-              <div>
-                <span className="text-xs font-bold text-[#202A27] uppercase tracking-wider flex items-center gap-2">
-                  <Activity size={14} className="text-[#176B52]" /> Temperature Profile
+          {/* Temperature Profile */}
+          <div className="bg-white border border-[#DFE4DD] rounded-lg p-4 space-y-2.5">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E7ECE5]">
+              <span className="text-xs font-semibold text-[#202925]">Temperature Gradient</span>
+              <div className="flex items-center gap-3 text-[11px]">
+                <span className="flex items-center gap-1 text-[#246B52]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#246B52]" /> Air (K)
                 </span>
-                <p className="text-[11px] text-[#68756F]">
-                  Thermal tracking: Air Temperature &amp; Process Temperature (K)
-                </p>
+                <span className="flex items-center gap-1 text-[#B74747]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#B74747]" /> Process (K)
+                </span>
               </div>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#E8EFEA] border border-[#D2DDD5] text-[#27845C]">
-                Replay Stream
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-[11px]">
-              <span className="flex items-center gap-1.5 text-[#176B52]">
-                <span className="w-2 h-2 rounded-full bg-[#176B52]" /> airTemperature (K)
-              </span>
-              <span className="flex items-center gap-1.5 text-[#B94040]">
-                <span className="w-2 h-2 rounded-full bg-[#B94040]" /> processTemperature (K)
-              </span>
             </div>
             <MultiSensorTrendChart
               data={enrichedSensorData}
               series={[
-                { key: 'airTemperature', label: 'Air Temperature (K)', color: '#176B52' },
-                { key: 'processTemperature', label: 'Process Temperature (K)', color: '#B94040' }
+                { key: 'airTemperature', label: 'Air Temp (K)', color: '#246B52' },
+                { key: 'processTemperature', label: 'Process Temp (K)', color: '#B74747' }
               ]}
-              height={200}
+              height={180}
             />
-            <div className="pt-2 border-t border-[#E0E6E0] flex items-center justify-between text-[11px] text-[#68756F]">
-              <span>Differential gradient tracked across cycles</span>
-              <span className="text-[#829189]">Unit: Kelvin (K)</span>
-            </div>
           </div>
 
-          {/* Graph 2: Rotational Speed */}
-          <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-4 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E0E6E0]">
-              <div>
-                <span className="text-xs font-bold text-[#202A27] uppercase tracking-wider flex items-center gap-2">
-                  <Activity size={14} className="text-[#D99A24]" /> Rotational Speed
-                </span>
-                <p className="text-[11px] text-[#68756F]">
-                  Shaft &amp; Spindle Velocity over operating window
-                </p>
-              </div>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#E8EFEA] border border-[#D2DDD5] text-[#27845C]">
-                Replay Stream
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-[11px] text-[#D99A24]">
-              <span className="w-2 h-2 rounded-full bg-[#D99A24]" /> rotationalSpeed (RPM)
+          {/* Rotational Speed */}
+          <div className="bg-white border border-[#DFE4DD] rounded-lg p-4 space-y-2.5">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E7ECE5]">
+              <span className="text-xs font-semibold text-[#202925]">Spindle & Core Velocity</span>
+              <span className="text-[11px] font-mono text-[#68736C]">RPM</span>
             </div>
             <MultiSensorTrendChart
               data={enrichedSensorData}
               series={[
-                { key: 'rotationalSpeed', label: 'Rotational Speed (RPM)', color: '#D99A24' }
+                { key: 'rotationalSpeed', label: 'Rotational Speed', color: '#B98232' }
               ]}
-              height={200}
+              height={180}
             />
-            <div className="pt-2 border-t border-[#E0E6E0] flex items-center justify-between text-[11px] text-[#68756F]">
-              <span>Synchronized with C-MAPSS fan/core velocity</span>
-              <span className="text-[#829189]">Unit: RPM</span>
-            </div>
           </div>
 
-          {/* Graph 3: Vibration */}
-          <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-4 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E0E6E0]">
-              <div>
-                <span className="text-xs font-bold text-[#202A27] uppercase tracking-wider flex items-center gap-2">
-                  <Activity size={14} className="text-[#E879F9]" /> Mechanical Vibration
-                </span>
-                <p className="text-[11px] text-[#68756F]">
-                  Tri-axial vibration velocity amplitude &amp; harmonic resonance
-                </p>
-              </div>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#E8EFEA] border border-[#D2DDD5] text-[#27845C]">
-                Replay Stream
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-[11px] text-[#E879F9]">
-              <span className="w-2 h-2 rounded-full bg-[#E879F9]" /> vibration (mm/s)
+          {/* Mechanical Vibration */}
+          <div className="bg-white border border-[#DFE4DD] rounded-lg p-4 space-y-2.5">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E7ECE5]">
+              <span className="text-xs font-semibold text-[#202925]">Vibration Amplitude</span>
+              <span className="text-[11px] font-mono text-[#68736C]">mm/s</span>
             </div>
             <MultiSensorTrendChart
               data={enrichedSensorData}
               series={[
-                { key: 'vibration', label: 'Vibration Amplitude (mm/s)', color: '#E879F9' }
+                { key: 'vibration', label: 'Vibration', color: '#B74747' }
               ]}
-              height={200}
+              height={180}
             />
-            <div className="pt-2 border-t border-[#E0E6E0] flex items-center justify-between text-[11px] text-[#68756F]">
-              <span>ISO 10816 vibration severity monitoring</span>
-              <span className="text-[#829189]">Unit: mm/s</span>
-            </div>
           </div>
 
-          {/* Graph 4: Torque and Tool Wear */}
-          <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-4 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E0E6E0]">
-              <div>
-                <span className="text-xs font-bold text-[#202A27] uppercase tracking-wider flex items-center gap-2">
-                  <Activity size={14} className="text-[#38BDF8]" /> Torque &amp; Tool Wear
-                </span>
-                <p className="text-[11px] text-[#68756F]">
-                  Drive load resistance &amp; cumulative mechanical wear
-                </p>
-              </div>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#E8EFEA] border border-[#D2DDD5] text-[#D99A24]">
-                Simulated Demo History
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-[11px]">
-              <span className="flex items-center gap-1.5 text-[#38BDF8]">
-                <span className="w-2 h-2 rounded-full bg-[#38BDF8]" /> torque (Nm) [Left Axis]
-              </span>
-              <span className="flex items-center gap-1.5 text-[#A78BFA]">
-                <span className="w-2 h-2 rounded-full bg-[#A78BFA]" /> toolWear (min) [Right Axis]
-              </span>
+          {/* Operating Pressure */}
+          <div className="bg-white border border-[#DFE4DD] rounded-lg p-4 space-y-2.5">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E7ECE5]">
+              <span className="text-xs font-semibold text-[#202925]">Manifold Pressure</span>
+              <span className="text-[11px] font-mono text-[#68736C]">bar</span>
             </div>
             <MultiSensorTrendChart
               data={enrichedSensorData}
               series={[
-                { key: 'torque', label: 'Torque (Nm)', color: '#38BDF8', yAxisId: 'left' },
-                { key: 'toolWear', label: 'Tool Wear (min)', color: '#A78BFA', yAxisId: 'right' }
+                { key: 'pressureBar', label: 'Pressure (bar)', color: '#2B6E8A' }
               ]}
-              yAxes={[
-                { id: 'left', orientation: 'left' },
-                { id: 'right', orientation: 'right' }
-              ]}
-              height={200}
+              height={180}
             />
-            <div className="pt-2 border-t border-[#E0E6E0] flex items-center justify-between text-[11px] text-[#68756F]">
-              <span className="text-[#D99A24]/90">Simulated demo history: dual-axis wear projection</span>
-              <span className="text-[#829189]">Nm / min</span>
-            </div>
-          </div>
-
-          {/* Graph 5: Pressure */}
-          <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-4 space-y-3 lg:col-span-2">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E0E6E0]">
-              <div>
-                <span className="text-xs font-bold text-[#202A27] uppercase tracking-wider flex items-center gap-2">
-                  <Activity size={14} className="text-[#27845C]" /> Operating Pressure
-                </span>
-                <p className="text-[11px] text-[#68756F]">
-                  System pneumatic / hydraulic manifold pressure
-                </p>
-              </div>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#E8EFEA] border border-[#D2DDD5] text-[#27845C]">
-                Replay Stream
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-[11px] text-[#27845C]">
-              <span className="w-2 h-2 rounded-full bg-[#27845C]" /> pressureBar (bar)
-            </div>
-            <MultiSensorTrendChart
-              data={enrichedSensorData}
-              series={[
-                { key: 'pressureBar', label: 'Operating Pressure (bar)', color: '#27845C' }
-              ]}
-              height={200}
-            />
-            <div className="pt-2 border-t border-[#E0E6E0] flex items-center justify-between text-[11px] text-[#68756F]">
-              <span>Converted static pressure telemetry baseline</span>
-              <span className="text-[#829189]">Unit: bar</span>
-            </div>
           </div>
         </div>
 
         {/* TWO-COLUMN DIAGNOSTICS & ACTIONS */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Explainability & Suspected Component Card */}
-          <div className="lg:col-span-6 bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-4 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E0E6E0]">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#202A27] flex items-center gap-2">
-                <Sparkles size={14} className="text-[#176B52]" /> Diagnostic Evidence & Contributing Signals
+          {/* Anomaly Hypothesis & Degradation Factors */}
+          <div className="lg:col-span-6 bg-white border border-[#DFE4DD] rounded-lg p-4 space-y-3">
+            <div className="pb-2 border-b border-[#E7ECE5]">
+              <span className="text-xs font-semibold text-[#202925]">
+                Diagnostic Evidence & Signals
               </span>
-              <span className="text-[10px] text-[#829189]">Explainable AI</span>
             </div>
 
             <div>
-              <span className="text-[11px] text-[#68756F] block mb-1">Suspected Anomaly Hypothesis:</span>
-              <div className="p-2.5 rounded bg-[#F4F7F5] border border-[#D2DDD5] text-[#202A27] text-xs">
+              <span className="text-xs text-[#68736C] block mb-1">Suspected Fault Mode:</span>
+              <div className="p-2.5 rounded-md bg-[#F5F6F2] border border-[#DFE4DD] text-[#202925] text-xs font-medium">
                 {machine.predictedFault}
               </div>
             </div>
 
-            <div className="space-y-2">
-              <span className="text-[11px] text-[#68756F] block">Top Ranked Degradation Factors:</span>
+            <div className="space-y-1.5">
+              <span className="text-xs text-[#68736C] block">Contributing Telemetry Factors:</span>
               {machine.topFactors.map((f, i) => (
-                <div key={i} className="p-2 rounded bg-[#F7FAF8] border border-[#E0E6E0] flex items-center justify-between text-xs">
-                  <span className="text-[#384641]">{f.name}</span>
-                  <span className="font-bold text-[#176B52]">{f.value}%</span>
+                <div key={i} className="p-2 rounded-md bg-[#F5F6F2] border border-[#DFE4DD] flex items-center justify-between text-xs">
+                  <span className="text-[#202925]">{f.name}</span>
+                  <span className="font-mono font-semibold text-[#246B52]">{f.value}%</span>
                 </div>
               ))}
             </div>
 
-            <div className="p-2.5 rounded bg-[#F4F7F5]/60 border border-[#E0E6E0] text-[11px] text-[#68756F] leading-relaxed">
-              <strong className="text-[#202A27]">Operator Advisory: </strong>
-              C-MAPSS models highlight influential telemetric channels. Field engineers must visually inspect physical clearances before disassembling assemblies.
+            <div className="p-2.5 rounded-md bg-[#E8F0EA] border border-[#D1E1D5] text-xs text-[#246B52]">
+              <strong>Recommended Action: </strong>{machine.recommendedAction}
             </div>
           </div>
 
-          {/* Machine Work Orders & Historical Interventions */}
-          <div className="lg:col-span-6 bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-4 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E0E6E0]">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#202A27] flex items-center gap-2">
-                <Wrench size={14} className="text-[#38BDF8]" /> Machine Maintenance Tasks ({relatedWorkOrders.length})
+          {/* Machine Work Orders */}
+          <div className="lg:col-span-6 bg-white border border-[#DFE4DD] rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E7ECE5]">
+              <span className="text-xs font-semibold text-[#202925]">
+                Associated Work Orders ({relatedWorkOrders.length})
               </span>
               <button
                 onClick={() => setModalOpen(true)}
-                className="text-[11px] text-[#176B52] hover:underline"
+                className="text-xs text-[#246B52] hover:underline font-medium cursor-pointer"
               >
-                + Dispatch Order
+                + New Order
               </button>
             </div>
 
             {relatedWorkOrders.length === 0 ? (
-              <div className="py-12 text-center text-xs text-[#68756F] border border-dashed border-[#E0E6E0] rounded">
+              <div className="py-12 text-center text-xs text-[#68736C]">
                 No active work orders dispatched for this machine.
               </div>
             ) : (
-              <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                 {relatedWorkOrders.map(wo => (
-                  <div key={wo.id} className="p-2.5 rounded bg-[#F7FAF8] border border-[#E0E6E0] text-xs space-y-1.5">
+                  <div key={wo.id} className="p-2.5 rounded-md bg-[#F5F6F2] border border-[#DFE4DD] text-xs space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-[#202A27]">{wo.id}</span>
+                      <span className="font-mono font-semibold text-[#202925]">{wo.id}</span>
                       <StatusBadge status={wo.status} />
                     </div>
-                    <p className="text-[#68756F] text-[11px] line-clamp-2">{wo.suspectedIssue}</p>
-                    <div className="flex items-center justify-between text-[10px] text-[#75837D] pt-1 border-t border-[#E0E6E0]">
-                      <span>Tech: {wo.technician.split(' ')[0]}</span>
-                      <span>Scheduled: {wo.scheduledDate}</span>
+                    <p className="text-[#68736C] text-xs">{wo.suspectedIssue || wo.title}</p>
+                    <div className="flex items-center justify-between text-[11px] text-[#85918A] pt-1 border-t border-[#DFE4DD]">
+                      <span>Assigned: {wo.technician}</span>
+                      <span className="font-mono">{wo.scheduledDate}</span>
                     </div>
                   </div>
                 ))}

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SlidersHorizontal, ArrowUpDown, Info, Wrench, ShieldAlert, Sparkles, RotateCcw, Flame, UserCheck, Clock, CheckCircle2 } from 'lucide-react';
+import { SlidersHorizontal, RotateCcw, Clock, Wrench } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
 import { Layout } from '../components/layout/Layout';
-import { PriorityBadge, StatusBadge } from '../components/common/UIComponents';
+import { PriorityBadge } from '../components/common/UIComponents';
 import { WorkOrderModal } from '../components/work-orders/WorkOrderModal';
 import { calculatePriorityScore } from '../services/api';
 
@@ -43,58 +43,54 @@ export function MaintenancePriorityPage() {
   };
 
   return (
-    <Layout pageTitle="Maintenance Decision Priority">
-      <div className="space-y-4 font-mono">
+    <Layout pageTitle="Priority Decision">
+      <div className="space-y-4">
         {/* HEADER */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E0E6E0] gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#DFE4DD] gap-3">
           <div>
-            <h1 className="text-base font-bold tracking-tight text-[#202A27] flex items-center gap-2">
-              <span className="text-[#176B52]">//</span> IMPACT-AWARE MAINTENANCE PRIORITY MATRIX
-            </h1>
-            <p className="text-xs text-[#68756F] mt-0.5">
-              DEV-P04 Decision Layer: Operational ranking factoring ML Risk, Human Review Approvals, Machine Criticality, and Loss Impact
+            <h2 className="text-base font-semibold text-[#202925]">Maintenance Priority Matrix</h2>
+            <p className="text-xs text-[#68736C] mt-0.5">
+              Multi-factor operational ranking factoring failure risk, asset criticality, production impact, and review decisions.
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             {pendingReviewsCount > 0 && (
               <button
                 onClick={() => navigate('/reviews')}
-                className="px-3 py-1.5 rounded bg-[#D99A24]/15 hover:bg-[#D99A24]/25 border border-[#D99A24]/40 text-[#A66E0C] text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                className="px-2.5 py-1.5 rounded-md bg-[#FAF3E7] hover:bg-[#F3E0BD] border border-[#F3E0BD] text-[#B98232] text-xs font-medium flex items-center gap-1.5 cursor-pointer"
               >
-                <Clock size={13} className="animate-spin" />
-                <span>{pendingReviewsCount} Pending Human Reviews</span>
+                <Clock size={12} />
+                <span>{pendingReviewsCount} Pending Reviews</span>
               </button>
             )}
             <button
               onClick={resetWeights}
-              className="px-3 py-1.5 rounded bg-[#F7FAF8] hover:bg-[#DFE8E2] border border-[#E0E6E0] text-[#68756F] hover:text-[#202A27] text-xs flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+              className="px-2.5 py-1.5 rounded-md bg-white hover:bg-[#F5F6F2] border border-[#DFE4DD] text-[#68736C] hover:text-[#202925] text-xs font-medium flex items-center gap-1.5 cursor-pointer"
             >
-              <RotateCcw size={13} /> Reset Baseline Weights
+              <RotateCcw size={12} /> Reset Weights
             </button>
           </div>
         </div>
 
-        {/* WHAT-IF WEIGHT CONTROL PANEL */}
-        <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg p-4">
-          <div className="flex items-center justify-between pb-2 mb-3 border-b border-[#E0E6E0]">
+        {/* DECISION WEIGHT CONTROLS */}
+        <div className="bg-white border border-[#DFE4DD] rounded-lg p-4 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-[#E7ECE5]">
             <div className="flex items-center gap-2">
-              <SlidersHorizontal size={15} className="text-[#176B52]" />
-              <span className="text-xs font-bold text-[#202A27] uppercase tracking-wider">
-                Dynamic Decision Weight Simulation
+              <SlidersHorizontal size={14} className="text-[#246B52]" />
+              <span className="text-xs font-semibold text-[#202925]">
+                Decision Weight Configuration
               </span>
             </div>
-            <span className="text-[10px] text-[#829189]">What-If Sensitivity Modeling</span>
+            <span className="font-mono text-[11px] text-[#68736C]">
+              Score = ({weights.risk.toFixed(2)} × Risk) + ({weights.criticality.toFixed(2)} × Crit) + ({weights.impact.toFixed(2)} × Cost) + ({weights.urgency.toFixed(2)} × Urgency)
+            </span>
           </div>
 
-          <div className="text-[11px] text-[#68756F] bg-[#F4F7F5] p-2.5 rounded border border-[#D2DDD5] mb-3">
-            <code>Priority Score = ({weights.risk.toFixed(2)} × Operational Risk) + ({weights.criticality.toFixed(2)} × Criticality) + ({weights.impact.toFixed(2)} × Impact) + ({weights.urgency.toFixed(2)} × Urgency)</code>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-            <div className="p-2.5 rounded bg-[#F7FAF8] border border-[#E0E6E0]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+            <div className="p-2.5 rounded-md bg-[#F5F6F2] border border-[#DFE4DD]">
               <div className="flex justify-between mb-1.5">
-                <span className="text-[#68756F]">Risk Weight:</span>
-                <span className="font-bold text-[#176B52]">{(weights.risk * 100).toFixed(0)}%</span>
+                <span className="text-[#68736C]">ML Risk Weight</span>
+                <span className="font-mono font-semibold text-[#246B52]">{(weights.risk * 100).toFixed(0)}%</span>
               </div>
               <input
                 type="range"
@@ -103,14 +99,14 @@ export function MaintenancePriorityPage() {
                 step="0.05"
                 value={weights.risk}
                 onChange={(e) => handleWeightChange('risk', e.target.value)}
-                className="w-full accent-[#176B52]"
+                className="w-full accent-[#246B52] cursor-pointer"
               />
             </div>
 
-            <div className="p-2.5 rounded bg-[#F7FAF8] border border-[#E0E6E0]">
+            <div className="p-2.5 rounded-md bg-[#F5F6F2] border border-[#DFE4DD]">
               <div className="flex justify-between mb-1.5">
-                <span className="text-[#68756F]">Asset Criticality:</span>
-                <span className="font-bold text-[#38BDF8]">{(weights.criticality * 100).toFixed(0)}%</span>
+                <span className="text-[#68736C]">Asset Criticality</span>
+                <span className="font-mono font-semibold text-[#2B6E8A]">{(weights.criticality * 100).toFixed(0)}%</span>
               </div>
               <input
                 type="range"
@@ -119,14 +115,14 @@ export function MaintenancePriorityPage() {
                 step="0.05"
                 value={weights.criticality}
                 onChange={(e) => handleWeightChange('criticality', e.target.value)}
-                className="w-full accent-[#38BDF8]"
+                className="w-full accent-[#2B6E8A] cursor-pointer"
               />
             </div>
 
-            <div className="p-2.5 rounded bg-[#F7FAF8] border border-[#E0E6E0]">
+            <div className="p-2.5 rounded-md bg-[#F5F6F2] border border-[#DFE4DD]">
               <div className="flex justify-between mb-1.5">
-                <span className="text-[#68756F]">Production Impact:</span>
-                <span className="font-bold text-[#D99A24]">{(weights.impact * 100).toFixed(0)}%</span>
+                <span className="text-[#68736C]">Downtime Impact</span>
+                <span className="font-mono font-semibold text-[#B98232]">{(weights.impact * 100).toFixed(0)}%</span>
               </div>
               <input
                 type="range"
@@ -135,14 +131,14 @@ export function MaintenancePriorityPage() {
                 step="0.05"
                 value={weights.impact}
                 onChange={(e) => handleWeightChange('impact', e.target.value)}
-                className="w-full accent-[#D99A24]"
+                className="w-full accent-[#B98232] cursor-pointer"
               />
             </div>
 
-            <div className="p-2.5 rounded bg-[#F7FAF8] border border-[#E0E6E0]">
+            <div className="p-2.5 rounded-md bg-[#F5F6F2] border border-[#DFE4DD]">
               <div className="flex justify-between mb-1.5">
-                <span className="text-[#68756F]">Maintenance Urgency:</span>
-                <span className="font-bold text-[#27845C]">{(weights.urgency * 100).toFixed(0)}%</span>
+                <span className="text-[#68736C]">Maintenance Urgency</span>
+                <span className="font-mono font-semibold text-[#368363]">{(weights.urgency * 100).toFixed(0)}%</span>
               </div>
               <input
                 type="range"
@@ -151,47 +147,47 @@ export function MaintenancePriorityPage() {
                 step="0.05"
                 value={weights.urgency}
                 onChange={(e) => handleWeightChange('urgency', e.target.value)}
-                className="w-full accent-[#27845C]"
+                className="w-full accent-[#368363] cursor-pointer"
               />
             </div>
           </div>
         </div>
 
         {/* TIER TABS */}
-        <div className="flex items-center gap-2 text-xs overflow-x-auto pb-1">
+        <div className="flex items-center gap-1.5 text-xs overflow-x-auto pb-1">
           {['ALL', 'Critical', 'High', 'Medium', 'Low'].map(t => (
             <button
               key={t}
               onClick={() => setTierFilter(t)}
-              className={`px-3 py-1.5 rounded border transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 rounded-md border text-xs font-medium transition-colors cursor-pointer ${
                 tierFilter === t
-                  ? 'bg-[#176B52]/15 border-[#176B52] text-[#176B52] font-semibold'
-                  : 'bg-[#FFFFFF] border-[#E0E6E0] text-[#68756F] hover:text-[#202A27]'
+                  ? 'bg-[#E8F0EA] border-[#D1E1D5] text-[#246B52] font-semibold'
+                  : 'bg-white border-[#DFE4DD] text-[#68736C] hover:text-[#202925]'
               }`}
             >
-              {t === 'ALL' ? 'All Priority Tiers' : `${t} Tier`}
+              {t === 'ALL' ? 'All Tiers' : `${t} Priority`}
             </button>
           ))}
         </div>
 
         {/* RANKED LIST TABLE */}
-        <div className="bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg overflow-hidden shadow-xs">
+        <div className="bg-white border border-[#DFE4DD] rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-[#F4F7F5] border-b border-[#E0E6E0] text-[#68756F] uppercase text-[10px] tracking-wider">
-                  <th className="py-3 px-3">Rank</th>
-                  <th className="py-3 px-3">Equipment Unit</th>
-                  <th className="py-3 px-3 text-center">Original ML Risk</th>
-                  <th className="py-3 px-3 text-center">Approved Priority</th>
-                  <th className="py-3 px-3">Human Review State</th>
-                  <th className="py-3 px-3 text-center">Composite Score</th>
-                  <th className="py-3 px-3">Priority Tier</th>
-                  <th className="py-3 px-3">Operational Justification</th>
-                  <th className="py-3 px-3 text-right">Actions</th>
+                <tr className="border-b border-[#E7ECE5] text-[#68736C] text-[11px] font-medium bg-[#FAFCFA]">
+                  <th className="py-2.5 px-3">Rank</th>
+                  <th className="py-2.5 px-3">Equipment</th>
+                  <th className="py-2.5 px-3 text-center">ML Risk</th>
+                  <th className="py-2.5 px-3 text-center">Approved Priority</th>
+                  <th className="py-2.5 px-3">Review Status</th>
+                  <th className="py-2.5 px-3 text-center">Priority Score</th>
+                  <th className="py-2.5 px-3">Priority Tier</th>
+                  <th className="py-2.5 px-3">Operational Recommendation</th>
+                  <th className="py-2.5 px-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E5EBE6]">
+              <tbody className="divide-y divide-[#E7ECE5]">
                 {filtered.map((item, idx) => {
                   const isPending = item.reviewStatus === 'PENDING';
                   const isOverridden = item.isOverridden;
@@ -202,69 +198,60 @@ export function MaintenancePriorityPage() {
                     <tr
                       key={item.id}
                       onClick={() => navigate(`/machines/${item.id}`)}
-                      className="hover:bg-[#F4F7F5] transition-colors cursor-pointer"
+                      className="hover:bg-[#F5F6F2] transition-colors cursor-pointer"
                     >
-                      <td className="py-3 px-3 font-bold text-[#176B52]">#{idx + 1}</td>
-                      <td className="py-3 px-3">
-                        <div className="font-semibold text-[#202A27]">{item.id}</div>
-                        <div className="text-[11px] text-[#75837D]">{item.name}</div>
+                      <td className="py-2.5 px-3 font-mono font-semibold text-[#246B52]">#{idx + 1}</td>
+                      <td className="py-2.5 px-3">
+                        <div className="font-medium text-[#202925]">{item.name}</div>
+                        <div className="text-[11px] font-mono text-[#68736C]">{item.id}</div>
                       </td>
 
                       {/* Original ML Risk Badge */}
-                      <td className="py-3 px-3 text-center">
+                      <td className="py-2.5 px-3 text-center">
                         <PriorityBadge priority={originalRisk} />
-                        <div className="text-[9px] text-[#75837D] mt-0.5">
-                          {item.riskScore}% risk
-                        </div>
                       </td>
 
                       {/* Approved Operational Priority Badge */}
-                      <td className="py-3 px-3 text-center">
+                      <td className="py-2.5 px-3 text-center">
                         <PriorityBadge priority={operationalPriority} />
-                        {isOverridden && (
-                          <div className="text-[9px] font-bold text-[#1E7598] mt-0.5">
-                            HUMAN OVERRIDE
-                          </div>
-                        )}
                       </td>
 
                       {/* Review State Tag */}
-                      <td className="py-3 px-3">
+                      <td className="py-2.5 px-3">
                         {isOverridden ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-[#1E7598]/10 text-[#1E7598] border border-[#1E7598]/30 font-bold">
-                            <SlidersHorizontal size={10} /> OVERRIDDEN
+                          <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-[#EBF3F6] text-[#2B6E8A] border border-[#CFE2EA] font-medium">
+                            Overridden
                           </span>
                         ) : isPending ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-[#D99A24]/10 text-[#A66E0C] border border-[#D99A24]/30 font-bold">
-                            <Clock size={10} /> PENDING REVIEW
+                          <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-[#FAF3E7] text-[#B98232] border border-[#F3E0BD] font-medium">
+                            Pending Review
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-[#27845C]/10 text-[#27845C] border border-[#27845C]/30 font-bold">
-                            <CheckCircle2 size={10} /> CONFIRMED
+                          <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-[#EBF5F0] text-[#368363] border-[#CCE6DA] font-medium">
+                            Confirmed
                           </span>
                         )}
                       </td>
 
-                      <td className="py-3 px-3 text-center font-bold text-sm text-[#202A27]">
+                      <td className="py-2.5 px-3 text-center font-mono font-semibold text-sm text-[#202925]">
                         {item.calc.score}
                       </td>
 
-                      <td className="py-3 px-3">
+                      <td className="py-2.5 px-3">
                         <PriorityBadge priority={item.calc.band} />
                       </td>
 
-                      <td className="py-3 px-3 text-[#68756F] max-w-[220px] truncate" title={item.reviewReason || item.calc.action}>
+                      <td className="py-2.5 px-3 text-[#68736C] max-w-[220px] truncate" title={item.reviewReason || item.calc.action}>
                         {isOverridden && item.reviewReason ? `[Override] ${item.reviewReason}` : item.calc.action}
                       </td>
 
-                      <td className="py-3 px-3 text-right space-x-1.5 whitespace-nowrap">
+                      <td className="py-2.5 px-3 text-right space-x-1.5 whitespace-nowrap">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate('/reviews');
                           }}
-                          className="px-2 py-1 rounded bg-[#F7FAF8] hover:bg-[#E8EFEA] border border-[#E0E6E0] text-[#176B52] transition-colors text-[11px] font-semibold cursor-pointer"
-                          title="Review / Override in Human Review Console"
+                          className="px-2 py-1 rounded bg-[#F5F6F2] hover:bg-[#E8F0EA] border border-[#DFE4DD] text-[#246B52] transition-colors text-[11px] font-medium cursor-pointer"
                         >
                           Review
                         </button>
@@ -274,9 +261,9 @@ export function MaintenancePriorityPage() {
                             setSelectedMachine(item);
                             setModalOpen(true);
                           }}
-                          className="px-2.5 py-1 rounded bg-[#176B52] hover:bg-[#10543F] text-white transition-colors text-[11px] font-semibold cursor-pointer"
+                          className="px-2.5 py-1 rounded bg-[#246B52] hover:bg-[#1B5440] text-white transition-colors text-[11px] font-medium cursor-pointer"
                         >
-                          Create Order
+                          Order
                         </button>
                       </td>
                     </tr>
@@ -284,15 +271,6 @@ export function MaintenancePriorityPage() {
                 })}
               </tbody>
             </table>
-          </div>
-        </div>
-
-        {/* DECISION JUSTIFICATION NOTICE */}
-        <div className="p-3 bg-[#FFFFFF] border border-[#E0E6E0] rounded-lg text-xs text-[#68756F] flex items-start gap-2.5 shadow-xs">
-          <Info size={16} className="text-[#38BDF8] flex-shrink-0 mt-0.5" />
-          <div>
-            <strong className="text-[#202A27]">Human-in-the-Loop Ranking Guarantee: </strong>
-            Reviewed operational priority ({'`maintenancePriority`'}) governs dispatch order while the original ML prediction ({'`predictedRisk`'}) remains strictly unchanged for transparent model auditability and NASA C-MAPSS validation.
           </div>
         </div>
       </div>

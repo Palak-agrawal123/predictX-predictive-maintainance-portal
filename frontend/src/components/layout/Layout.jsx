@@ -10,27 +10,21 @@ import {
   UserCheck,
   Bell,
   RefreshCw,
-  Terminal,
-  ChevronRight,
   Menu,
   X,
-  ShieldCheck,
-  CheckCircle2,
   Clock,
-  Sparkles,
-  ExternalLink,
-  Info
+  Sparkles
 } from 'lucide-react';
 import { useAppData } from '../../context/AppDataContext';
 import { ToastContainer } from '../common/Toast';
 import { GuidedDemoModal } from '../demo/GuidedDemoModal';
 
-export function Layout({ children, pageTitle = "Overview", breadcrumb = [] }) {
+export function Layout({ children, pageTitle = "Overview" }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('en-US', { hour12: false }));
-  const { alerts, markAlertAsRead, resetAllDemoData, pendingReviewsCount = 0 } = useAppData();
+  const { alerts, markAlertAsRead, resetAllDemoData, pendingReviewsCount = 0, backendStatus, refreshData, isLoading } = useAppData();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -43,112 +37,98 @@ export function Layout({ children, pageTitle = "Overview", breadcrumb = [] }) {
 
   const unreadAlerts = alerts.filter(a => !a.read);
 
-  // Grouped Navigation strictly matching DEV-P04 Hackathon requirements
   const navigationSections = [
     {
-      title: "OPERATIONS",
+      title: "Operations",
       items: [
-        { to: "/dashboard", label: "Fleet Overview", icon: LayoutGrid, tag: "Live" },
-        { to: "/machines", label: "Machine Fleet", icon: Layers, count: 8 },
-        { to: "/maintenance-priority", label: "Priority Decision", icon: SlidersHorizontal, highlight: true }
+        { to: "/dashboard", label: "Fleet Overview", icon: LayoutGrid },
+        { to: "/machines", label: "Machine Fleet", icon: Layers },
+        { to: "/maintenance-priority", label: "Priority Decision", icon: SlidersHorizontal }
       ]
     },
     {
-      title: "MAINTENANCE ACTIONS",
+      title: "Maintenance",
       items: [
-        { to: "/work-orders", label: "Work Orders", icon: Wrench, tag: "Active" },
-        { to: "/work-audits", label: "Work Audits", icon: ClipboardCheck, tag: "Audit/Log" }
+        { to: "/work-orders", label: "Work Orders", icon: Wrench },
+        { to: "/work-audits", label: "Work Audits", icon: ClipboardCheck }
       ]
     },
     {
-      title: "ML DECISION ENGINE",
+      title: "Intelligence",
       items: [
         {
           to: "/reviews",
           label: "Human Review",
           icon: UserCheck,
-          tag: pendingReviewsCount > 0 ? `${pendingReviewsCount} Pending` : "HITL",
-          count: pendingReviewsCount > 0 ? pendingReviewsCount : undefined,
-          highlight: pendingReviewsCount > 0
+          badge: pendingReviewsCount > 0 ? pendingReviewsCount : null,
+          badgeColor: 'bg-[#B98232] text-white'
         },
-        { to: "/predictions", label: "Models & Evaluation", icon: Activity, tag: "NASA" }
+        { to: "/predictions", label: "Models & Evaluation", icon: Activity }
       ]
     }
   ];
 
   return (
-    <div className="min-h-screen bg-[#F4F6F3] text-[#202A27] flex font-sans antialiased selection:bg-[#176B52] selection:text-white">
+    <div className="min-h-screen bg-[#F5F6F2] text-[#202925] flex antialiased selection:bg-[#246B52] selection:text-white">
       <ToastContainer />
 
       {/* MOBILE TOPBAR */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-[#E0E6E0] px-4 flex items-center justify-between z-40">
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-[#DFE4DD] px-4 flex items-center justify-between z-40">
         <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => navigate('/dashboard')}>
-          <div className="w-7 h-7 rounded bg-[#176B52]/10 border border-[#176B52]/30 flex items-center justify-center text-[#176B52]">
-            <Terminal size={15} />
+          <div className="w-7 h-7 rounded-md bg-[#246B52] flex items-center justify-center text-white">
+            <Activity size={15} strokeWidth={2.2} />
           </div>
-          <span className="font-mono font-bold tracking-wider text-sm text-[#202A27]">
-            PREDICT<span className="text-[#176B52]">X</span>
+          <span className="font-semibold tracking-tight text-sm text-[#202925]">
+            Predict<span className="text-[#246B52]">X</span>
           </span>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setNotificationsOpen(!notificationsOpen)}
-            className="p-1.5 text-[#68756F] hover:text-[#202A27] relative"
+            className="p-1.5 text-[#68736C] hover:text-[#202925] relative rounded hover:bg-[#F5F6F2]"
+            aria-label="Notifications"
           >
-            <Bell size={18} />
+            <Bell size={18} strokeWidth={1.75} />
             {unreadAlerts.length > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#B94040]" />
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#B74747]" />
             )}
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-1.5 text-[#68756F] hover:text-[#202A27]"
+            className="p-1.5 text-[#68736C] hover:text-[#202925] rounded hover:bg-[#F5F6F2]"
+            aria-label="Toggle Navigation"
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
 
-      {/* SIDEBAR NAVIGATION (Cohesive Industrial Light Rail) */}
+      {/* SIDEBAR NAVIGATION */}
       <aside className={`
-        fixed md:sticky top-0 h-screen w-64 bg-white border-r border-[#E0E6E0] flex flex-col justify-between z-30 transition-transform duration-200 ease-in-out shadow-sm
+        fixed md:sticky top-0 h-screen w-60 bg-[#F0F2ED] border-r border-[#DFE4DD] flex flex-col justify-between z-30 transition-transform duration-200 ease-in-out
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
-        <div className="flex flex-col h-full overflow-y-auto">
-          {/* Identity & Plant Info */}
-          <div className="px-5 py-4 border-b border-[#E0E6E0] flex items-center justify-between bg-white">
-            <NavLink to="/dashboard" className="flex items-center gap-3 group">
-              <div className="w-8 h-8 rounded-lg bg-[#176B52]/10 border border-[#176B52]/30 flex items-center justify-center text-[#176B52] group-hover:bg-[#176B52]/20 transition-all">
-                <Terminal size={17} />
+        <div className="flex flex-col h-full">
+          {/* Identity */}
+          <div className="px-5 py-4 border-b border-[#DFE4DD] flex items-center justify-between">
+            <NavLink to="/dashboard" className="flex items-center gap-2.5 group">
+              <div className="w-7 h-7 rounded-md bg-[#246B52] flex items-center justify-center text-white shadow-xs">
+                <Activity size={15} strokeWidth={2.2} />
               </div>
-              <div>
-                <div className="font-mono font-bold text-sm tracking-wider text-[#202A27]">
-                  Predict<span className="text-[#176B52]">X</span>
-                </div>
-                <div className="text-[10px] font-mono text-[#68756F] tracking-tight">Plant Ops Platform</div>
+              <div className="flex flex-col">
+                <span className="font-semibold text-sm tracking-tight text-[#202925]">
+                  Predict<span className="text-[#246B52]">X</span>
+                </span>
+                <span className="text-[10px] text-[#68736C] tracking-tight">Fleet Intelligence</span>
               </div>
             </NavLink>
-            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#F4F6F3] border border-[#E0E6E0] text-[#68756F]">
-              PROT-V1
-            </span>
           </div>
 
-          {/* Plant Unit Context Badge */}
-          <div className="px-3.5 py-2 mx-3 mt-3 rounded bg-[#F4F6F3] border border-[#E0E6E0] flex items-center justify-between text-[11px] font-mono">
-            <span className="flex items-center gap-1.5 text-[#202A27] truncate min-w-0 pr-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#27845C] flex-shrink-0 animate-pulse" />
-              <span className="truncate">Line-01 Active</span>
-            </span>
-            <span className="text-[10px] text-[#176B52] bg-[#E8EFEA] border border-[#176B52]/20 px-1.5 py-0.5 rounded font-semibold whitespace-nowrap flex-shrink-0">
-              8 Nodes
-            </span>
-          </div>
-
-          {/* Nav Categories */}
-          <nav className="flex-1 px-3 py-4 space-y-5">
+          {/* Navigation Links */}
+          <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
             {navigationSections.map((sec, idx) => (
               <div key={idx} className="space-y-1">
-                <div className="px-2 text-[10px] font-mono tracking-widest text-[#68756F] uppercase font-bold">
+                <div className="px-2.5 pb-1 text-[11px] font-medium text-[#85918A]">
                   {sec.title}
                 </div>
                 {sec.items.map(item => {
@@ -160,26 +140,21 @@ export function Layout({ children, pageTitle = "Overview", breadcrumb = [] }) {
                       to={item.to}
                       onClick={() => setMobileMenuOpen(false)}
                       className={`
-                        flex items-center justify-between px-3 py-2 rounded text-xs font-mono transition-all group
+                        flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors group
                         ${isActive
-                          ? 'bg-[#E8EFEA] text-[#176B52] font-semibold border-l-2 border-[#176B52]'
-                          : 'text-[#68756F] hover:text-[#202A27] hover:bg-[#F4F6F3]'}
+                          ? 'bg-[#E8F0EA] text-[#246B52] font-semibold'
+                          : 'text-[#68736C] hover:text-[#202925] hover:bg-[#E9ECE6]'}
                       `}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <Icon size={15} className={`flex-shrink-0 ${isActive ? 'text-[#176B52]' : 'text-[#68756F] group-hover:text-[#202A27]'}`} />
+                        <Icon size={15} strokeWidth={1.8} className={`flex-shrink-0 ${isActive ? 'text-[#246B52]' : 'text-[#68736C] group-hover:text-[#202925]'}`} />
                         <span className="truncate">{item.label}</span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        {item.tag && (
-                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${isActive ? 'bg-[#176B52]/10 text-[#176B52] border border-[#176B52]/30' : 'bg-[#F4F6F3] text-[#68756F] border border-[#E0E6E0]'}`}>
-                            {item.tag}
-                          </span>
-                        )}
-                        {item.count && (
-                          <span className={`text-[10px] font-normal ${isActive ? 'text-[#176B52]' : 'text-[#68756F]'}`}>{item.count}</span>
-                        )}
-                      </div>
+                      {item.badge !== undefined && item.badge !== null && (
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-medium ${item.badgeColor || 'bg-[#E8F0EA] text-[#246B52]'}`}>
+                          {item.badge}
+                        </span>
+                      )}
                     </NavLink>
                   );
                 })}
@@ -187,97 +162,92 @@ export function Layout({ children, pageTitle = "Overview", breadcrumb = [] }) {
             ))}
           </nav>
 
-          {/* Footer Engine Status Panel */}
-          <div className="p-3 border-t border-[#E0E6E0] bg-[#FAFCFA]">
-            <div className="p-2.5 rounded bg-white border border-[#E0E6E0] text-xs font-mono space-y-2 shadow-xs">
-              <div className="flex items-center justify-between text-[11px]">
-                <span className="text-[#68756F] font-semibold">Pipeline Status</span>
-                <span className="text-[#27845C] flex items-center gap-1 text-[10px] font-medium">
-                  <ShieldCheck size={12} /> Local Replay
-                </span>
-              </div>
-              <div className="text-[10px] text-[#68756F] leading-tight">
-                Simulated NASA C-MAPSS dataset. Future integration endpoints pre-configured.
-              </div>
-              <button
-                onClick={resetAllDemoData}
-                className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2 rounded bg-[#F4F6F3] hover:bg-[#E8EFEA] hover:text-[#176B52] border border-[#E0E6E0] text-[#202A27] text-[10px] font-semibold transition-colors"
-                title="Reset local changes and work orders to baseline"
-              >
-                <RefreshCw size={11} /> Reset Local Data
-              </button>
+          {/* Quiet Footer */}
+          <div className="p-3 border-t border-[#DFE4DD] bg-[#ECEFE9]/60 text-xs">
+            <div className="flex items-center justify-between text-[11px] text-[#68736C] mb-2 px-1">
+              <span className="flex items-center gap-1.5">
+                <span className={`w-1.5 h-1.5 rounded-full ${backendStatus?.online ? 'bg-[#368363]' : 'bg-[#B98232]'}`} />
+                <span>{backendStatus?.online ? 'Connected' : 'Offline Mode'}</span>
+              </span>
+              <span className="font-mono text-[10px] text-[#85918A]">Port 5000</span>
             </div>
+            <button
+              onClick={resetAllDemoData}
+              className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md bg-white hover:bg-[#F5F6F2] border border-[#DFE4DD] text-[#68736C] hover:text-[#202925] text-[11px] font-medium transition-colors"
+              title="Reset data to baseline"
+            >
+              <RefreshCw size={11} strokeWidth={1.75} /> Reset Local Data
+            </button>
           </div>
         </div>
       </aside>
 
       {/* MAIN VIEWPORT */}
-      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0 bg-[#F4F6F3]">
-        {/* TOP UTILITY HEADER */}
-        <header className="h-14 bg-white border-b border-[#E0E6E0] px-6 flex items-center justify-between sticky top-0 z-20 shadow-sm">
-          <div className="flex items-center gap-2.5">
-            <span className="text-[11px] font-mono text-[#68756F] font-medium tracking-normal">CONTROL //</span>
-            <span className="text-xs font-mono text-[#202A27] font-semibold tracking-wide uppercase">
+      <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0 bg-[#F5F6F2]">
+        {/* TOP HEADER */}
+        <header className="h-13 bg-white border-b border-[#DFE4DD] px-6 flex items-center justify-between sticky top-0 z-20">
+          <div className="flex items-center gap-2">
+            <h1 className="text-sm font-semibold tracking-tight text-[#202925]">
               {pageTitle}
-            </span>
+            </h1>
           </div>
 
-          <div className="flex items-center gap-3 text-xs font-mono">
-            {/* Launch Guided Demo Button */}
+          <div className="flex items-center gap-3 text-xs">
+            {/* Launch Guided Demo */}
             <button
               onClick={() => setDemoModalOpen(true)}
-              className="px-3 py-1.5 rounded bg-[#176B52] hover:bg-[#10543F] text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
-              title="Launch DEV-P04 End-to-End Guided Demo Flow"
+              className="px-2.5 py-1.5 rounded-md bg-[#246B52] hover:bg-[#1B5440] text-white font-medium text-xs flex items-center gap-1.5 transition-colors shadow-xs"
             >
-              <Sparkles size={13} />
-              <span className="hidden sm:inline">Launch Guided Demo</span>
+              <Sparkles size={12} strokeWidth={2} />
+              <span className="hidden sm:inline">Guided Demo</span>
               <span className="sm:hidden">Demo</span>
             </button>
 
-            {/* Clock & Replay Mode Tag */}
-            <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded bg-[#F4F7F5] border border-[#E0E6E0] text-[#68756F] text-[11px]">
-              <Clock size={12} className="text-[#176B52]" />
-              <span className="text-[#202A27] font-medium">{currentTime} UTC</span>
-              <span className="text-[#D2DDD5]">|</span>
-              <span className="text-[#27845C] font-medium">Offline Demo Mode</span>
-            </div>
-
-            {/* Quick Reset Button */}
+            {/* Sync Live Data */}
             <button
-              onClick={resetAllDemoData}
-              className="p-1.5 rounded bg-[#F4F7F5] border border-[#E0E6E0] text-[#68756F] hover:text-[#202A27] hover:border-[#B5C4BA] transition-colors"
-              title="Reset state to initial C-MAPSS demo data"
+              onClick={() => refreshData(true)}
+              disabled={isLoading}
+              className="p-1.5 rounded-md border border-[#DFE4DD] bg-white text-[#68736C] hover:text-[#202925] hover:border-[#C2CDC0] transition-colors"
+              title="Sync live data"
+              aria-label="Sync live data"
             >
-              <RefreshCw size={14} />
+              <RefreshCw size={13} strokeWidth={1.75} className={isLoading ? 'animate-spin text-[#246B52]' : ''} />
             </button>
+
+            {/* Clock */}
+            <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 text-[#68736C] text-[11px] font-mono">
+              <Clock size={11} strokeWidth={1.75} />
+              <span>{currentTime}</span>
+            </div>
 
             {/* Notifications Menu */}
             <div className="relative">
               <button
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="p-1.5 rounded bg-[#F4F7F5] border border-[#E0E6E0] text-[#68756F] hover:text-[#202A27] hover:border-[#B5C4BA] transition-colors relative"
-                title="Plant Telemetry Alerts"
+                className="p-1.5 rounded-md border border-[#DFE4DD] bg-white text-[#68736C] hover:text-[#202925] hover:border-[#C2CDC0] transition-colors relative"
+                title="Notifications"
+                aria-label="Notifications"
               >
-                <Bell size={14} />
+                <Bell size={13} strokeWidth={1.75} />
                 {unreadAlerts.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#B94040] ring-2 ring-white" />
+                  <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-[#B74747]" />
                 )}
               </button>
 
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white border border-[#D2DDD5] rounded-lg shadow-xl p-3 z-50 animate-fadeIn">
-                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#EAF0EC]">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#202A27]">
-                      Plant Alerts ({alerts.length})
+                <div className="absolute right-0 mt-2 w-80 bg-white border border-[#DFE4DD] rounded-lg shadow-lg p-3 z-50 animate-fadeIn">
+                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#E7ECE5]">
+                    <span className="text-xs font-semibold text-[#202925]">
+                      Alerts ({alerts.length})
                     </span>
                     <button
                       onClick={() => setNotificationsOpen(false)}
-                      className="text-[#68756F] hover:text-[#202A27]"
+                      className="text-[#68736C] hover:text-[#202925]"
                     >
-                      <X size={14} />
+                      <X size={13} />
                     </button>
                   </div>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                  <div className="space-y-1.5 max-h-64 overflow-y-auto">
                     {alerts.map(alert => (
                       <div
                         key={alert.id}
@@ -286,17 +256,17 @@ export function Layout({ children, pageTitle = "Overview", breadcrumb = [] }) {
                           navigate(`/machines/${alert.machineId}`);
                           setNotificationsOpen(false);
                         }}
-                        className={`p-2.5 rounded border cursor-pointer transition-colors text-xs ${
+                        className={`p-2 rounded border cursor-pointer transition-colors text-xs ${
                           alert.severity === 'Critical'
-                            ? 'bg-[#B94040]/5 border-[#B94040]/30 hover:border-[#B94040]'
-                            : 'bg-[#D99A24]/5 border-[#D99A24]/30 hover:border-[#D99A24]'
-                        } ${alert.read ? 'opacity-50' : 'opacity-100'}`}
+                            ? 'bg-[#F8EBEB]/60 border-[#EFCACA] hover:border-[#B74747]'
+                            : 'bg-[#FAF3E7]/60 border-[#F3E0BD] hover:border-[#B98232]'
+                        } ${alert.read ? 'opacity-60' : 'opacity-100'}`}
                       >
-                        <div className="flex items-center justify-between text-[10px] text-[#68756F] mb-0.5">
-                          <span className="font-bold text-[#202A27]">{alert.machineId}</span>
-                          <span>{alert.timestamp}</span>
+                        <div className="flex items-center justify-between text-[10px] text-[#68736C] mb-0.5">
+                          <span className="font-semibold text-[#202925] font-mono">{alert.machineId}</span>
+                          <span className="font-mono">{alert.timestamp}</span>
                         </div>
-                        <p className="text-[11px] text-[#202A27] leading-tight">{alert.message}</p>
+                        <p className="text-[11px] text-[#202925] leading-tight">{alert.message}</p>
                       </div>
                     ))}
                   </div>
@@ -305,11 +275,10 @@ export function Layout({ children, pageTitle = "Overview", breadcrumb = [] }) {
             </div>
 
             {/* Operator Identifier */}
-            <div className="flex items-center gap-2 pl-3 border-l border-[#E0E6E0]">
-              <div className="w-6 h-6 rounded bg-[#E8EFEA] border border-[#D2DDD5] flex items-center justify-center text-[10px] text-[#176B52] font-bold">
+            <div className="flex items-center gap-1.5 pl-2 border-l border-[#DFE4DD]">
+              <div className="w-5 h-5 rounded bg-[#E8F0EA] border border-[#D1E1D5] flex items-center justify-center text-[10px] text-[#246B52] font-semibold">
                 PX
               </div>
-              <span className="hidden lg:inline text-[11px] text-[#68756F]">Supervisor Mode</span>
             </div>
           </div>
         </header>

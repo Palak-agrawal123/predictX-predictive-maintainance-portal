@@ -2,83 +2,89 @@ import React from 'react';
 
 export function StatusBadge({ status }) {
   const s = (status || '').toLowerCase();
-  let bg = 'bg-[#F0F4F1] text-[#68756F] border-[#E0E6E0]';
+  let style = 'bg-[#F0F2ED] text-[#68736C] border-[#DFE4DD]';
+  let dotColor = '#85918A';
 
   if (s === 'operational' || s === 'completed' || s === 'healthy') {
-    bg = 'bg-[#27845C]/10 text-[#27845C] border-[#27845C]/25';
+    style = 'bg-[#EBF5F0] text-[#368363] border-[#CCE6DA]';
+    dotColor = '#368363';
   } else if (s === 'warning' || s === 'degraded' || s === 'in progress' || s === 'approved') {
-    bg = 'bg-[#D99A24]/10 text-[#A66E0C] border-[#D99A24]/30';
+    style = 'bg-[#FAF3E7] text-[#B98232] border-[#F3E0BD]';
+    dotColor = '#B98232';
   } else if (s === 'critical' || s === 'urgent' || s === 'under maintenance' || s === 'offline') {
-    bg = 'bg-[#B94040]/10 text-[#B94040] border-[#B94040]/30';
+    style = 'bg-[#F8EBEB] text-[#B74747] border-[#EFCACA]';
+    dotColor = '#B74747';
   } else if (s === 'draft') {
-    bg = 'bg-[#1E7598]/10 text-[#1E7598] border-[#1E7598]/25';
+    style = 'bg-[#EBF3F6] text-[#2B6E8A] border-[#CFE2EA]';
+    dotColor = '#2B6E8A';
   }
 
+  // Capitalize nicely
+  const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unknown';
+
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono uppercase tracking-wider border font-medium ${bg}`}>
-      <span className="w-1.5 h-1.5 rounded-full mr-1.5 bg-current opacity-80"></span>
-      {status}
+    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border ${style}`}>
+      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: dotColor }} />
+      <span>{label}</span>
     </span>
   );
 }
 
 export function PriorityBadge({ priority }) {
   const p = (priority || '').toLowerCase();
-  let bg = 'bg-[#F0F4F1] text-[#68756F] border-[#E0E6E0]';
+  let style = 'bg-[#F0F2ED] text-[#68736C] border-[#DFE4DD]';
+  let dotColor = '#85918A';
 
   if (p === 'low') {
-    bg = 'bg-[#27845C]/10 text-[#27845C] border-[#27845C]/25';
+    style = 'bg-[#EBF5F0] text-[#368363] border-[#CCE6DA]';
+    dotColor = '#368363';
   } else if (p === 'medium') {
-    bg = 'bg-[#1E7598]/10 text-[#1E7598] border-[#1E7598]/25';
+    style = 'bg-[#EBF3F6] text-[#2B6E8A] border-[#CFE2EA]';
+    dotColor = '#2B6E8A';
   } else if (p === 'high') {
-    bg = 'bg-[#D99A24]/10 text-[#A66E0C] border-[#D99A24]/30';
+    style = 'bg-[#FAF3E7] text-[#B98232] border-[#F3E0BD]';
+    dotColor = '#B98232';
   } else if (p === 'urgent' || p === 'critical') {
-    bg = 'bg-[#B94040]/12 text-[#B94040] border-[#B94040]/35 font-semibold';
+    style = 'bg-[#F8EBEB] text-[#B74747] border-[#EFCACA] font-semibold';
+    dotColor = '#B74747';
   }
 
+  const label = priority ? priority.charAt(0).toUpperCase() + priority.slice(1) : 'Medium';
+
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono uppercase tracking-wider border ${bg}`}>
-      {priority}
+    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border ${style}`}>
+      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: dotColor }} />
+      <span>{label}</span>
     </span>
   );
 }
 
-export function StatCard({ title, value, subtitle, icon: Icon, badge, color = 'accent' }) {
-  const colorMap = {
-    accent: 'text-[#176B52] border-[#176B52]/20 bg-[#176B52]/5',
-    healthy: 'text-[#27845C] border-[#27845C]/20 bg-[#27845C]/5',
-    warning: 'text-[#A66E0C] border-[#D99A24]/20 bg-[#D99A24]/5',
-    critical: 'text-[#B94040] border-[#B94040]/20 bg-[#B94040]/5',
-    blue: 'text-[#1E7598] border-[#1E7598]/20 bg-[#1E7598]/5',
-  };
-
+export function StatCard({ title, value, subtitle, icon: Icon, badge }) {
   return (
-    <div className="bg-white border border-[#E0E6E0] rounded-lg p-4 transition-all hover:border-[#B5C4BA] shadow-sm">
-      <div className="flex items-center justify-between text-[#68756F] mb-2">
-        <span className="text-xs font-mono uppercase tracking-wider">{title}</span>
+    <div className="bg-white border border-[#DFE4DD] rounded-lg p-4 transition-all hover:border-[#C2CDC0]">
+      <div className="flex items-center justify-between text-[#68736C] mb-2">
+        <span className="text-xs font-medium tracking-tight text-[#68736C]">{title}</span>
         {Icon && (
-          <div className={`p-1.5 rounded border ${colorMap[color] || colorMap.accent}`}>
-            <Icon size={16} />
+          <div className="p-1 rounded text-[#68736C]">
+            <Icon size={15} strokeWidth={1.75} />
           </div>
         )}
       </div>
       <div className="flex items-baseline justify-between">
-        <span className="text-2xl font-bold font-mono tracking-tight text-[#202A27]">{value}</span>
-        {badge && <span className="text-[11px] font-mono text-[#68756F]">{badge}</span>}
+        <span className="text-2xl font-semibold font-mono tracking-tight text-[#202925]">{value}</span>
+        {badge && <span className="text-[11px] text-[#68736C] font-mono">{badge}</span>}
       </div>
-      {subtitle && <p className="text-[12px] text-[#68756F] mt-1 truncate">{subtitle}</p>}
+      {subtitle && <p className="text-[12px] text-[#68736C] mt-1 truncate">{subtitle}</p>}
     </div>
   );
 }
 
 export function SectionHeader({ title, subtitle, action }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-[#252B27] gap-3">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-[#DFE4DD] gap-3">
       <div>
-        <h1 className="text-lg font-mono font-bold tracking-tight text-text-main flex items-center gap-2">
-          <span className="text-accent">//</span> {title}
-        </h1>
-        {subtitle && <p className="text-xs text-text-muted mt-0.5">{subtitle}</p>}
+        <h2 className="text-sm font-semibold tracking-tight text-[#202925]">{title}</h2>
+        {subtitle && <p className="text-xs text-[#68736C] mt-0.5">{subtitle}</p>}
       </div>
       {action && <div>{action}</div>}
     </div>
