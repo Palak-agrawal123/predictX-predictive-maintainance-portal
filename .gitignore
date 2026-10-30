@@ -20,6 +20,8 @@ env/
 ENV/
 ml_service/venv/
 ml_service/.venv/
+rag_service/venv/
+rag_service/.venv/
 __pycache__/
 */__pycache__/
 *.py[cod]
@@ -49,6 +51,7 @@ ehthumbs.db
 # IDE and Editor directories
 .vscode/*
 !.vscode/extensions.json
+!.vscode/tasks.json
 .idea/
 *.suo
 *.ntvs*
@@ -58,18 +61,22 @@ ehthumbs.db
 *.sublime-project
 *.sublime-workspace
 
-# Dataset (do not upload raw NASA C-MAPSS dataset)
+# Dataset & Documents (do not upload raw NASA C-MAPSS dataset)
 CMaps/
 **/CMaps/
 *.txt
 !requirements.txt
 !validation_data/**
 !kfold_data/**
+!rag_service/data/documents/**
 
-# Large Trained Model Weight Binaries
+# Large Trained Model Weight Binaries & Vector Store
 *.joblib
 *.pt
 Updated_Models/*.joblib
 Updated_Models/*.pt
 ml_service/models/*.joblib
 ml_service/models/*.pt
+rag_service/vector_store/chroma_db/
+rag_service/data/processed/
+rag_service/data/failed_documents/

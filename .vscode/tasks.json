@@ -1,0 +1,67 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "1. Start MongoDB",
+      "type": "shell",
+      "command": "& 'C:\\Program Files\\MongoDB\\Server\\8.2\\bin\\mongod.exe' --dbpath \"$HOME\\data\\db\" --setParameter diagnosticDataCollectionEnabled=false",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "group": "services",
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "2. Start ML Microservice (FastAPI)",
+      "type": "shell",
+      "command": "python ml_service\\server.py",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "group": "services",
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "3. Start Backend (Express)",
+      "type": "shell",
+      "command": "cd backend; npm run dev",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "group": "services",
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "4. Start Frontend (Vite React)",
+      "type": "shell",
+      "command": "cd frontend; npm run dev",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "group": "services",
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Run All Services (Full Stack)",
+      "dependsOn": [
+        "1. Start MongoDB",
+        "2. Start ML Microservice (FastAPI)",
+        "3. Start Backend (Express)",
+        "4. Start Frontend (Vite React)"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

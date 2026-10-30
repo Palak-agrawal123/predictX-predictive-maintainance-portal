@@ -1,0 +1,38 @@
+PREDICTX INDUSTRIAL MAINTENANCE SOP: PREVENTIVE MAINTENANCE PROCEDURES
+Document ID: SOP-PM-2026-V3
+Classification: Standard Operating Procedure (ISO 55000 / AS9110)
+
+1. PURPOSE & SCOPE
+This procedure establishes standard preventive maintenance intervals, inspection checklists, and corrective action protocols for industrial machinery and turbofan assemblies monitored by the PredictX portal.
+
+2. MAINTENANCE TIERS AND CYCLE INTERVALS
+Tier 1: Daily Autonomous Telemetry Audit (Automated via PredictX)
+- Real-time sensor stream validation.
+- Anomaly detection on temperature differentials (Process Temp - Air Temp).
+- Automatic flag if vibration RMS exceeds 2.8 mm/s or tool wear exceeds 150 minutes.
+
+Tier 2: 100-Cycle Scheduled Preventive Maintenance (SPM-100)
+- Visual inspection of all external plumbing, hydraulic lines, and electrical harnesses.
+- Lubricant level and contamination check; take 100ml oil sample for laboratory spectrographic analysis.
+- Check drive belt tension and inspect coupling elastomeric dampers for cracking.
+- Verify calibration of thermocouple sensors (s_2, s_3, s_4) using precision calibrator.
+- Clean cooling fan intake filters and radiator fins.
+
+Tier 3: 300-Cycle Major Overhaul Maintenance (SPM-300)
+- Borescope examination of internal stages (compressor blading, turbine nozzles, burner liners).
+- Bearing raceway ultrasonic inspection; measure radial play and axial end-float.
+- Spindle run-out verification on CNC machines: Maximum permissible total indicated runout (TIR) is 0.005 mm.
+- Replace hydraulic return line filter and pneumatic coalescing elements.
+- Execute full 5-point calibration across all 21 telemetry channels.
+
+3. WORK ORDER DISPATCH PROTOCOL
+When PredictX ML model outputs:
+- Risk Tier 'CRITICAL' (Failure Probability >= 0.80 or RUL <= 25 cycles):
+  -> Automatically generate Emergency Work Order (Priority 90-100).
+  -> Dispatch technician within 2 hours. Lock machine out from continuous heavy-load operations.
+- Risk Tier 'HIGH' (Failure Probability 0.50 - 0.79 or RUL 26-50 cycles):
+  -> Generate Priority Work Order (Priority 60-89).
+  -> Schedule maintenance action within 24-48 hours. Prepare replacement spares.
+- Risk Tier 'MEDIUM' (Failure Probability 0.25 - 0.49 or RUL 51-85 cycles):
+  -> Generate Routine Inspection Order (Priority 35-59).
+  -> Review during next scheduled shift downtime.

@@ -13,6 +13,43 @@ predictX-predictive-maintainance-portal/
 │   ├── scripts/seed.js                        # Database seeder with realistic machines & telemetry
 │   ├── tests/                                 # Automated unit & integration tests
 │   └── README.md                              # In-depth API documentation & specifications
+├── frontend/                                  # React 18 + Vite Frontend Portal
+│   ├── src/                                   # UI components, pages, context, and state
+│   ├── package.json                           # Frontend dependencies and Vite configuration
+│   └── vite.config.js
+├── ml/                                        # Machine Learning Research, Pipelines & Benchmarks
+│   ├── notebooks/                             # Interactive Jupyter Notebooks & generators
+│   │   ├── C_MAPSS_MultiSubdataset_Clean_and_Model.ipynb  # Master interactive notebook
+│   │   └── create_notebook.py                 # Notebook generator script
+│   ├── scripts/                               # Training, evaluation & cross-validation scripts
+│   │   ├── train_all_updated_models.py        # Master multi-dataset training pipeline
+│   │   ├── pipeline_base_model.py             # Telemetry cleanliness audit & baseline modeling
+│   │   ├── benchmark_all_4_datasets.py        # 3-way evaluation across all 4 C-MAPSS subsets
+│   │   ├── evaluate_train_val_test.py         # Side-by-side train vs. val vs. test metrics
+│   │   ├── test_model_with_matrices.py        # Confusion matrices, residual error & reports
+│   │   ├── example_validate_model.py          # Leak-free validation dataset verification
+│   │   ├── explore_models.py                  # Serialized model artifact & feature schema inspector
+│   │   ├── make_validation_split.py           # Unit-stratified validation dataset split generator
+│   │   ├── make_kfold_splits.py               # 5-fold cross-validation split generator
+│   │   └── run_kfold_cv.py                    # 5-fold cross-validation runner
+│   ├── reports/                               # Generated evaluation matrices, plots, and CSV reports
+│   │   ├── evaluation_matrices.png            # Confusion matrices, residual error & correlation plots
+│   │   ├── test_predictions_matrix.csv        # Detailed test set predictions breakdown
+│   │   └── test_results_matrices.json         # JSON metrics report
+│   └── README.md                              # Comprehensive guide to the ML package
+├── ml_service/                                # Python FastAPI ML Microservice (Port 8000)
+│   ├── src/                                   # Data loader, model definitions, failure diagnostics
+│   ├── models/                                # Production models & benchmark summaries
+│   ├── predictor.py                           # Real-time inference pipeline & telemetry mapping
+│   ├── server.py                              # FastAPI microservice REST endpoints
+│   ├── start_ml_service.bat                   # 1-click Windows service launcher
+│   └── requirements.txt                       # Python dependencies
+├── rag_service/                               # Python FastAPI RAG Knowledge Retrieval Copilot
+│   ├── api/                                   # RAG search, query, and chat routes
+│   ├── chunking/ & embeddings/                # Vector embeddings & document chunking
+│   ├── retrieval/                             # Vector search & cross-encoder reranker
+│   ├── vector_store/                          # ChromaDB vector store integration
+│   └── data/documents/                        # NASA manuals, vibration guides & maintenance records
 ├── FD0024/                                    # SOTA Multi-Regime Deep Learning Package (FD002 & FD004)
 │   ├── model_architectures.py                 # PyTorch Attention-CNN-BiLSTM with AttentionPooling
 │   ├── regime_normalizer.py                   # KMeans(k=6) regime clustering & sensor standardizer
@@ -33,25 +70,13 @@ predictX-predictive-maintainance-portal/
 │   ├── val_RUL_FD002.txt & FD004.txt         # Validation ground truth targets
 │   └── val_metadata_FD002.json & FD004.json  # Split statistics & held-out unit IDs
 ├── kfold_data/                                # 5-Fold Cross-Validation Datasets (FD001-FD004)
-├── ml_service/                                # Python FastAPI ML Microservice (Port 8000)
-│   ├── src/                                   # Data loader, model definitions, failure diagnostics
-│   ├── models/                                # Production models & benchmark summaries
-│   ├── predictor.py                           # Real-time inference pipeline & telemetry mapping
-│   ├── server.py                              # FastAPI microservice REST endpoints
-│   └── requirements.txt                       # Python dependencies
-├── src/                                       # React 18 + Vite Frontend Portal
-│   ├── components/                            # UI cards, charts, badges, layout, modals
-│   ├── pages/                                 # Dashboard, Machines, Priority, Work Orders, Predictions
-│   ├── context/                               # AppDataContext for real-time synchronization
-│   └── services/api.js                        # API abstraction and ML service connector
-├── C_MAPSS_MultiSubdataset_Clean_and_Model.ipynb # Interactive Jupyter Notebook (Audit, Cleaning, Modeling)
-├── pipeline_base_model.py                     # Cleanliness audit, feature engineering & baseline modeling
-├── train_all_updated_models.py                # Multi-dataset master training pipeline (FD001-FD004)
-├── test_model_with_matrices.py                # Evaluation matrices, confusion matrix & reports
-├── make_validation_split.py                   # Script generating leak-free validation splits
-├── make_kfold_splits.py & run_kfold_cv.py     # 5-fold cross-validation generators & runners
-├── start_ml_service.bat                       # Launcher for Python FastAPI ML Microservice
-├── package.json                               # Frontend dependencies and Vite configuration
+├── Updated_Models/                            # Master Production Model Artifacts & Benchmarks
+├── C_MAPSS_MultiSubdataset_Clean_and_Model.ipynb # Root interactive notebook (preserved)
+├── create_notebook.py                         # Root notebook generator (preserved)
+├── train_all_updated_models.py                # Root training pipeline (preserved)
+├── run.py                                     # Master single-command environment runner
+├── start_all.bat & start_all.ps1              # Windows 1-click launchers for all microservices
+├── .gitignore
 └── README.md
 ```
 
@@ -112,7 +137,7 @@ python FD0024/evaluate_kfold_train_val_test.py
 
 # Launch the FastAPI microservice on http://localhost:8000
 python ml_service/server.py
-# (or double-click start_ml_service.bat on Windows)
+# (or double-click ml_service/start_ml_service.bat on Windows)
 ```
 
 ### 2. Node.js Backend API (Port 5000)
@@ -126,6 +151,7 @@ npm run dev      # Runs API at http://localhost:5000
 
 ### 3. Frontend Portal (Port 5173)
 ```bash
+cd frontend
 npm install
 npm run dev      # Launches Vite dev server at http://localhost:5173
 ```
