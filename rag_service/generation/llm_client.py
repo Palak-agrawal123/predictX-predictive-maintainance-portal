@@ -407,7 +407,7 @@ class LLMClient:
             extracted_points.append(
                 "- **RUL Degradation Progression**: "
                 "Industrial prognostics model remaining life via piece-wise linear stages: an initial healthy operational plateau (RUL = RUL_max) "
-                "followed by accelerated exponential wear governed by Paris' Law (da/dN = C*(ΔK)^m). At the inflection point, mechanical micro-cracks coalesce, "
+                "followed by accelerated exponential wear governed by Paris' Law (da/dN = C*(dK)^m). At the inflection point, mechanical micro-cracks coalesce, "
                 "rapidly depleting usable operational cycles."
             )
 
@@ -453,9 +453,9 @@ class LLMClient:
             if p_temp is not None and a_temp is not None:
                 delta_t = round(float(p_temp) - float(a_temp), 2)
                 if delta_t < 8.6:
-                    telemetry_assessments.append(f"- **Thermal Differential (ΔT = {delta_t} K)**: ⚠️ **HDF WARNING** — Below required 8.6 K heat dissipation margin. Inadequate cooling circulation.")
+                    telemetry_assessments.append(f"- **Thermal Differential (Delta-T = {delta_t} K)**: ⚠️ **HDF WARNING** — Below required 8.6 K heat dissipation margin. Inadequate cooling circulation.")
                 else:
-                    telemetry_assessments.append(f"- **Thermal Differential (ΔT = {delta_t} K)**: ✅ **NOMINAL** — Complies with heat dissipation baseline (ΔT = {delta_t} K ≥ 8.6 K).")
+                    telemetry_assessments.append(f"- **Thermal Differential (Delta-T = {delta_t} K)**: ✅ **NOMINAL** — Complies with heat dissipation baseline (Delta-T = {delta_t} K >= 8.6 K).")
 
             # Overstrain product evaluation
             trq = telemetry.get("torque")
