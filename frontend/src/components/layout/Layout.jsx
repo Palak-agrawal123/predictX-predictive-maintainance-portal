@@ -65,12 +65,6 @@ export function Layout({ children, pageTitle = "Overview" }) {
         },
         { to: "/predictions", label: "Models & Evaluation", icon: Activity }
       ]
-    },
-    {
-      title: "INTELLIGENT SUPPORT",
-      items: [
-        { to: "/ai-assistant", label: "AI Maintenance Copilot", icon: Sparkles, tag: "RAG" }
-      ]
     }
   ];
 
@@ -134,7 +128,7 @@ export function Layout({ children, pageTitle = "Overview" }) {
           <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
             {navigationSections.map((sec, idx) => (
               <div key={idx} className="space-y-1">
-                <div className="px-2.5 pb-1 text-[11px] font-medium text-[#85918A]">
+                <div className="px-2.5 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#6B7972] select-none">
                   {sec.title}
                 </div>
                 {sec.items.map(item => {
@@ -170,13 +164,6 @@ export function Layout({ children, pageTitle = "Overview" }) {
 
           {/* Quiet Footer */}
           <div className="p-3 border-t border-[#DFE4DD] bg-[#ECEFE9]/60 text-xs">
-            <div className="flex items-center justify-between text-[11px] text-[#68736C] mb-2 px-1">
-              <span className="flex items-center gap-1.5">
-                <span className={`w-1.5 h-1.5 rounded-full ${backendStatus?.online ? 'bg-[#368363]' : 'bg-[#B98232]'}`} />
-                <span>{backendStatus?.online ? 'Connected' : 'Offline Mode'}</span>
-              </span>
-              <span className="font-mono text-[10px] text-[#85918A]">Port 5000</span>
-            </div>
             <button
               onClick={resetAllDemoData}
               className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md bg-white hover:bg-[#F5F6F2] border border-[#DFE4DD] text-[#68736C] hover:text-[#202925] text-[11px] font-medium transition-colors"
@@ -191,20 +178,20 @@ export function Layout({ children, pageTitle = "Overview" }) {
       {/* MAIN VIEWPORT */}
       <div className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0 bg-[#F5F6F2]">
         {/* TOP HEADER */}
-        <header className="h-13 bg-white border-b border-[#DFE4DD] px-6 flex items-center justify-between sticky top-0 z-20">
+        <header className="h-[72px] min-h-[72px] bg-white border-b border-[#DFE4DD] px-6 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-2">
-            <h1 className="text-sm font-semibold tracking-tight text-[#202925]">
+            <h1 className="text-lg font-bold tracking-tight text-[#151D19]">
               {pageTitle}
             </h1>
           </div>
 
-          <div className="flex items-center gap-3 text-xs">
+          <div className="flex items-center gap-2.5 text-xs">
             {/* Launch Guided Demo */}
             <button
               onClick={() => setDemoModalOpen(true)}
-              className="px-2.5 py-1.5 rounded-md bg-[#246B52] hover:bg-[#1B5440] text-white font-medium text-xs flex items-center gap-1.5 transition-colors shadow-xs"
+              className="h-9 px-3.5 rounded-lg bg-[#246B52] hover:bg-[#1B5440] active:scale-95 text-white font-medium text-xs flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
             >
-              <Sparkles size={12} strokeWidth={2} />
+              <Sparkles size={13} strokeWidth={2} />
               <span className="hidden sm:inline">Guided Demo</span>
               <span className="sm:hidden">Demo</span>
             </button>
@@ -213,30 +200,30 @@ export function Layout({ children, pageTitle = "Overview" }) {
             <button
               onClick={() => refreshData(true)}
               disabled={isLoading}
-              className="p-1.5 rounded-md border border-[#DFE4DD] bg-white text-[#68736C] hover:text-[#202925] hover:border-[#C2CDC0] transition-colors"
+              className="w-9 h-9 rounded-lg border border-[#DFE4DD] bg-white hover:bg-[#F5F7F5] hover:border-[#C2CDC0] active:scale-95 text-[#55635C] hover:text-[#1E2B25] flex items-center justify-center transition-all shadow-2xs cursor-pointer"
               title="Sync live data"
               aria-label="Sync live data"
             >
-              <RefreshCw size={13} strokeWidth={1.75} className={isLoading ? 'animate-spin text-[#246B52]' : ''} />
+              <RefreshCw size={14} strokeWidth={1.8} className={isLoading ? 'animate-spin text-[#246B52]' : ''} />
             </button>
 
-            {/* Clock */}
-            <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 text-[#68736C] text-[11px] font-mono">
-              <Clock size={11} strokeWidth={1.75} />
-              <span>{currentTime}</span>
+            {/* Clock Pill */}
+            <div className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-lg bg-[#F5F7F5] border border-[#E2E8E2] text-[#4F5E57] text-[11px] font-mono tracking-tight shadow-2xs select-none">
+              <Clock size={12} strokeWidth={2} className="text-[#6D7D75]" />
+              <span className="font-semibold text-[#202925]">{currentTime}</span>
             </div>
 
             {/* Notifications Menu */}
             <div className="relative">
               <button
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="p-1.5 rounded-md border border-[#DFE4DD] bg-white text-[#68736C] hover:text-[#202925] hover:border-[#C2CDC0] transition-colors relative"
+                className="w-9 h-9 rounded-lg border border-[#DFE4DD] bg-white hover:bg-[#F5F7F5] hover:border-[#C2CDC0] active:scale-95 text-[#55635C] hover:text-[#1E2B25] flex items-center justify-center transition-all shadow-2xs relative cursor-pointer"
                 title="Notifications"
                 aria-label="Notifications"
               >
-                <Bell size={13} strokeWidth={1.75} />
+                <Bell size={15} strokeWidth={1.8} />
                 {unreadAlerts.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-[#B74747]" />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#D93838] ring-2 ring-white" />
                 )}
               </button>
 
@@ -280,11 +267,12 @@ export function Layout({ children, pageTitle = "Overview" }) {
               )}
             </div>
 
-            {/* Operator Identifier */}
-            <div className="flex items-center gap-1.5 pl-2 border-l border-[#DFE4DD]">
-              <div className="w-5 h-5 rounded bg-[#E8F0EA] border border-[#D1E1D5] flex items-center justify-center text-[10px] text-[#246B52] font-semibold">
-                PX
-              </div>
+            {/* Divider */}
+            <div className="h-5 w-px bg-[#DFE4DD] mx-0.5" />
+
+            {/* Operator Identifier Block */}
+            <div className="w-9 h-9 rounded-lg bg-[#E6F3EC] border border-[#BFDFCD] hover:border-[#246B52]/40 text-[#176B52] font-bold text-xs flex items-center justify-center shadow-xs transition-colors cursor-default select-none tracking-wide" title="Plant Operator (PX)">
+              <span>PX</span>
             </div>
           </div>
         </header>

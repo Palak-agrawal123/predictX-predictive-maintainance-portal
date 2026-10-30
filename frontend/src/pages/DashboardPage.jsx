@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Layers,
   Activity,
-  AlertTriangle,
   Wrench,
-  CheckCircle2,
   ArrowRight,
   Flame,
   UserCheck,
@@ -109,26 +106,28 @@ export function DashboardPage() {
           <StatCard
             title="Monitored Assets"
             value={totalMachines}
-            subtitle={`${operationalWithDegraded || operationalCount} active on line`}
-            icon={Layers}
+            badge="Online"
+            badgeType="success"
           />
           <StatCard
             title="Fleet Health"
             value={`${avgHealth}%`}
-            subtitle="Weighted operational score"
-            icon={CheckCircle2}
+            badge={avgHealth >= 70 ? "Optimal" : avgHealth >= 50 ? "Moderate" : "Degraded"}
+            badgeType={avgHealth >= 70 ? "success" : avgHealth >= 50 ? "warning" : "danger"}
+            progressBar={avgHealth}
           />
           <StatCard
             title="High-Risk Assets"
             value={criticalRiskCount}
-            subtitle="Risk score ≥ 60"
-            icon={AlertTriangle}
+            badge={criticalRiskCount > 0 ? "Attention" : "Clear"}
+            badgeType={criticalRiskCount > 0 ? "danger" : "success"}
+            valueColor={criticalRiskCount > 0 ? "text-[#B74747]" : "text-[#1A2520]"}
           />
           <StatCard
             title="Open Work Orders"
             value={activeOrders}
-            subtitle={`${completedCount} resolved to date`}
-            icon={Wrench}
+            badge={activeOrders > 0 ? "Active" : "None"}
+            badgeType={activeOrders > 0 ? "neutral" : "success"}
           />
         </div>
 

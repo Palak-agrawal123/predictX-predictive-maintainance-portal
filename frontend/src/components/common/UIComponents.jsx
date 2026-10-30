@@ -59,32 +59,76 @@ export function PriorityBadge({ priority }) {
   );
 }
 
-export function StatCard({ title, value, subtitle, icon: Icon, badge }) {
+export function StatCard({
+  title,
+  value,
+  subtitle,
+  icon: Icon,
+  badge,
+  badgeType = "neutral",
+  valueColor,
+  progressBar
+}) {
+  const badgeStyles = {
+    success: "bg-[#E8F2EC] text-[#246B52] border-[#C7E3D3]",
+    warning: "bg-[#FAF2E6] text-[#B98232] border-[#F2DEBA]",
+    danger: "bg-[#FDF0F0] text-[#B74747] border-[#F5CACA]",
+    neutral: "bg-[#F0F2ED] text-[#617068] border-[#DFE4DD]"
+  };
+
   return (
-    <div className="bg-white border border-[#DFE4DD] rounded-lg p-4 transition-all hover:border-[#C2CDC0]">
-      <div className="flex items-center justify-between text-[#68736C] mb-2">
-        <span className="text-xs font-medium tracking-tight text-[#68736C]">{title}</span>
-        {Icon && (
-          <div className="p-1 rounded text-[#68736C]">
+    <div className="bg-white border border-[#DFE4DD] rounded-xl p-5 transition-all hover:border-[#C2CDC0] hover:shadow-xs min-h-[110px] flex flex-col justify-between box-border">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs font-semibold text-[#55635C] tracking-tight">{title}</span>
+        {badge && (
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-mono font-medium border ${badgeStyles[badgeType] || badgeStyles.neutral}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${
+              badgeType === 'success' ? 'bg-[#246B52]' :
+              badgeType === 'warning' ? 'bg-[#B98232]' :
+              badgeType === 'danger' ? 'bg-[#B74747]' : 'bg-[#617068]'
+            }`} />
+            {badge}
+          </span>
+        )}
+        {Icon && !badge && (
+          <div className="p-1 rounded text-[#617068]">
             <Icon size={15} strokeWidth={1.75} />
           </div>
         )}
       </div>
-      <div className="flex items-baseline justify-between">
-        <span className="text-2xl font-semibold font-mono tracking-tight text-[#202925]">{value}</span>
-        {badge && <span className="text-[11px] text-[#68736C] font-mono">{badge}</span>}
+
+      <div className="mt-2">
+        <div className="flex items-baseline justify-between">
+          <span className={`text-3xl font-bold font-mono tracking-tight ${valueColor || 'text-[#1A2520]'}`}>
+            {value}
+          </span>
+        </div>
+
+        {progressBar !== undefined && progressBar !== null && (
+          <div className="w-full bg-[#EBF0EB] h-1.5 rounded-full overflow-hidden mt-2">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${
+                progressBar >= 70 ? 'bg-[#246B52]' : progressBar >= 50 ? 'bg-[#B98232]' : 'bg-[#B74747]'
+              }`}
+              style={{ width: `${Math.min(100, Math.max(0, progressBar))}%` }}
+            />
+          </div>
+        )}
+
+        {subtitle && (
+          <p className="text-xs font-normal text-[#6B7972] mt-1.5 leading-normal truncate">{subtitle}</p>
+        )}
       </div>
-      {subtitle && <p className="text-[12px] text-[#68736C] mt-1 truncate">{subtitle}</p>}
     </div>
   );
 }
 
 export function SectionHeader({ title, subtitle, action }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-[#DFE4DD] gap-3">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 mb-4 border-b border-[#DFE4DD] gap-3">
       <div>
-        <h2 className="text-sm font-semibold tracking-tight text-[#202925]">{title}</h2>
-        {subtitle && <p className="text-xs text-[#68736C] mt-0.5">{subtitle}</p>}
+        <h2 className="text-base font-bold tracking-tight text-[#151D19]">{title}</h2>
+        {subtitle && <p className="text-xs font-normal text-[#617068] mt-1 leading-relaxed">{subtitle}</p>}
       </div>
       {action && <div>{action}</div>}
     </div>
