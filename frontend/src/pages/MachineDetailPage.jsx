@@ -180,6 +180,15 @@ export function MachineDetailPage() {
 
           <div className="flex items-center gap-2">
             <button
+              onClick={() => navigate(`/ai-assistant?machineId=${machine?.id}`)}
+              className="px-3 py-1.5 rounded bg-[#176B52]/10 hover:bg-[#176B52]/20 border border-[#176B52]/30 text-xs text-[#176B52] flex items-center gap-1.5 transition-colors font-medium cursor-pointer"
+              title="Open AI Maintenance Assistant with this machine's telemetry context"
+            >
+              <Sparkles size={13} className="text-[#176B52]" />
+              <span>Ask AI Copilot</span>
+            </button>
+
+            <button
               onClick={handleSimulateInference}
               disabled={isInferring}
               className="px-3 py-1.5 rounded-md bg-white hover:bg-[#F5F6F2] border border-[#DFE4DD] text-xs font-medium text-[#202925] flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"

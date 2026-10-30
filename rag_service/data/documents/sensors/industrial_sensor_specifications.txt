@@ -1,0 +1,26 @@
+PREDICTX INDUSTRIAL SENSOR SPECIFICATION AND CALIBRATION
+Document ID: SPEC-SENSORS-2026
+
+1. AIR & PROCESS TEMPERATURE SENSORS
+- Sensor Type: Class A PT100 Platinum Resistance Temperature Detectors (RTD) and Type K Chromel-Alumel Thermocouples.
+- Temperature Range: -50°C to +400°C (Process), -20°C to +80°C (Ambient Air).
+- Calibration Tolerance: ±0.3°C.
+- Diagnostic Rule: If process temperature exceeds 330 K (57°C) under nominal load, inspect coolant circulating loop.
+
+2. SPINDLE SPEED & ROTATIONAL ENCODERS
+- Sensor Type: Optical Incremental Shaft Encoder (1024 pulses per revolution).
+- Output: Rotational speed in RPM.
+- Normal Operating Range: 1400 - 1800 RPM.
+- Low Speed Anomaly: Rotational speed dropping below 1380 RPM under constant torque demand indicates drive motor torque exhaustion or impending mechanical seizure.
+
+3. TORQUE TRANSDUCERS
+- Sensor Type: Non-contact rotary strain-gauge telemetry transducer.
+- Range: 0 - 100 Nm.
+- Normal Range: 30 - 55 Nm.
+- High Torque Anomaly: Torque exceeding 60 Nm indicates mechanical binding, blunt tool edge, or insufficient lubrication in guideways.
+
+4. TOOL WEAR MONITORING
+- Measured in cumulative engaged cutting minutes.
+- Advisory threshold: 180 minutes.
+- Critical tool change threshold: 220 minutes.
+- Excessive wear causes severe thermal buildup and part dimensional out-of-tolerance errors.

@@ -12,35 +12,35 @@ import { WorkOrdersPage } from './pages/WorkOrdersPage';
 import { WorkAuditsPage } from './pages/WorkAuditsPage';
 import { PredictionsPage } from './pages/PredictionsPage';
 import { HumanReviewPage } from './pages/HumanReviewPage';
+import { AIAssistantPage } from './pages/AIAssistantPage';
 
 export function App() {
   return (
-    <ErrorBoundary>
-      <AppDataProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/machines" element={<MachinesPage />} />
-            <Route path="/machines/:machineId" element={<MachineDetailPage />} />
-            <Route path="/maintenance-priority" element={<MaintenancePriorityPage />} />
-            <Route path="/reviews" element={<HumanReviewPage />} />
-            <Route path="/human-review" element={<Navigate to="/reviews" replace />} />
-            <Route path="/prediction-reviews" element={<Navigate to="/reviews" replace />} />
-            <Route path="/work-orders" element={<WorkOrdersPage />} />
-            <Route path="/work-audits" element={<WorkAuditsPage />} />
-            <Route path="/predictions" element={<PredictionsPage />} />
-            
-            {/* Legacy redirects */}
-            <Route path="/welcome" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/planning" element={<Navigate to="/work-orders" replace />} />
-            <Route path="/maintenance-history" element={<Navigate to="/work-audits" replace />} />
-            
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </AppDataProvider>
-    </ErrorBoundary>
+    <AppDataProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/machines" element={<MachinesPage />} />
+          <Route path="/machines/:machineId" element={<MachineDetailPage />} />
+          <Route path="/maintenance-priority" element={<MaintenancePriorityPage />} />
+          <Route path="/reviews" element={<HumanReviewPage />} />
+          <Route path="/human-review" element={<Navigate to="/reviews" replace />} />
+          <Route path="/prediction-reviews" element={<Navigate to="/reviews" replace />} />
+          <Route path="/work-orders" element={<WorkOrdersPage />} />
+          <Route path="/work-audits" element={<WorkAuditsPage />} />
+          <Route path="/predictions" element={<PredictionsPage />} />
+          <Route path="/ai-assistant" element={<AIAssistantPage />} />
+          
+          {/* Legacy redirects */}
+          <Route path="/welcome" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/planning" element={<Navigate to="/work-orders" replace />} />
+          <Route path="/maintenance-history" element={<Navigate to="/work-audits" replace />} />
+          
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AppDataProvider>
   );
 }
 
