@@ -21,14 +21,17 @@ export async function chatWithRAG(req, res, next) {
     // If machine ID is specified, enrich with stored MongoDB machine data
     if (targetMachineId) {
       try {
-        const cleanId = targetMachineId.trim().toUpperCase();
-        const machine = await Machine.findOne({ machineId: cleanId }).lean();
+        const cleanId = String(targetMachineId).trim();
+        const query = cleanId.match(/^[0-9a-fA-F]{24}$/)
+          ? { $or: [{ _id: cleanId }, { machineId: cleanId.toUpperCase() }] }
+          : { machineId: cleanId.toUpperCase() };
+        const machine = await Machine.findOne(query).lean();
         if (machine) {
           enrichedSensors = {
             ...machine.operatingParameters,
             ...enrichedSensors
           };
-          targetMachineId = cleanId;
+          targetMachineId = machine.machineId;
         }
       } catch (dbErr) {
         console.warn('[RAG Controller Note] Could not enrich from DB:', dbErr.message);
