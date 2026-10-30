@@ -173,11 +173,14 @@ export function WorkOrdersPage() {
                       <td className="py-2.5 px-3 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1.5">
                           <button
-                            onClick={() => setPrintModalOrder(wo)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPrintModalOrder(wo);
+                            }}
                             title="Print Work Order Slip"
-                            className="p-1 rounded bg-[#F5F6F2] hover:bg-[#E8F0EA] border border-[#DFE4DD] text-[#68736C] hover:text-[#246B52] transition-colors"
+                            className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white hover:bg-[#EAF3EC] border border-[#DFE4DD] hover:border-[#1F6E55] text-[#55635C] hover:text-[#176B52] transition-all shadow-2xs active:scale-95 cursor-pointer group"
                           >
-                            <Printer size={13} />
+                            <Printer size={13.5} strokeWidth={1.9} className="group-hover:scale-105 transition-transform" />
                           </button>
                           <select
                             value={wo.status}
@@ -284,6 +287,7 @@ export function WorkOrdersPage() {
       <WorkOrderPrintModal
         isOpen={Boolean(printModalOrder)}
         onClose={() => setPrintModalOrder(null)}
+        order={printModalOrder}
         workOrder={printModalOrder}
       />
     </Layout>

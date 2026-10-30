@@ -215,18 +215,24 @@ export function WorkAuditsPage() {
                         <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1.5">
                             <button
-                              onClick={() => setPrintModalOrder(wo)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPrintModalOrder(wo);
+                              }}
                               title="Print Audit Slip"
-                              className="p-1.5 rounded-md hover:bg-[#F0F2ED] border border-transparent hover:border-[#DFE4DD] text-[#68736C] hover:text-[#202925] transition-colors cursor-pointer"
+                              className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white hover:bg-[#EAF3EC] border border-[#DFE4DD] hover:border-[#1F6E55] text-[#55635C] hover:text-[#176B52] transition-all shadow-2xs active:scale-95 cursor-pointer group"
                             >
-                              <Printer size={13} />
+                              <Printer size={13.5} strokeWidth={1.9} className="group-hover:scale-105 transition-transform" />
                             </button>
                             <button
-                              onClick={() => setDetailModalOrder(wo)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDetailModalOrder(wo);
+                              }}
                               title="View Audit Details"
-                              className="p-1.5 rounded-md hover:bg-[#F0F2ED] border border-transparent hover:border-[#DFE4DD] text-[#68736C] hover:text-[#202925] transition-colors cursor-pointer"
+                              className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white hover:bg-[#F5F7F5] border border-[#DFE4DD] hover:border-[#4B5E55] text-[#55635C] hover:text-[#18231E] transition-all shadow-2xs active:scale-95 cursor-pointer"
                             >
-                              <FileText size={13} />
+                              <FileText size={13.5} strokeWidth={1.8} />
                             </button>
                             <select
                               value={wo.status}
