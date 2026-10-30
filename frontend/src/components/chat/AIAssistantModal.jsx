@@ -67,7 +67,8 @@ export function AIAssistantModal({ isOpen, onClose, machineContext = null }) {
 
       const response = await api.chatWithRAG({
         question: q,
-        machine_id: machineContext ? machineContext.id : null,
+        machine_id: machineContext ? (machineContext.id || machineContext.machineId) : null,
+        machineId: machineContext ? (machineContext.id || machineContext.machineId) : null,
         sensors,
         conversation_id: "modal-session"
       });

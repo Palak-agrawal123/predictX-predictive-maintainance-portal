@@ -61,7 +61,8 @@ export function AIAssistantPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
-  const selectedMachine = machines.find(m => m.id === selectedMachineId);
+  const selectedMachine = machines.find(m => m.id === selectedMachineId || m.machineId === selectedMachineId);
+  const targetMachineIdentifier = selectedMachine?.machineId || selectedMachine?.id || selectedMachineId;
 
   const handleSendMessage = async (textToSend) => {
     const question = (textToSend || inputValue).trim();
@@ -93,7 +94,8 @@ export function AIAssistantPage() {
 
       const response = await api.chatWithRAG({
         question,
-        machine_id: selectedMachineId || null,
+        machine_id: targetMachineIdentifier || null,
+        machineId: targetMachineIdentifier || null,
         sensors,
         conversation_id: "conv-session-1"
       });

@@ -15,8 +15,8 @@ export async function chatWithRAG(req, res, next) {
       return next(new AppError('Question field is required and cannot be empty', 400));
     }
 
-    let enrichedSensors = sensors || {};
-    let targetMachineId = machineId;
+    let enrichedSensors = sensors || req.body.telemetry || {};
+    let targetMachineId = machineId || req.body.machine_id;
 
     // If machine ID is specified, enrich with stored MongoDB machine data
     if (targetMachineId) {
