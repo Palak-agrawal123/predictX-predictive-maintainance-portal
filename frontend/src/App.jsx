@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppDataProvider } from './context/AppDataContext';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 // Pages strictly aligned with DEV-P04 Hackathon requirements
 import { DashboardPage } from './pages/DashboardPage';

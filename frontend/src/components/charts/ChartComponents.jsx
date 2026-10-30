@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   ResponsiveContainer,
   BarChart,
@@ -11,9 +11,7 @@ import {
   Line,
   AreaChart,
   Area,
-  CartesianGrid,
-  PieChart,
-  Pie
+  CartesianGrid
 } from 'recharts';
 
 /**
@@ -22,12 +20,12 @@ import {
 const CustomTooltip = ({ active, payload, label, unit = '' }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white border border-[#E0E6E0] px-3 py-2 rounded shadow-md text-xs font-mono">
-        <div className="text-[#68756F] text-[10px] font-semibold mb-1 pb-1 border-b border-[#EAF0EC]">{label}</div>
+      <div className="bg-white border border-[#DFE4DD] px-3 py-2 rounded-md shadow-xs text-xs">
+        <div className="text-[#68736C] text-[11px] font-medium mb-1 pb-1 border-b border-[#E7ECE5]">{label}</div>
         {payload.map((entry, index) => (
           <div key={`item-${index}`} className="flex items-center gap-2 py-0.5">
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-            <span className="text-[#202A27] font-semibold">
+            <span className="text-[#202925] font-mono font-medium">
               {entry.name ? `${entry.name}: ` : ''}{entry.value}{unit}
             </span>
           </div>
@@ -39,7 +37,7 @@ const CustomTooltip = ({ active, payload, label, unit = '' }) => {
 };
 
 /**
- * Fleet Risk Distribution bar chart - showing count of machines across 4 risk bands
+ * Fleet Risk Distribution bar chart
  */
 export function FleetRiskBarChart({ data, height = 180 }) {
   if (!data || data.length === 0) return null;
@@ -48,23 +46,23 @@ export function FleetRiskBarChart({ data, height = 180 }) {
     <div className="w-full" style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E7ECE7" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E7ECE5" vertical={false} />
           <XAxis
             dataKey="name"
-            stroke="#68756F"
-            tick={{ fill: '#68756F', fontSize: 10, fontFamily: 'monospace' }}
+            stroke="#68736C"
+            tick={{ fill: '#68736C', fontSize: 11 }}
             tickLine={false}
           />
           <YAxis
-            stroke="#68756F"
-            tick={{ fill: '#68756F', fontSize: 10, fontFamily: 'monospace' }}
+            stroke="#68736C"
+            tick={{ fill: '#68736C', fontSize: 11 }}
             tickLine={false}
             allowDecimals={false}
           />
           <Tooltip content={<CustomTooltip unit=" assets" />} />
-          <Bar dataKey="count" radius={[3, 3, 0, 0]} barSize={28}>
+          <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={26}>
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color || '#176B52'} />
+              <Cell key={`cell-${index}`} fill={entry.color || '#246B52'} />
             ))}
           </Bar>
         </BarChart>
@@ -74,7 +72,7 @@ export function FleetRiskBarChart({ data, height = 180 }) {
 }
 
 /**
- * Fleet-wide Workload & Work Order trend over recent days/weeks
+ * Fleet-wide Workload & Work Order trend
  */
 export function MaintenanceWorkloadTrendChart({ data, height = 180 }) {
   if (!data || data.length === 0) return null;
@@ -85,41 +83,41 @@ export function MaintenanceWorkloadTrendChart({ data, height = 180 }) {
         <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id="workloadGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#176B52" stopOpacity={0.25} />
-              <stop offset="95%" stopColor="#176B52" stopOpacity={0.0} />
+              <stop offset="5%" stopColor="#246B52" stopOpacity={0.15} />
+              <stop offset="95%" stopColor="#246B52" stopOpacity={0.0} />
             </linearGradient>
             <linearGradient id="resolvedGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#27845C" stopOpacity={0.2} />
-              <stop offset="95%" stopColor="#27845C" stopOpacity={0.0} />
+              <stop offset="5%" stopColor="#368363" stopOpacity={0.12} />
+              <stop offset="95%" stopColor="#368363" stopOpacity={0.0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E7ECE7" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E7ECE5" vertical={false} />
           <XAxis
             dataKey="period"
-            stroke="#68756F"
-            tick={{ fill: '#68756F', fontSize: 10, fontFamily: 'monospace' }}
+            stroke="#68736C"
+            tick={{ fill: '#68736C', fontSize: 11 }}
             tickLine={false}
           />
           <YAxis
-            stroke="#68756F"
-            tick={{ fill: '#68756F', fontSize: 10, fontFamily: 'monospace' }}
+            stroke="#68736C"
+            tick={{ fill: '#68736C', fontSize: 11 }}
             tickLine={false}
           />
           <Tooltip content={<CustomTooltip unit=" orders" />} />
           <Area
             type="monotone"
             dataKey="created"
-            name="Logged Tasks"
-            stroke="#176B52"
-            strokeWidth={2}
+            name="Created Tasks"
+            stroke="#246B52"
+            strokeWidth={1.75}
             fillOpacity={1}
             fill="url(#workloadGrad)"
           />
           <Area
             type="monotone"
             dataKey="resolved"
-            name="Resolved Tasks"
-            stroke="#27845C"
+            name="Completed Tasks"
+            stroke="#368363"
             strokeWidth={1.5}
             fillOpacity={1}
             fill="url(#resolvedGrad)"
@@ -131,13 +129,13 @@ export function MaintenanceWorkloadTrendChart({ data, height = 180 }) {
 }
 
 /**
- * Time-series sensor trend graph with selectable telemetry metric
+ * Time-series sensor trend graph
  */
-export function SensorTrendChart({ data, selectedSensor = 'temperature', sensorLabel = 'LPC Temp (°C)', color = '#176B52', height = 240 }) {
+export function SensorTrendChart({ data, selectedSensor = 'temperature', sensorLabel = 'Sensor Reading', color = '#246B52', height = 240 }) {
   if (!data || data.length === 0) {
     return (
-      <div className="h-60 flex items-center justify-center border border-[#E0E6E0] rounded bg-white text-xs font-mono text-[#68756F]">
-        No telemetry stream available for selected machine
+      <div className="h-60 flex items-center justify-center border border-[#DFE4DD] rounded bg-white text-xs text-[#68736C]">
+        No telemetry stream available
       </div>
     );
   }
@@ -146,16 +144,16 @@ export function SensorTrendChart({ data, selectedSensor = 'temperature', sensorL
     <div className="w-full" style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 10, right: 15, left: -10, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="2 2" stroke="#E7ECE7" vertical={false} />
+          <CartesianGrid strokeDasharray="2 2" stroke="#E7ECE5" vertical={false} />
           <XAxis
             dataKey="timestamp"
-            stroke="#68756F"
-            tick={{ fill: '#68756F', fontSize: 10, fontFamily: 'monospace' }}
+            stroke="#68736C"
+            tick={{ fill: '#68736C', fontSize: 10, fontFamily: 'monospace' }}
             tickLine={false}
           />
           <YAxis
-            stroke="#68756F"
-            tick={{ fill: '#68756F', fontSize: 10, fontFamily: 'monospace' }}
+            stroke="#68736C"
+            tick={{ fill: '#68736C', fontSize: 10, fontFamily: 'monospace' }}
             tickLine={false}
             domain={['auto', 'auto']}
           />
@@ -165,7 +163,7 @@ export function SensorTrendChart({ data, selectedSensor = 'temperature', sensorL
             dataKey={selectedSensor}
             name={sensorLabel}
             stroke={color}
-            strokeWidth={2}
+            strokeWidth={1.75}
             dot={false}
             activeDot={{ r: 4, fill: color, stroke: '#FFFFFF', strokeWidth: 2 }}
           />
@@ -176,7 +174,7 @@ export function SensorTrendChart({ data, selectedSensor = 'temperature', sensorL
 }
 
 /**
- * Reusable multi-series or single-series sensor trend graph with custom lines and Y axes
+ * Multi-series sensor trend graph
  */
 export function MultiSensorTrendChart({
   data,
@@ -186,8 +184,8 @@ export function MultiSensorTrendChart({
 }) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center border border-[#E0E6E0] rounded bg-white text-xs font-mono text-[#68756F]" style={{ height }}>
-        No telemetry stream available for selected machine
+      <div className="flex items-center justify-center border border-[#DFE4DD] rounded bg-white text-xs text-[#68736C]" style={{ height }}>
+        No telemetry stream available
       </div>
     );
   }
@@ -196,11 +194,11 @@ export function MultiSensorTrendChart({
     <div className="w-full" style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 10, right: 15, left: -10, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="2 2" stroke="#E7ECE7" vertical={false} />
+          <CartesianGrid strokeDasharray="2 2" stroke="#E7ECE5" vertical={false} />
           <XAxis
             dataKey="timestamp"
-            stroke="#68756F"
-            tick={{ fill: '#68756F', fontSize: 10, fontFamily: 'monospace' }}
+            stroke="#68736C"
+            tick={{ fill: '#68736C', fontSize: 10, fontFamily: 'monospace' }}
             tickLine={false}
           />
           {yAxes ? (
@@ -209,16 +207,16 @@ export function MultiSensorTrendChart({
                 key={axis.id}
                 yAxisId={axis.id}
                 orientation={axis.orientation || 'left'}
-                stroke="#68756F"
-                tick={{ fill: '#68756F', fontSize: 10, fontFamily: 'monospace' }}
+                stroke="#68736C"
+                tick={{ fill: '#68736C', fontSize: 10, fontFamily: 'monospace' }}
                 tickLine={false}
                 domain={axis.domain || ['auto', 'auto']}
               />
             ))
           ) : (
             <YAxis
-              stroke="#68756F"
-              tick={{ fill: '#68756F', fontSize: 10, fontFamily: 'monospace' }}
+              stroke="#68736C"
+              tick={{ fill: '#68736C', fontSize: 10, fontFamily: 'monospace' }}
               tickLine={false}
               domain={['auto', 'auto']}
             />
@@ -231,7 +229,7 @@ export function MultiSensorTrendChart({
               dataKey={s.key}
               name={s.label}
               stroke={s.color}
-              strokeWidth={2}
+              strokeWidth={1.75}
               yAxisId={s.yAxisId}
               dot={false}
               activeDot={{ r: 4, fill: s.color, stroke: '#FFFFFF', strokeWidth: 2 }}

@@ -8,28 +8,30 @@
 
 body {
   margin: 0;
-  background-color: #F4F6F3;
-  color: #202A27;
-  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #F5F6F2;
+  color: #202925;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 code, pre, .font-mono {
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 /* Custom minimal scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #EAF0EC;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D0DDD4;
+  background: #DFE4DD;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #B4C6BA;
+  background: #C8D1C6;
 }
