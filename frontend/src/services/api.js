@@ -1005,6 +1005,186 @@ export const api = {
       throw new Error(json.error?.message || json.message || `HTTP ${res.status}`);
     }
     return json;
+  },
+
+  // Live Simulation and Telemetry Pipeline Endpoints
+  async startSimulation(config) {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/simulation/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config || {})
+      });
+      return await res.json();
+    } catch (err) {
+      const direct = await fetchWithTimeout(`http://localhost:8000/api/simulation/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config || {})
+      });
+      return await direct.json();
+    }
+  },
+
+  async pauseSimulation() {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/simulation/pause`, { method: 'POST' });
+      return await res.json();
+    } catch (e) {
+      const direct = await fetchWithTimeout(`http://localhost:8000/api/simulation/pause`, { method: 'POST' });
+      return await direct.json();
+    }
+  },
+
+  async resumeSimulation() {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/simulation/resume`, { method: 'POST' });
+      return await res.json();
+    } catch (e) {
+      const direct = await fetchWithTimeout(`http://localhost:8000/api/simulation/resume`, { method: 'POST' });
+      return await direct.json();
+    }
+  },
+
+  async stopSimulation() {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/simulation/stop`, { method: 'POST' });
+      return await res.json();
+    } catch (e) {
+      const direct = await fetchWithTimeout(`http://localhost:8000/api/simulation/stop`, { method: 'POST' });
+      return await direct.json();
+    }
+  },
+
+  async resetSimulation() {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/simulation/reset`, { method: 'POST' });
+      return await res.json();
+    } catch (e) {
+      const direct = await fetchWithTimeout(`http://localhost:8000/api/simulation/reset`, { method: 'POST' });
+      return await direct.json();
+    }
+  },
+
+  async switchFleet(fleet = 'industrial') {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/simulation/switch-fleet`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fleet })
+      });
+      return await res.json();
+    } catch (e) {
+      const direct = await fetchWithTimeout(`http://localhost:8000/api/simulation/switch-fleet`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fleet })
+      });
+      return await direct.json();
+    }
+  },
+
+  async getSimulationStatus() {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/simulation/status`);
+      return await res.json();
+    } catch (e) {
+      const direct = await fetchWithTimeout(`http://localhost:8000/api/simulation/status`);
+      return await direct.json();
+    }
+  },
+
+  async getSimulationTelemetry(machineId, limit = 50) {
+    let q = `?limit=${limit}`;
+    if (machineId) q += `&machine_id=${encodeURIComponent(machineId)}`;
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/simulation/telemetry${q}`);
+      return await res.json();
+    } catch (e) {
+      const direct = await fetchWithTimeout(`http://localhost:8000/api/simulation/telemetry${q}`);
+      return await direct.json();
+    }
+  },
+
+  async syncSimulationPrediction(payload) {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/simulation/sync-prediction`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      return await res.json();
+    } catch (e) {
+      return null;
+    }
+  },
+
+  // Dataset Upload, Management & Schema Inspection APIs
+  async listSimulationDatasets() {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/simulation/datasets`);
+      return await res.json();
+    } catch (e) {
+      const direct = await fetchWithTimeout(`http://localhost:8000/api/simulation/datasets`);
+      return await direct.json();
+    }
+  },
+
+  async getSimulationDataset(datasetId) {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/simulation/datasets/${encodeURIComponent(datasetId)}`);
+      return await res.json();
+    } catch (e) {
+      const direct = await fetchWithTimeout(`http://localhost:8000/api/simulation/datasets/${encodeURIComponent(datasetId)}`);
+      return await direct.json();
+    }
+  },
+
+  async previewSimulationDataset(datasetId, limit = 15) {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/simulation/datasets/${encodeURIComponent(datasetId)}/preview?limit=${limit}`);
+      return await res.json();
+    } catch (e) {
+      const direct = await fetchWithTimeout(`http://localhost:8000/api/simulation/datasets/${encodeURIComponent(datasetId)}/preview?limit=${limit}`);
+      return await direct.json();
+    }
+  },
+
+  async configureSimulationDataset(datasetId, config) {
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/simulation/datasets/${encodeURIComponent(datasetId)}/configure`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config || {})
+      });
+      return await res.json();
+    } catch (e) {
+      const direct = await fetchWithTimeout(`http://localhost:8000/api/simulation/datasets/${encodeURIComponent(datasetId)}/configure`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config || {})
+      });
+      return await direct.json();
+    }
+  },
+
+  async uploadSimulationDataset(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch(`${API_BASE}/simulation/datasets/upload`, {
+        method: 'POST',
+        body: formData
+      });
+      return await res.json();
+    } catch (e) {
+      const direct = await fetch(`http://localhost:8000/api/simulation/datasets/upload`, {
+        method: 'POST',
+        body: formData
+      });
+      return await direct.json();
+    }
   }
 };
 
@@ -1012,3 +1192,6 @@ export const api = {
 function simulateLatency(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export const predictiveMaintenanceApi = api;
+export default api;

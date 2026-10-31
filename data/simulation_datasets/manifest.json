@@ -1,0 +1,26 @@
+{
+  "datasets": {
+    "cmapss_val_full_FD001": {
+      "id": "cmapss_val_full_FD001",
+      "name": "NASA C-MAPSS FD001 Validation Fleet",
+      "filename": "cmapss_val_full_FD001.csv",
+      "path": "D:\\My_Documents\\Projects\\Deviathon2.0\\predictX-predictive-maintainance-portal\\data\\simulation_datasets\\cmapss_val_full_FD001.csv",
+      "subset": "FD001",
+      "size_bytes": 702182,
+      "is_bundled": true,
+      "created_at": 1793417449.126348,
+      "description": "Real NASA turbofan validation data (100 engines, single operating condition, HPC blade fault)."
+    },
+    "cmapss_val_full_FD002": {
+      "id": "cmapss_val_full_FD002",
+      "name": "NASA C-MAPSS FD002 Multi-Regime Fleet",
+      "filename": "cmapss_val_full_FD002.csv",
+      "path": "D:\\My_Documents\\Projects\\Deviathon2.0\\predictX-predictive-maintainance-portal\\data\\simulation_datasets\\cmapss_val_full_FD002.csv",
+      "subset": "FD002",
+      "size_bytes": 1757553,
+      "is_bundled": true,
+      "created_at": 1793417449.126348,
+      "description": "Real NASA turbofan validation data (259 engines, 6 operational flight regimes, HPC blade fault)."
+    }
+  }
+}

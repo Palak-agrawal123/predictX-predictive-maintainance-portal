@@ -17,7 +17,8 @@ import {
   CheckCheck,
   Trash2,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Radio
 } from 'lucide-react';
 import { useAppData } from '../../context/AppDataContext';
 import { ToastContainer } from '../common/Toast';
@@ -65,6 +66,7 @@ export function Layout({ children, pageTitle = "Overview" }) {
       title: "Operations",
       items: [
         { to: "/dashboard", label: "Fleet Overview", icon: LayoutGrid },
+        { to: "/sensor-simulator", label: "Sensor Simulator", icon: Radio, badge: "LIVE", badgeColor: "bg-[#246B52] text-white font-semibold text-[10px] px-1.5 py-0.5 rounded-full shadow-xs" },
         { to: "/machines", label: "Machine Fleet", icon: Layers },
         { to: "/maintenance-priority", label: "Priority Decision", icon: SlidersHorizontal }
       ]

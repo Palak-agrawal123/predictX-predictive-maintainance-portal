@@ -15,6 +15,7 @@ import modelMetricsRoutes from './routes/modelMetricsRoutes.js';
 import ragRoutes from './routes/ragRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import simulationRoutes from './routes/simulationRoutes.js';
 
 export function createApp() {
   const app = express();
@@ -62,6 +63,8 @@ export function createApp() {
   app.use('/api/work-orders', workOrderRoutes);       // /api/work-orders
   app.use('/api/rag', ragRoutes);                     // /api/rag (Chat, Retrieve, Documents)
   app.use('/api/notifications', notificationRoutes); // /api/notifications (Event-driven Notifications & SSE)
+  app.use('/api/simulation', simulationRoutes);       // /api/simulation (Live Sensor Simulator & Pipeline)
+  app.use('/api/telemetry', simulationRoutes);        // /api/telemetry (Ingest & Telemetry Streaming)
 
   // Root welcome route
   app.get('/', (req, res) => {
